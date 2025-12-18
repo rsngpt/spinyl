@@ -1,0 +1,36 @@
+{
+  "dependencies": {
+    "@supabase/supabase-js": "^2.88.0",
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
+    "next": "^16.0.10",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  },
+  "name": "spinyl",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "node src/testSpotify.js",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rsngpt/spinyl.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rsngpt/spinyl/issues"
+  },
+  "homepage": "https://github.com/rsngpt/spinyl#readme",
+  "devDependencies": {
+    "@types/react": "19.2.7",
+    "typescript": "5.9.3"
+  }
+}
