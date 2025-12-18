@@ -61,11 +61,11 @@ export async function POST(req: Request) {
     .from('reviews')
     .insert({
   user_id,
-  album_id,
+  album_id: albumId,
   rating,
   review_text,
-  listened_on,
 });
+;
 
   if (reviewError) {
     return NextResponse.json(
