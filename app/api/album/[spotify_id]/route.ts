@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { spotifyFetch } from '@/src/lib/spotify';
 import { createClient } from '@supabase/supabase-js';
 
@@ -7,15 +7,9 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY!
 );
 
-type Context = {
-  params: {
-    spotify_id: string;
-  };
-};
-
 export async function GET(
   request: NextRequest,
-  context: Context
+  context: any
 ) {
   const spotifyId = context.params.spotify_id;
 
