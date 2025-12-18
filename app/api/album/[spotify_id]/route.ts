@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { spotifyFetch } from '@/src/lib/spotify';
 import { createClient } from '@supabase/supabase-js';
 
@@ -7,32 +7,44 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY!
 );
 
+type Context = {
+  params: {
+    spotify_id: string;
+  };
+};
+
 export async function GET(
-  _req: Request,
-  { params }: { params: { spotify_id: string } }
+  request: NextRequest,
+  context: Context
 ) {
-  const spotifyId = params.spotify_id;
+  const spotifyId = context.params.spotify_id;
 
   // 1️⃣ Spotify: album + tracks (live)
   const album = await spotifyFetch(`albums/${spotifyId}`);
 
-  // 2️⃣ Supabase: reviews + likes
-  const { data: reviews } = await supabase
-    .from('reviews')
-    .select(`
-      id,
-      rating,
-      review_text,
-      created_at,
-      user_id,
-      likes(count)
-    `)
-    .eq('album_id',
-      supabase
-        .from('albums')
-        .select('id')
-        .eq('spotify_id', spotifyId)
-    );
+  // 2️⃣ Supabase: reviews (cached)
+  const { data: albumRow } = await supabase
+    .from('albums')
+    .select('id')
+    .eq('spotify_id', spotifyId)
+    .single();
+
+  let reviews: any[] = [];
+
+  if (albumRow) {
+    const { data } = await supabase
+      .from('reviews')
+      .select(`
+        id,
+        rating,
+        review_text,
+        created_at,
+        user_id
+      `)
+      .eq('album_id', albumRow.id);
+
+    reviews = data ?? [];
+  }
 
   return NextResponse.json({
     spotify: {
@@ -46,6 +58,6 @@ export async function GET(
         duration_ms: t.duration_ms,
       })),
     },
-    reviews: reviews ?? [],
+    reviews,
   });
 }
