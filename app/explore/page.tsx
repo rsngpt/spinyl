@@ -3,9 +3,11 @@ import AlbumCard from '../components/AlbumCard';
 
 // fetch album grid
 async function getAlbums() {
+  
   const res = await fetch('/api/discover/albums', { next: { revalidate: 60 } });
   return res.json();
 }
+export const dynamic = 'force-dynamic';
 
 export default async function Explore() {
   const albums = await getAlbums();
