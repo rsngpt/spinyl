@@ -11,6 +11,8 @@ export default function LoginButton() {
   const loginWithSpotify = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'spotify',
+      options: {
+    redirectTo: `${window.location.origin}/welcome`,}
     });
   };
 
