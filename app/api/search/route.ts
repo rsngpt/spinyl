@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { spotifySearch } from '@/src/lib/spotify';
+import { getSupabaseServerClient } from '@/src/lib/supabase-server';
+
 
 export async function GET(request: Request) {
+  const supabase = getSupabaseServerClient();
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('q');
 

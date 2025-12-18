@@ -1,16 +1,12 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { spotifyFetch } from '@/src/lib/spotify';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
+import { getSupabaseServerClient } from '@/src/lib/supabase-server';
 
 export async function GET(
   request: NextRequest,
   context: any
 ) {
+  const supabase = getSupabaseServerClient();
   const spotifyId = context.params.spotify_id;
 
   // 1️⃣ Spotify: album + tracks (live)

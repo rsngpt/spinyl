@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseServerClient } from '@/src/lib/supabase-server';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
+
 
 export async function GET() {
+  const supabase = getSupabaseServerClient();
   const { data, error } = await supabase
     .from('albums')
     .select(`
