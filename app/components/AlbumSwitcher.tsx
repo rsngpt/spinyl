@@ -128,7 +128,7 @@ export default function AlbumSwitcher({ globalAlbums, indianAlbums }: AlbumSwitc
                     onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--text-secondary)'}
                     onMouseOut={(e) => e.currentTarget.style.borderColor = 'transparent'}
                 >
-                    See All {activeTab === 'global' ? 'Global' : 'Indian'} Releases
+                    See All {activeTab === 'global' ? 'Global Releases' : 'Indian Releases'}
                 </a>
             </div>
         </div>

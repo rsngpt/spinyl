@@ -46,10 +46,6 @@ function mapSpotifyAlbums(data: any): Album[] {
   }));
 }
 
-
-
-// ... (existing imports and getAlbums functions)
-
 export default async function Home() {
   const [globalAlbums, indianAlbums] = await Promise.all([
     getGlobalAlbums(),

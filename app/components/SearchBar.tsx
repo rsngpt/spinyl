@@ -49,18 +49,19 @@ export default function SearchBar() {
                     outline: 'none',
                     transition: 'all 0.3s ease',
                     cursor: isExpanded ? 'text' : 'pointer',
+                    opacity: isExpanded ? 1 : 0, // Hide text when collapsed
                 }}
             />
             <span
                 style={{
                     position: 'absolute',
-                    left: '12px',
                     top: '50%',
-                    transform: 'translateY(-50%)',
+                    transform: isExpanded ? 'translate(0, -50%)' : 'translate(-50%, -50%)',
+                    left: isExpanded ? '12px' : '50%',
                     fontSize: '1.2rem',
                     color: '#B3B3B3',
                     pointerEvents: 'none',
-                    transition: 'color 0.3s',
+                    transition: 'all 0.3s ease',
                 }}
             >
                 🔍

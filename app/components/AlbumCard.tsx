@@ -12,17 +12,7 @@ export default function AlbumCard({
   };
 }) {
   return (
-    <div
-      style={{
-        background: '#181818',
-        padding: '16px',
-        borderRadius: '8px',
-        transition: 'background-color 0.3s ease',
-        cursor: 'pointer',
-        height: '100%',
-      }}
-      className="album-card-hover"
-    >
+    <div className="album-card-hover">
       <div style={{ position: 'relative', marginBottom: '16px' }}>
         <img
           src={album.cover_image ?? '/placeholder.png'}

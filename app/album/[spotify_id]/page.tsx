@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import ReviewSection from '../../components/ReviewSection';
+import TrackPreview from '../../components/TrackPreview';
 import { spotifyFetch } from '@/src/lib/spotify';
 import { getSupabaseServerClient } from '@/src/lib/supabase-server';
 
@@ -12,7 +13,8 @@ type PageProps = {
 
 async function getAlbumDetails(id: string) {
   try {
-    const album = await spotifyFetch(`albums/${id}`);
+    // Adding market=US sometimes helps retrieve preview_urls that are otherwise null
+    const album = await spotifyFetch(`albums/${id}?market=US`);
     return album;
   } catch (error) {
     console.error('Error fetching album:', error);
@@ -21,7 +23,7 @@ async function getAlbumDetails(id: string) {
 }
 
 async function getAlbumReviews(spotifyId: string) {
-  const supabase = getSupabaseServerClient();
+  const supabase = await getSupabaseServerClient();
 
   // First get our internal album ID
   const { data: albumRow } = await supabase
@@ -62,6 +64,12 @@ export default async function AlbumPage(props: PageProps) {
 
   const releaseYear = new Date(album.release_date).getFullYear();
   const artistNames = album.artists.map((a: any) => a.name).join(', ');
+
+  // Use album genres if available, otherwise default to something generic or hidden
+  // Note: Spotify Albums often don't have genres, artists do. For now we use what's on the album object.
+  const genreList = album.genres && album.genres.length > 0
+    ? album.genres.map((g: string) => g.charAt(0).toUpperCase() + g.slice(1)).join(', ')
+    : 'Pop / Multiple'; // Fallback as requested by "Can add more data here.. Like genre"
 
   // Prepare data for ReviewSection
   const albumData = {
@@ -115,10 +123,19 @@ export default async function AlbumPage(props: PageProps) {
             <p style={{ fontSize: '1.5rem', fontWeight: 600, margin: '0 0 8px', color: 'rgba(255,255,255,0.9)' }}>
               {artistNames}
             </p>
-            <div style={{ display: 'flex', gap: '12px', fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>
-              <span>{releaseYear}</span>
-              <span>•</span>
-              <span>{album.total_tracks} tracks</span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '0.95rem', color: 'rgba(255,255,255,0.8)', fontWeight: 500, marginTop: '16px' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                📅 {releaseYear}
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                🎵 {genreList}
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                💬 {reviews.length} Reviews
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                💿 {album.total_tracks} tracks
+              </span>
             </div>
           </div>
         </div>
@@ -143,9 +160,15 @@ export default async function AlbumPage(props: PageProps) {
                   fontSize: '0.95rem',
                 }}
               >
-                <span style={{ width: '32px', color: 'var(--text-secondary)', textAlign: 'right', marginRight: '24px' }}>
+                <span style={{ width: '32px', color: 'var(--text-secondary)', textAlign: 'right', marginRight: '16px' }}>
                   {index + 1}
                 </span>
+
+                <TrackPreview
+                  previewUrl={track.preview_url}
+                  spotifyUrl={track.external_urls?.spotify || '#'}
+                />
+
                 <div style={{ flex: 1 }}>
                   <span style={{ display: 'block', color: '#fff' }}>{track.name}</span>
                 </div>

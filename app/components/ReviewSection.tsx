@@ -1,10 +1,11 @@
 'use client';
 
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import LoginButton from './LoginButton';
+import { submitReview } from '../actions/review';
 
-const supabase = createClient(
+const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
@@ -32,8 +33,7 @@ export default function ReviewSection({
     initialReviews: Review[];
     albumData: AlbumData;
 }) {
-    const router = useRouter();
-    const [reviews, setReviews] = useState<Review[]>(initialReviews);
+    // We use initialReviews from props which are fresh from the server on revalidate
     const [user, setUser] = useState<any>(null);
     const [rating, setRating] = useState(0);
     const [reviewText, setReviewText] = useState('');
@@ -63,30 +63,37 @@ export default function ReviewSection({
 
         setIsSubmitting(true);
         try {
-            const res = await fetch('/api/review', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    user_id: user.id,
-                    album: albumData,
-                    rating,
-                    review_text: reviewText,
-                }),
-            });
+            const formData = new FormData();
+            formData.append('spotify_id', albumData.spotify_id);
+            formData.append('album_name', albumData.name);
+            formData.append('cover_image', albumData.cover_image);
+            // Note: cover_image might be undefined/null, handle carefully if needed, 
+            // but formData sends "undefined" string if so. 
+            // Better to send empty string if null.
+            if (!albumData.cover_image) formData.append('cover_image', '');
 
-            if (!res.ok) throw new Error('Failed to submit review');
+            formData.append('artist_names', albumData.artists.join(', '));
+            formData.append('release_date', albumData.release_date);
+            formData.append('rating', rating.toString());
+            formData.append('review_text', reviewText);
 
-            // Optimistic update or refresh
-            router.refresh();
+            const result = await submitReview(formData);
+
+            if (!result.success) {
+                throw new Error(result.message || 'Failed to submit review');
+            }
+
+            // Success
             setReviewText('');
             setRating(0);
             setShowForm(false);
-            // Ideally we should append the new review to local state too, but refresh handles it if we are using server data
-        } catch (error) {
+            // Router refresh is not needed because Server Actions revalidatePath 
+            // and we (the client component) will receive the new props automatically 
+            // if this component is re-rendered by the parent. 
+            // However, Next.js Server Actions revalidatePath refreshes the route.
+        } catch (error: any) {
             console.error(error);
-            alert('Failed to post review. Please try again.');
+            alert(error.message || 'Failed to post review. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
@@ -98,7 +105,17 @@ export default function ReviewSection({
                 <h2 style={{ fontSize: '1.5rem', margin: 0 }}>Reviews</h2>
                 {user && !showForm && (
                     <button
-                        onClick={() => setShowForm(true)}
+                        onClick={() => {
+                            const existingReview = initialReviews.find(r => r.user_id === user.id);
+                            if (existingReview) {
+                                setRating(existingReview.rating);
+                                setReviewText(existingReview.review_text);
+                            } else {
+                                setRating(0);
+                                setReviewText('');
+                            }
+                            setShowForm(true);
+                        }}
                         style={{
                             padding: '8px 16px',
                             borderRadius: '20px',
@@ -109,15 +126,14 @@ export default function ReviewSection({
                             cursor: 'pointer',
                         }}
                     >
-                        Write a Review
+                        {initialReviews.some(r => r.user_id === user.id) ? 'Edit Review' : 'Write a Review'}
                     </button>
                 )}
             </div>
 
             {!user ? (
                 <div style={{ textAlign: 'center', padding: '32px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
-                    <p>Log in to rate and review this album.</p>
-                    {/* Login logic is in Navbar, maybe prompt to click there or add inline login */}
+                    <p style={{ marginBottom: '10px' }}>Log in to rate and review this album.</p>
                 </div>
             ) : showForm && (
                 <form onSubmit={handleSubmit} style={{ marginBottom: '32px', background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '8px' }}>
@@ -201,10 +217,10 @@ export default function ReviewSection({
             )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {reviews.length === 0 ? (
+                {initialReviews.length === 0 ? (
                     <p style={{ color: 'var(--text-secondary)' }}>No reviews yet. Be the first!</p>
                 ) : (
-                    reviews.map((review) => (
+                    initialReviews.map((review) => (
                         <div key={review.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '16px' }}>
                             <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '8px' }}>
                                 <span style={{ color: '#FFD700' }}>{'★'.repeat(review.rating)}</span>

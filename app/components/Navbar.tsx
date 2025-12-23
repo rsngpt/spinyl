@@ -21,24 +21,29 @@ export default function Navbar() {
             }}
         >
 
-            <Link href="/" style={{ textDecoration: 'none' }}>
-                <h1
-                    style={{
-                        fontSize: '1.5rem',
-                        color: 'var(--text-main)',
-                        margin: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                    }}
-                >
-                    <span style={{ fontSize: '2rem' }}>💿</span> Spinyl
-                </h1>
-            </Link>
+            <div style={{ flex: 1 }}>
+                <Link href="/" style={{ textDecoration: 'none', display: 'inline-block' }}>
+                    <h1
+                        style={{
+                            fontSize: '1.5rem',
+                            color: 'var(--text-main)',
+                            margin: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                        }}
+                    >
+                        <span style={{ fontSize: '2rem' }}>💿</span> Spinyl
+                    </h1>
+                </Link>
+            </div>
 
-            <div className="nav-content-gap" style={{ display: 'flex', alignItems: 'center' }}>
-                <SearchBar />
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
                 <LoginButton />
+            </div>
+
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                <SearchBar />
             </div>
         </nav>
     );

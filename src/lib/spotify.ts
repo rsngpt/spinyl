@@ -20,6 +20,16 @@ export type SpotifyAlbum = {
   total_tracks: number;
   images: { url: string }[];
   artists: { name: string }[];
+  genres?: string[];
+  tracks: {
+    items: {
+      id: string;
+      name: string;
+      duration_ms: number;
+      preview_url: string | null;
+      external_urls: { spotify: string };
+    }[];
+  };
 };
 
 /* =======================
@@ -89,16 +99,23 @@ async function getAccessToken(): Promise<string> {
 export async function spotifyFetch(endpoint: string) {
   const token = await getAccessToken();
 
-  const response = await axios.get(
-    `https://api.spotify.com/v1/${endpoint}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  try {
+    const response = await axios.get(
+      `https://api.spotify.com/v1/${endpoint}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(`Spotify API Error [${endpoint}]:`, error.response?.status, error.response?.data);
+    }
+    throw error;
+  }
 }
 
 // Album search (used by /api/search)

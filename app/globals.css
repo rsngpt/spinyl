@@ -167,8 +167,16 @@ h6 {
 }
 
 .search-bar-container {
-  width: 300px;
+  width: 44px;
+  /* Start as circle/icon */
+  transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   position: relative;
+  overflow: hidden;
+  border-radius: 500px;
+}
+
+.search-bar-container.expanded {
+  width: 300px;
 }
 
 .nav-content-gap {
