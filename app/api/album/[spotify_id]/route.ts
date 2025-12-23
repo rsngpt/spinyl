@@ -6,7 +6,7 @@ export async function GET(
   request: NextRequest,
   context: any
 ) {
-  const supabase = getSupabaseServerClient();
+  const supabase = await getSupabaseServerClient();
   const spotifyId = context.params.spotify_id;
 
   // 1️⃣ Spotify: album + tracks (live)

@@ -4,7 +4,7 @@ import { getSupabaseServerClient } from '@/src/lib/supabase-server';
 
 
 export async function GET(request: Request) {
-  const supabase = getSupabaseServerClient();
+  const supabase = await getSupabaseServerClient();
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('q');
 

@@ -4,7 +4,7 @@ import { getSupabaseServerClient } from '@/src/lib/supabase-server';
 
 
 export async function POST(req: Request) {
-  const supabase = getSupabaseServerClient();
+  const supabase = await getSupabaseServerClient();
   const { user_id, review_id } = await req.json();
 
   // Check if already liked

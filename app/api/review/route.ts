@@ -5,7 +5,7 @@ import { getSupabaseServerClient } from '@/src/lib/supabase-server';
 
 export async function POST(req: Request) {
 
-  const supabase = getSupabaseServerClient();
+  const supabase = await getSupabaseServerClient();
   const body = await req.json();
 
   const {
@@ -59,12 +59,12 @@ export async function POST(req: Request) {
   const { error: reviewError } = await supabase
     .from('reviews')
     .insert({
-  user_id,
-  album_id: albumId,
-  rating,
-  review_text,
-});
-;
+      user_id,
+      album_id: albumId,
+      rating,
+      review_text,
+    });
+  ;
 
   if (reviewError) {
     return NextResponse.json(
