@@ -12,20 +12,36 @@ export default function LoginButton() {
     await supabase.auth.signInWithOAuth({
       provider: 'spotify',
       options: {
-    redirectTo: `${window.location.origin}/welcome`,}
+        scopes: 'user-read-recently-played user-top-read',
+        redirectTo: `${window.location.origin}/welcome`,
+      }
     });
   };
 
   return (
     <button
       onClick={loginWithSpotify}
+      className="login-btn"
       style={{
-        padding: '8px 14px',
-        borderRadius: '6px',
-        border: '1px solid #000',
-        background: '#000',
-        color: '#fff',
+        padding: '12px 24px',
+        borderRadius: '500px',
+        border: 'none',
+        background: 'var(--primary)',
+        color: '#000', // Black text on green is Spotify's style
+        fontWeight: '700',
+        fontSize: '0.9rem',
         cursor: 'pointer',
+        letterSpacing: '0.5px',
+        textTransform: 'uppercase',
+        transition: 'transform 0.2s ease, background-color 0.2s ease',
+      }}
+      onMouseOver={(e) => {
+        e.currentTarget.style.transform = 'scale(1.05)';
+        e.currentTarget.style.backgroundColor = 'var(--primary-hover)';
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.transform = 'scale(1)';
+        e.currentTarget.style.backgroundColor = 'var(--primary)';
       }}
     >
       Login with Spotify

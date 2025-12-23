@@ -11,18 +11,62 @@ export default function AlbumCard({
   };
 }) {
   return (
-    <div className="album-card">
-      <img
-        src={album.cover_image ?? '/placeholder.png'}
-        alt={album.name}
-        className="cover"
-      />
+    <div
+      style={{
+        background: '#181818',
+        padding: '16px',
+        borderRadius: '8px',
+        transition: 'background-color 0.3s ease',
+        cursor: 'pointer',
+        height: '100%',
+      }}
+      className="album-card-hover" // We will add a global hover style for this if needed, or inline hover logic
+    >
+      <div style={{ position: 'relative', marginBottom: '16px' }}>
+        <img
+          src={album.cover_image ?? '/placeholder.png'}
+          alt={album.name}
+          style={{
+            width: '100%',
+            aspectRatio: '1/1',
+            objectFit: 'cover',
+            borderRadius: '4px',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+          }}
+        />
+        {album.avg_rating !== null && (
+          <span
+            style={{
+              position: 'absolute',
+              top: '8px',
+              right: '8px',
+              background: 'rgba(0,0,0,0.8)',
+              color: '#FFD700',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              backdropFilter: 'blur(4px)',
+            }}
+          >
+            ★ {album.avg_rating}
+          </span>
+        )}
+      </div>
 
-      {album.avg_rating !== null && (
-        <span className="badge">⭐ {album.avg_rating}</span>
-      )}
-
-      <p className="album-name">{album.name}</p>
+      <h3
+        style={{
+          fontSize: '1rem',
+          color: 'var(--text-main)',
+          marginBottom: '8px',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}
+      >
+        {album.name}
+      </h3>
     </div>
   );
 }
+
