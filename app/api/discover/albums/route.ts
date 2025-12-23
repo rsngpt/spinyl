@@ -1,41 +1,29 @@
 import { NextResponse } from 'next/server';
-import { getSupabaseServerClient } from '@/src/lib/supabase-server';
-
-
+import { spotifyFetch } from '@/src/lib/spotify';
 
 export async function GET() {
-  const supabase = getSupabaseServerClient();
-  const { data, error } = await supabase
-    .from('albums')
-    .select(`
-      id,
-      spotify_id,
-      name,
-      cover_image,
-      reviews (
-        rating
-      )
-    `);
+  try {
+    // Fetch new releases from Spotify
+    const data = await spotifyFetch('browse/new-releases?limit=20');
 
-  if (error) {
-    return NextResponse.json({ error }, { status: 500 });
+    // Check if we got valid data
+    if (!data || !data.albums || !data.albums.items) {
+      console.warn('Spotify API returned unexpected structure:', data);
+      return NextResponse.json([]);
+    }
+
+    // Map Spotify structure to our app's Album structure
+    const albums = data.albums.items.map((item: any) => ({
+      id: item.id,
+      name: item.name,
+      cover_image: item.images?.[0]?.url || null,
+      avg_rating: null, // New releases won't have local ratings yet
+    }));
+
+    return NextResponse.json(albums);
+  } catch (error) {
+    console.error('Error in /api/discover/albums:', error);
+    // Return empty array instead of 500 to prevent frontend crash
+    return NextResponse.json([]);
   }
-
-  // calculate avg rating
-  const albums = data.map((album: any) => {
-    const ratings = album.reviews.map((r: any) => r.rating);
-    const avg =
-      ratings.length > 0
-        ? ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length
-        : null;
-
-    return {
-      id: album.spotify_id,
-      name: album.name,
-      cover_image: album.cover_image,
-      avg_rating: avg ? Number(avg.toFixed(1)) : null,
-    };
-  });
-
-  return NextResponse.json(albums);
 }
