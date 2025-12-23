@@ -22,7 +22,7 @@ export default function AlbumSwitcher({ globalAlbums, indianAlbums }: AlbumSwitc
     const activeAlbums = activeTab === 'global' ? globalAlbums : indianAlbums;
 
     return (
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '40px 24px' }}>
+        <div className="switcher-container" style={{ maxWidth: '1400px', margin: '0 auto' }}>
             <div
                 style={{
                     display: 'flex',
@@ -78,10 +78,8 @@ export default function AlbumSwitcher({ globalAlbums, indianAlbums }: AlbumSwitc
             </div>
 
             <div
+                className="album-grid"
                 style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-                    gap: '24px',
                     animation: 'fadeIn 0.5s ease',
                 }}
                 key={activeTab} // Forces re-render animation when tab changes

@@ -7,22 +7,20 @@ import SearchBar from './SearchBar';
 export default function Navbar() {
     return (
         <nav
+            className="navbar-container"
             style={{
                 position: 'fixed',
                 top: 0,
                 left: 0,
                 right: 0,
-                height: '80px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '0 40px',
-                backgroundColor: 'rgba(0, 0, 0, 0.85)', // Slightly darker for better contrast
+                // height and padding handled by class
+                backgroundColor: 'rgba(0, 0, 0, 0.85)',
                 backdropFilter: 'blur(12px)',
                 zIndex: 1000,
                 borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
             }}
         >
+
             <Link href="/" style={{ textDecoration: 'none' }}>
                 <h1
                     style={{
@@ -38,7 +36,7 @@ export default function Navbar() {
                 </h1>
             </Link>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            <div className="nav-content-gap" style={{ display: 'flex', alignItems: 'center' }}>
                 <SearchBar />
                 <LoginButton />
             </div>

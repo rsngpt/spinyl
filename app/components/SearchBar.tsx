@@ -15,7 +15,7 @@ export default function SearchBar() {
     };
 
     return (
-        <form onSubmit={handleSearch} style={{ position: 'relative', width: '300px' }}>
+        <form onSubmit={handleSearch} className="search-bar-container">
             <input
                 type="text"
                 placeholder="Search albums..."

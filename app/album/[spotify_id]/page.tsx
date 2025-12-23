@@ -95,27 +95,11 @@ export default async function AlbumPage(props: PageProps) {
           }}
         />
 
-        <div style={{
-          position: 'relative',
-          zIndex: 1,
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '120px 40px 60px',
-          display: 'flex',
-          gap: '40px',
-          alignItems: 'end',
-          flexWrap: 'wrap'
-        }}>
+        <div className="album-hero-container">
           <img
             src={album.images?.[0]?.url}
             alt={album.name}
-            style={{
-              width: '280px',
-              height: '280px',
-              boxShadow: '0 8px 40px rgba(0,0,0,0.6)',
-              borderRadius: '8px',
-              objectFit: 'cover'
-            }}
+            className="album-cover-image"
           />
 
           <div style={{ flex: 1, minWidth: '300px' }}>
@@ -141,16 +125,7 @@ export default async function AlbumPage(props: PageProps) {
       </div>
 
       {/* Content Split: Tracklist vs Reviews */}
-      <div
-        style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '40px',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-          gap: '60px'
-        }}
-      >
+      <div className="content-grid">
         {/* Left Column: Tracklist */}
         <section>
           <h3 style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '16px', marginBottom: '16px', fontSize: '1.1rem', letterSpacing: '1px', textTransform: 'uppercase' }}>
