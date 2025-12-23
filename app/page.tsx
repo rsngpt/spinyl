@@ -9,6 +9,7 @@ type Album = {
   name: string;
   cover_image: string | null;
   avg_rating: number | null;
+  artist: string;
 };
 
 async function getGlobalAlbums(): Promise<Album[]> {
@@ -41,6 +42,7 @@ function mapSpotifyAlbums(data: any): Album[] {
     name: item.name,
     cover_image: item.images?.[0]?.url || null,
     avg_rating: null,
+    artist: item.artists?.[0]?.name || 'Unknown Artist',
   }));
 }
 

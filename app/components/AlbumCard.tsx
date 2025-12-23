@@ -8,6 +8,7 @@ export default function AlbumCard({
     cover_image: string | null;
     name: string;
     avg_rating: number | null;
+    artist: string; // Added artist field
   };
 }) {
   return (
@@ -20,7 +21,7 @@ export default function AlbumCard({
         cursor: 'pointer',
         height: '100%',
       }}
-      className="album-card-hover" // We will add a global hover style for this if needed, or inline hover logic
+      className="album-card-hover"
     >
       <div style={{ position: 'relative', marginBottom: '16px' }}>
         <img
@@ -58,7 +59,7 @@ export default function AlbumCard({
         style={{
           fontSize: '1rem',
           color: 'var(--text-main)',
-          marginBottom: '8px',
+          marginBottom: '4px',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
@@ -66,6 +67,18 @@ export default function AlbumCard({
       >
         {album.name}
       </h3>
+      <p
+        style={{
+          fontSize: '0.9rem',
+          color: 'var(--text-secondary)',
+          margin: 0,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}
+      >
+        {album.artist}
+      </p>
     </div>
   );
 }

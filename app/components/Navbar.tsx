@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import LoginButton from './LoginButton';
+import SearchBar from './SearchBar';
 
 export default function Navbar() {
     return (
@@ -16,8 +17,8 @@ export default function Navbar() {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '0 40px',
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                backdropFilter: 'blur(10px)',
+                backgroundColor: 'rgba(0, 0, 0, 0.85)', // Slightly darker for better contrast
+                backdropFilter: 'blur(12px)',
                 zIndex: 1000,
                 borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
             }}
@@ -37,7 +38,8 @@ export default function Navbar() {
                 </h1>
             </Link>
 
-            <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                <SearchBar />
                 <LoginButton />
             </div>
         </nav>

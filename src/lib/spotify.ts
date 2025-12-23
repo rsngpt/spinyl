@@ -121,5 +121,10 @@ export async function spotifySearch(
     }
   );
 
+  if (!response.data || !response.data.albums) {
+    console.error('Spotify API response missing albums:', JSON.stringify(response.data));
+    return [];
+  }
+
   return response.data.albums.items;
 }

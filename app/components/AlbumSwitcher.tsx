@@ -8,6 +8,7 @@ type Album = {
     name: string;
     cover_image: string | null;
     avg_rating: number | null;
+    artist: string;
 };
 
 type AlbumSwitcherProps = {
