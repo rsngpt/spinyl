@@ -205,7 +205,9 @@ h6 {
   .navbar-container {
     padding: 12px 16px;
     height: auto;
-    flex-direction: column;
+    flex-wrap: wrap;
+    /* Allow wrapping */
+    justify-content: space-between;
     gap: 12px;
   }
 

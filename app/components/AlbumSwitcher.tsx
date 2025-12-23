@@ -55,7 +55,7 @@ export default function AlbumSwitcher({ globalAlbums, indianAlbums }: AlbumSwitc
                             fontSize: '0.95rem',
                         }}
                     >
-                        Trending Worldwide
+                        New Releases Worldwide
                     </button>
                     <button
                         onClick={() => setActiveTab('india')}
@@ -72,7 +72,7 @@ export default function AlbumSwitcher({ globalAlbums, indianAlbums }: AlbumSwitc
                             fontSize: '0.95rem',
                         }}
                     >
-                        Trending India 🇮🇳
+                        New Releases India 🇮🇳
                     </button>
                 </div>
             </div>
