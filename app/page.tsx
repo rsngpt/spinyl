@@ -1,6 +1,6 @@
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import AlbumCard from './components/AlbumCard';
+import AlbumSwitcher from './components/AlbumSwitcher';
 
 import { spotifyFetch } from '@/src/lib/spotify';
 
@@ -13,7 +13,8 @@ type Album = {
 
 async function getGlobalAlbums(): Promise<Album[]> {
   try {
-    const data = await spotifyFetch('browse/new-releases?limit=10');
+    // country=US serves as a good proxy for "Global" pop culture trends, distinct from local Indian releases
+    const data = await spotifyFetch('browse/new-releases?country=US&limit=10');
     return mapSpotifyAlbums(data);
   } catch (error) {
     console.error('Failed to fetch global albums:', error);
@@ -43,6 +44,10 @@ function mapSpotifyAlbums(data: any): Album[] {
   }));
 }
 
+
+
+// ... (existing imports and getAlbums functions)
+
 export default async function Home() {
   const [globalAlbums, indianAlbums] = await Promise.all([
     getGlobalAlbums(),
@@ -55,47 +60,8 @@ export default async function Home() {
       <Navbar />
       <Hero />
 
-      <div
-        style={{
-          maxWidth: '1400px', // Wider to fit two columns
-          margin: '0 auto',
-          padding: '40px 24px',
-          position: 'relative',
-          zIndex: 1,
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', // Responsive 2-column layout
-          gap: '40px',
-        }}
-      >
-        {/* Global Section */}
-        <section>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '1.8rem', margin: 0 }}>Trending Worldwide</h2>
-            <a href="/explore" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600, textTransform: 'uppercase' }}>See All</a>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '16px' }}>
-            {globalAlbums.map((album) => (
-              <a key={album.id} href={`/album/${album.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-                <AlbumCard album={album} />
-              </a>
-            ))}
-          </div>
-        </section>
-
-        {/* India Section */}
-        <section>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '1.8rem', margin: 0 }}>Trending in India 🇮🇳</h2>
-            <a href="/explore?region=IN" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600, textTransform: 'uppercase' }}>See All</a>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '16px' }}>
-            {indianAlbums.map((album) => (
-              <a key={album.id} href={`/album/${album.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-                <AlbumCard album={album} />
-              </a>
-            ))}
-          </div>
-        </section>
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <AlbumSwitcher globalAlbums={globalAlbums} indianAlbums={indianAlbums} />
       </div>
     </main>
   );
