@@ -4,6 +4,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import { useState, useEffect } from 'react';
 import LoginButton from './LoginButton';
 import { submitReview } from '../actions/review';
+import Link from 'next/link';
 
 const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,6 +17,10 @@ type Review = {
     review_text: string;
     created_at: string;
     user_id: string;
+    profiles?: {
+        username: string;
+        avatar_url: string | null;
+    } | null;
 };
 
 type AlbumData = {
@@ -29,23 +34,30 @@ type AlbumData = {
 export default function ReviewSection({
     initialReviews,
     albumData,
+    currentUser,
 }: {
     initialReviews: Review[];
     albumData: AlbumData;
+    currentUser?: any; // Accepting the user object from server
 }) {
-    // We use initialReviews from props which are fresh from the server on revalidate
-    const [user, setUser] = useState<any>(null);
+    // Initialize user state with the server-passed user if available
+    const [user, setUser] = useState<any>(currentUser || null);
     const [rating, setRating] = useState(0);
     const [reviewText, setReviewText] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showForm, setShowForm] = useState(false);
 
     useEffect(() => {
-        const getUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
-        };
-        getUser();
+        // If we didn't get a user from server props, try fetching client-side
+        if (!currentUser) {
+            const getUser = async () => {
+                const { data: { user } } = await supabase.auth.getUser();
+                setUser(user);
+            };
+            getUser();
+        } else {
+            setUser(currentUser);
+        }
 
         // Subscribe to changes (optional, but good for real-time)
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -55,7 +67,7 @@ export default function ReviewSection({
         );
 
         return () => subscription.unsubscribe();
-    }, []);
+    }, [currentUser]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -67,9 +79,6 @@ export default function ReviewSection({
             formData.append('spotify_id', albumData.spotify_id);
             formData.append('album_name', albumData.name);
             formData.append('cover_image', albumData.cover_image);
-            // Note: cover_image might be undefined/null, handle carefully if needed, 
-            // but formData sends "undefined" string if so. 
-            // Better to send empty string if null.
             if (!albumData.cover_image) formData.append('cover_image', '');
 
             formData.append('artist_names', albumData.artists.join(', '));
@@ -87,16 +96,16 @@ export default function ReviewSection({
             setReviewText('');
             setRating(0);
             setShowForm(false);
-            // Router refresh is not needed because Server Actions revalidatePath 
-            // and we (the client component) will receive the new props automatically 
-            // if this component is re-rendered by the parent. 
-            // However, Next.js Server Actions revalidatePath refreshes the route.
         } catch (error: any) {
             console.error(error);
             alert(error.message || 'Failed to post review. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const getInitials = (name: string) => {
+        return name ? name.substring(0, 2).toUpperCase() : '??';
     };
 
     return (
@@ -220,17 +229,44 @@ export default function ReviewSection({
                 {initialReviews.length === 0 ? (
                     <p style={{ color: 'var(--text-secondary)' }}>No reviews yet. Be the first!</p>
                 ) : (
-                    initialReviews.map((review) => (
-                        <div key={review.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '16px' }}>
-                            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '8px' }}>
-                                <span style={{ color: '#FFD700' }}>{'★'.repeat(review.rating)}</span>
-                                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                                    {new Date(review.created_at).toLocaleDateString()}
-                                </span>
+                    initialReviews.map((review) => {
+                        const profile = review.profiles || { username: 'Unknown User', avatar_url: null };
+                        return (
+                            <div key={review.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '16px' }}>
+                                {/* User Info Header */}
+                                <Link href={`/profile/${review.user_id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px', cursor: 'pointer' }}>
+                                        {profile.avatar_url ? (
+                                            <img
+                                                src={profile.avatar_url}
+                                                alt={profile.username}
+                                                style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
+                                            />
+                                        ) : (
+                                            <div style={{
+                                                width: '32px', height: '32px', borderRadius: '50%',
+                                                background: '#333', color: '#fff',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                fontSize: '0.9rem', fontWeight: 600
+                                            }}>
+                                                {getInitials(profile.username)}
+                                            </div>
+                                        )}
+                                        <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{profile.username}</span>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>•</span>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                            {new Date(review.created_at).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                </Link>
+
+                                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '8px', paddingLeft: '42px' }}>
+                                    <span style={{ color: '#FFD700', fontSize: '0.9rem' }}>{'★'.repeat(review.rating)}</span>
+                                </div>
+                                <p style={{ margin: 0, lineHeight: '1.5', paddingLeft: '42px', color: '#eee' }}>{review.review_text}</p>
                             </div>
-                            <p style={{ margin: 0, lineHeight: '1.5' }}>{review.review_text}</p>
-                        </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
         </div>

@@ -36,7 +36,7 @@ async function getAlbumReviews(spotifyId: string) {
 
   const { data: reviews } = await supabase
     .from('reviews')
-    .select('*')
+    .select('*, profiles(username, avatar_url)')
     .eq('album_id', albumRow.id)
     .order('created_at', { ascending: false });
 
@@ -53,6 +53,9 @@ export default async function AlbumPage(props: PageProps) {
   const params = await props.params;
 
   // Fetch both concurrently
+  const supabase = await getSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   const [album, reviews] = await Promise.all([
     getAlbumDetails(params.spotify_id),
     getAlbumReviews(params.spotify_id)
@@ -182,7 +185,7 @@ export default async function AlbumPage(props: PageProps) {
 
         {/* Right Column: Review Section */}
         <section>
-          <ReviewSection initialReviews={reviews} albumData={albumData} />
+          <ReviewSection initialReviews={reviews} albumData={albumData} currentUser={user} />
         </section>
       </div>
     </main>
