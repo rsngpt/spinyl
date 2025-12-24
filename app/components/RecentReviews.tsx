@@ -52,9 +52,10 @@ export default function RecentReviews() {
                 .limit(10);
 
             if (!error && data) {
+                console.log('RecentReviews Data (Logged In?):', data);
                 setReviews(data as any);
             } else if (error) {
-                console.error('Error fetching reviews:', error);
+                console.error('RecentReviews Error:', error);
             }
         }
 
