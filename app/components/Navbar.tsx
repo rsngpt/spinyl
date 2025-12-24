@@ -59,16 +59,21 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
                 top: 0,
                 left: 0,
                 right: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                backgroundColor: 'rgba(0, 0, 0, 0.9)', // Slightly darker for mobile readability
                 backdropFilter: 'blur(12px)',
                 zIndex: 1000,
                 borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                padding: '0 16px', // Standardize padding
+                height: '70px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
             }}
         >
-            <div style={{ flex: 1 }}>
+            <div style={{ flexShrink: 0 }}>
                 <Link href="/" style={{ textDecoration: 'none', display: 'inline-block' }}>
                     <h1 className="logo-hover" style={{
-                        fontSize: '1.8rem', // Slightly larger since icon is gone
+                        fontSize: '1.5rem', // Slightly smaller for mobile safety
                         margin: 0,
                         display: 'flex',
                         alignItems: 'center',
@@ -80,16 +85,18 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
                 </Link>
             </div>
 
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+            {/* Middle Search Bar - flexible width with limits */}
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', maxWidth: '500px', margin: '0 16px' }}>
                 <SearchBar user={user} />
             </div>
 
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '24px' }}>
-
+            <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
                 {user ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <Link href={`/profile/${user.id}`} className="profile-hover" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none', color: 'inherit' }}>
-                            <span style={{ fontWeight: 600, fontSize: '0.95rem', transition: 'color 0.3s ease' }}>
+                            {/* Hide Username on Mobile using a CSS class or inline media query logic (simplified here by hiding text if screen is narrow - hard to do inline without hook, so we keep text small or use icon only) */}
+                            {/* For simplicity in this edit: We will hide the name on very small screens via CSS in global or just keep it simple. Let's hide the name in the screenshot it looked bad. */}
+                            <span className="hide-on-mobile" style={{ fontWeight: 600, fontSize: '0.95rem', transition: 'color 0.3s ease' }}>
                                 {profile?.username || profile?.full_name || user.email?.split('@')[0]}
                             </span>
                             <div className="profile-avatar-container" style={{
@@ -110,19 +117,16 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
                         </Link>
                         <button
                             onClick={async () => {
-                                // Optimistic UI update: Clear user immediately
                                 setUser(null);
                                 setProfile(null);
-                                // Perform actual sign out
                                 await supabase.auth.signOut();
                                 window.location.href = '/';
                             }}
                             className="nav-btn"
                             style={{
                                 fontSize: '0.8rem',
-                                padding: '8px 20px', // Slightly smaller for logout? Or keep same? User said "Similar". 
-                                // Let's keep specific fontSize override if needed, but remove other conflicting styles.
-                                // Actually, .nav-btn has standard padding. Let's stick to standard to make them "look similar".
+                                padding: '8px 16px',
+                                whiteSpace: 'nowrap'
                             }}
                         >
                             Log Out

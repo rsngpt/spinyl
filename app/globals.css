@@ -166,19 +166,7 @@ h6 {
   height: 80px;
 }
 
-.search-bar-container {
-  width: 44px;
-  /* Start as circle/icon */
-  transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  position: relative;
-  overflow: hidden;
-  border-radius: 500px;
-}
-
-.search-bar-container.expanded {
-  width: 300px;
-}
-
+/* Removed search-bar-container styles as they are now scoped in SearchBar.tsx */
 .nav-content-gap {
   gap: 24px;
 }
@@ -213,15 +201,7 @@ h6 {
   .navbar-container {
     padding: 12px 16px;
     height: auto;
-    flex-wrap: wrap;
     /* Allow wrapping */
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  /* Hide search bar on very small screens if needed, or make it full width */
-  .search-bar-container {
-    width: 100%;
   }
 
   .nav-content-gap {

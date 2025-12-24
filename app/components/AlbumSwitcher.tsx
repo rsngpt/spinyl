@@ -100,6 +100,9 @@ export default function AlbumSwitcher({ globalAlbums, indianAlbums }: AlbumSwitc
                 className="album-grid"
                 style={{
                     animation: 'fadeIn 0.5s ease',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+                    gap: '24px',
                 }}
                 key={activeTab} // Forces re-render animation when tab changes
             >

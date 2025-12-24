@@ -1,11 +1,9 @@
 import { getSupabaseServerClient } from '@/src/lib/supabase-server';
 import { notFound } from 'next/navigation';
-import FollowButton from '@/app/components/FollowButton';
-import LikeButton from '@/app/components/LikeButton';
 import ProfileContent from '@/app/components/ProfileContent';
 import Link from 'next/link';
-import ProfileEditModal from '@/app/components/ProfileEditModal';
 import { Metadata } from 'next';
+import ProfileHeader from '@/app/components/ProfileHeader';
 
 // Generate Metadata
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -154,60 +152,19 @@ export default async function ProfilePage({ params }: { params: { id: string } }
             <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 24px' }}>
 
                 {/* Profile Header */}
-                <div style={{ display: 'flex', gap: '40px', alignItems: 'flex-start', marginBottom: '60px' }}>
-                    {/* Avatar */}
-                    <div style={{
-                        width: '180px', height: '180px',
-                        borderRadius: '50%', overflow: 'hidden',
-                        border: isVerified ? '4px solid #3D91FF' : '4px solid #1ed760',
-                        boxShadow: isVerified ? '0 8px 40px rgba(61, 145, 255, 0.3)' : '0 8px 40px rgba(30, 215, 96, 0.3)',
-                        flexShrink: 0
-                    }}>
-                        {avatarUrl ? (
-                            <img src={avatarUrl} alt={displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        ) : (
-                            <div style={{ width: '100%', height: '100%', background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem' }}>
-                                {displayName[0]?.toUpperCase()}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Info */}
-                    <div style={{ flex: 1, paddingTop: '10px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <h1 style={{ fontSize: '2.5rem', fontWeight: 700, margin: 0 }}>{displayName}</h1>
-                                {isVerified && (
-                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" fill="#3D91FF" />
-                                        <path d="M7 12L10 15L17 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                )}
-                            </div>
-                            {!isOwnProfile && currentUser && (
-                                <FollowButton targetUserId={id} initialIsFollowing={isFollowing} />
-                            )}
-                            {isOwnProfile && (
-                                <ProfileEditModal currentUsername={profile.username || ''} />
-                            )}
-                        </div>
-
-                        {/* Stats Row */}
-                        <div style={{ display: 'flex', gap: '40px', fontSize: '1.1rem', marginBottom: '24px' }}>
-                            <div><span style={{ fontWeight: 700 }}>{reviewsCount || 0}</span> reviews</div>
-                            <div style={{ cursor: 'pointer' }}><span style={{ fontWeight: 700 }}>{followersCount || 0}</span> followers</div>
-                            <div style={{ cursor: 'pointer' }}><span style={{ fontWeight: 700 }}>{followingCount || 0}</span> following</div>
-                        </div>
-
-                        <div style={{ color: '#aaa', fontSize: '1rem', lineHeight: '1.5' }}>
-                            <p>
-                                <span style={{ color: '#1ed760', fontWeight: 500 }}>@{profile.username || 'User'}</span>
-                                <span style={{ margin: '0 8px' }}>•</span>
-                                <span>{profile.bio || 'No bio.'}</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                {/* Profile Header (Moved to Client Component for Responsive Styles) */}
+                <ProfileHeader
+                    profile={profile}
+                    stats={{
+                        reviewsCount,
+                        followersCount,
+                        followingCount
+                    }}
+                    isOwnProfile={isOwnProfile}
+                    currentUser={currentUser}
+                    targetUserId={id}
+                    isFollowing={isFollowing}
+                />
 
                 {/* Content (Reviews / Followers / Following) */}
                 <ProfileContent
