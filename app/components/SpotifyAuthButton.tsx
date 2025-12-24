@@ -19,6 +19,9 @@ export default function SpotifyAuthButton() {
                 // Dev Mode Strategy: Use full scopes. You can whitelist up to 25 users.
                 scopes: 'user-read-email user-read-private user-read-recently-played user-top-read',
                 redirectTo: `${window.location.origin}/auth/callback`,
+                queryParams: {
+                    show_dialog: 'true'
+                }
             }
         });
         // Keep loading state true as page will redirect
