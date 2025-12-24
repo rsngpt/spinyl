@@ -36,7 +36,7 @@ async function getAlbumReviews(spotifyId: string) {
 
   const { data: reviews, error } = await supabase
     .from('reviews')
-    .select('*, profiles(username, avatar_url)')
+    .select('*, profiles(username, avatar_url, is_verified)')
     .eq('album_id', albumRow.id)
     .order('created_at', { ascending: false });
 

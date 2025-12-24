@@ -30,6 +30,15 @@ export default async function ProfilePage({ params }: { params: { id: string } }
         .single();
 
     if (!profile) {
+        // Recovery Logic:
+        // If the profile is missing, but the ID matches the currently logged-in user (from the session),
+        // we should send them to onboarding to recreate it (Zombie Account fix).
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user && user.id === id) {
+            const { redirect } = await import('next/navigation');
+            redirect('/onboarding');
+        }
+
         return notFound();
     }
 
@@ -58,8 +67,6 @@ export default async function ProfilePage({ params }: { params: { id: string } }
             .select('*', { count: 'exact', head: true })
             .eq('review_id', review.id);
 
-        // This is inefficient (N+1), but simple for now. 
-        // Can optimize later with a join view or rpc query.
         let isLiked = false;
         if (currentUser) {
             const { data } = await supabase
@@ -102,29 +109,22 @@ export default async function ProfilePage({ params }: { params: { id: string } }
             .from('follows')
             .select(`
                 follower_id,
-                profiles!follows_follower_id_fkey ( id, username, avatar_url )
+                profiles!follows_follower_id_fkey ( id, username, avatar_url, is_verified )
             `)
-            .eq('following_id', id); // I am the 'following', they are the 'follower'
+            .eq('following_id', id);
 
         // Fetch Following (People I follow)
         const { data: rawFollowing, error: followingError } = await supabase
             .from('follows')
             .select(`
                 following_id,
-                profiles!follows_following_id_fkey ( id, username, avatar_url )
+                profiles!follows_following_id_fkey ( id, username, avatar_url, is_verified )
             `)
-            .eq('follower_id', id); // I am the 'follower', they are the 'following'
+            .eq('follower_id', id);
 
+        if (followersError) console.error('Followers Error:', followersError);
+        if (followingError) console.error('Following Error:', followingError);
 
-        if (followersError) console.error('Followers Error (Stringified):', JSON.stringify(followersError, null, 2));
-        if (followingError) console.error('Following Error (Stringified):', JSON.stringify(followingError, null, 2));
-
-
-        // Helper to check if I follow these users back (Reciprocity check for buttons inside list)
-        // Since I AM the current user, I know I follow everyone in 'followingList'.
-        // For 'followersList', I need to check if I also follow them.
-
-        // Optimize: Get set of IDs I follow
         const myFollowingIds = new Set(rawFollowing?.map((f: any) => f.following_id));
 
         followersList = rawFollowers?.map((f: any) => ({
@@ -134,13 +134,14 @@ export default async function ProfilePage({ params }: { params: { id: string } }
 
         followingList = rawFollowing?.map((f: any) => ({
             user_data: f.profiles,
-            is_followed_by_current_user: true // I naturally follow people in my following list
+            is_followed_by_current_user: true
         })) || [];
     }
 
     // Display Name Logic
     const displayName = profile.full_name || profile.username || 'Music Lover';
     const avatarUrl = profile.avatar_url;
+    const isVerified = profile.is_verified;
 
     return (
         <div style={{
@@ -158,8 +159,8 @@ export default async function ProfilePage({ params }: { params: { id: string } }
                     <div style={{
                         width: '180px', height: '180px',
                         borderRadius: '50%', overflow: 'hidden',
-                        border: '4px solid #1ed760',
-                        boxShadow: '0 8px 40px rgba(30, 215, 96, 0.3)',
+                        border: isVerified ? '4px solid #3D91FF' : '4px solid #1ed760',
+                        boxShadow: isVerified ? '0 8px 40px rgba(61, 145, 255, 0.3)' : '0 8px 40px rgba(30, 215, 96, 0.3)',
                         flexShrink: 0
                     }}>
                         {avatarUrl ? (
@@ -174,7 +175,15 @@ export default async function ProfilePage({ params }: { params: { id: string } }
                     {/* Info */}
                     <div style={{ flex: 1, paddingTop: '10px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
-                            <h1 style={{ fontSize: '2.5rem', fontWeight: 700, margin: 0 }}>{displayName}</h1>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <h1 style={{ fontSize: '2.5rem', fontWeight: 700, margin: 0 }}>{displayName}</h1>
+                                {isVerified && (
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" fill="#3D91FF" />
+                                        <path d="M7 12L10 15L17 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                )}
+                            </div>
                             {!isOwnProfile && currentUser && (
                                 <FollowButton targetUserId={id} initialIsFollowing={isFollowing} />
                             )}
@@ -191,8 +200,11 @@ export default async function ProfilePage({ params }: { params: { id: string } }
                         </div>
 
                         <div style={{ color: '#aaa', fontSize: '1rem', lineHeight: '1.5' }}>
-                            <p>Spinyl User • Music Enthusiast</p>
-                            {/* Bio could go here if added to DB */}
+                            <p>
+                                <span style={{ color: '#1ed760', fontWeight: 500 }}>@{profile.username || 'User'}</span>
+                                <span style={{ margin: '0 8px' }}>•</span>
+                                <span>{profile.bio || 'No bio.'}</span>
+                            </p>
                         </div>
                     </div>
                 </div>

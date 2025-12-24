@@ -17,18 +17,27 @@ export async function updateProfile(prevState: any, formData: FormData) {
         return { message: 'Username must be at least 3 characters long.', success: false };
     }
 
+    const cleanUsername = username.trim().toLowerCase(); // Force lowercase for handles? Or keep mixed? Usually handles are lower.
+    // Let's stick to input case but maybe check case-insensitive uniqueness? 
+    // For now, simpler: just rely on the unique constraint.
+
     // Update Profile
     const { error } = await supabase
         .from('profiles')
-        .update({ username: username.trim() })
+        .update({ username: cleanUsername })
         .eq('id', user.id);
 
     if (error) {
+        // Postgres Unique Constraint Violation Code: 23505
+        if (error.code === '23505') {
+            return { message: 'This username is already taken.', success: false };
+        }
         console.error('Update Profile Error:', error);
-        return { message: 'Failed to update profile. It might be taken.', success: false };
+        return { message: 'Failed to update profile.', success: false };
     }
 
     revalidatePath(`/profile/${user.id}`);
+    revalidatePath('/'); // Refresh places where username might be shown (like Navbar)
 
     return { message: 'Profile updated!', success: true };
 }

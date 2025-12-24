@@ -252,7 +252,16 @@ export default function ReviewSection({
                                                 {getInitials(profile.username)}
                                             </div>
                                         )}
-                                        <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{profile.username}</span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{profile.username}</span>
+                                            {/* @ts-ignore - is_verified exists in DB but might be missing on loose type */}
+                                            {profile.is_verified && (
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" fill="#3D91FF" />
+                                                    <path d="M7 12L10 15L17 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                </svg>
+                                            )}
+                                        </div>
                                         <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>•</span>
                                         <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                                             {new Date(review.created_at).toLocaleDateString()}
