@@ -16,8 +16,8 @@ export default function SpotifyAuthButton() {
         await supabase.auth.signInWithOAuth({
             provider: 'spotify',
             options: {
-                // Testing Minimal Scopes: If this works, the extra scopes were the cause of the block.
-                scopes: 'user-read-email',
+                // Testing Standard Scopes: email + private (for ID/Country)
+                scopes: 'user-read-email user-read-private',
                 redirectTo: `${window.location.origin}/auth/callback`,
                 queryParams: {
                     show_dialog: 'true'
