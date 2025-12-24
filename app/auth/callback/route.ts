@@ -28,6 +28,18 @@ export async function GET(request: Request) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
 
         if (!error) {
+            // Check whitelist
+            const allowedUsers = process.env.ALLOWED_USERS?.split(',').map(u => u.trim().toLowerCase()) ?? [];
+            const { data: { user } } = await supabase.auth.getUser();
+
+            // Only enforce whitelist if ALLOWED_USERS is set in env
+            if (allowedUsers.length > 0 && user?.email) {
+                if (!allowedUsers.includes(user.email.toLowerCase())) {
+                    await supabase.auth.signOut();
+                    return NextResponse.redirect(`${origin}/login?error=Access Denied: You are not on the access list.`);
+                }
+            }
+
             return NextResponse.redirect(`${origin}${next}`);
         } else {
             console.error('Auth Code Exchange Error:', error);
