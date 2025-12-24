@@ -16,8 +16,8 @@ export default function SpotifyAuthButton() {
         await supabase.auth.signInWithOAuth({
             provider: 'spotify',
             options: {
-                // Dev Mode Strategy: Use full scopes. You can whitelist up to 25 users.
-                scopes: 'user-read-email user-read-private user-read-recently-played user-top-read',
+                // Testing Minimal Scopes: If this works, the extra scopes were the cause of the block.
+                scopes: 'user-read-email',
                 redirectTo: `${window.location.origin}/auth/callback`,
                 queryParams: {
                     show_dialog: 'true'
