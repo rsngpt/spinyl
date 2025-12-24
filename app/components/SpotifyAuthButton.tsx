@@ -16,8 +16,9 @@ export default function SpotifyAuthButton() {
         await supabase.auth.signInWithOAuth({
             provider: 'spotify',
             options: {
-                // Testing Public Access: Basic scopes only. Restoring advanced scopes later if verified.
-                scopes: 'user-read-email user-read-private',
+                // Final Attempt: Email Only (Absolute Minimum).
+                // If this fails, Spotify Dev Mode blocks ALL non-whitelisted users.
+                scopes: 'user-read-email',
                 redirectTo: `${window.location.origin}/auth/callback`,
                 queryParams: {
                     show_dialog: 'true'
