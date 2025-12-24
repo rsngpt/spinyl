@@ -1,42 +1,43 @@
-import { NextResponse } from 'next/server'
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
 export async function GET(request: Request) {
-    const { searchParams, origin } = new URL(request.url)
-    const code = searchParams.get('code')
+    const { searchParams, origin } = new URL(request.url);
+    const code = searchParams.get('code');
     // if "next" is in param, use it as the redirect URL
-    const next = searchParams.get('next') ?? '/'
+    const next = searchParams.get('next') ?? '/?login_success=true';
 
     if (code) {
-        const cookieStore = await cookies()
+        const cookieStore = await cookies();
         const supabase = createServerClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
             {
                 cookies: {
-                    get(name: string) {
-                        return cookieStore.get(name)?.value
+                    getAll() {
+                        return cookieStore.getAll()
                     },
-                    set(name: string, value: string, options: CookieOptions) {
-                        cookieStore.set({ name, value, ...options })
-                    },
-                    remove(name: string, options: CookieOptions) {
-                        cookieStore.delete({ name, ...options })
+                    setAll(cookiesToSet) {
+                        cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
                     },
                 },
             }
-        )
+        );
 
-        const { error } = await supabase.auth.exchangeCodeForSession(code)
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
 
         if (!error) {
-            return NextResponse.redirect(`${origin}${next}`)
+            return NextResponse.redirect(`${origin}${next}`);
         } else {
-            console.error('Auth Exchange Error:', error);
+            console.error('Auth Code Exchange Error:', error);
+            const errorMessage = encodeURIComponent(error.message);
+            return NextResponse.redirect(`${origin}/login?error=${errorMessage}`);
         }
     }
 
-    // return the user to an error page with instructions
-    return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+    // Fallback for when 'code' is missing (e.g. Provider error redirected immediately)
+    const errorDescription = searchParams.get('error_description') || 'auth_code_error';
+    const encodedError = encodeURIComponent(errorDescription);
+    return NextResponse.redirect(`${origin}/login?error=${encodedError}`);
 }

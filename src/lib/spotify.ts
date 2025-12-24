@@ -120,8 +120,9 @@ export async function spotifyFetch(endpoint: string) {
 
 // Album search (used by /api/search)
 export async function spotifySearch(
-  query: string
-): Promise<SpotifyAlbum[]> {
+  query: string,
+  types: string[] = ['album', 'artist', 'track']
+): Promise<any> {
   const token = await getAccessToken();
 
   const response = await axios.get(
@@ -132,16 +133,59 @@ export async function spotifySearch(
       },
       params: {
         q: query,
-        type: 'album',
-        limit: 10,
+        type: types.join(','),
+        limit: 8, // Reduce limit per category to keep response light
       },
     }
   );
 
-  if (!response.data || !response.data.albums) {
-    console.error('Spotify API response missing albums:', JSON.stringify(response.data));
-    return [];
+  if (!response.data) {
+    console.error('Spotify API response missing data:', JSON.stringify(response.data));
+    return {};
   }
 
-  return response.data.albums.items;
+  return response.data; // Returns { albums: {}, artists: {}, tracks: {} }
+}
+
+// User Top Tracks
+export async function getUserTopTracks(token: string) {
+  try {
+    const response = await axios.get(
+      'https://api.spotify.com/v1/me/top/tracks',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          limit: 10,
+          time_range: 'short_term'
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user top tracks:', error);
+    return null;
+  }
+}
+
+// User Recently Played
+export async function getUserRecentlyPlayed(token: string) {
+  try {
+    const response = await axios.get(
+      'https://api.spotify.com/v1/me/player/recently-played',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          limit: 10,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user recently played:', error);
+    return null;
+  }
 }

@@ -3,6 +3,7 @@
 import { createBrowserClient } from '@supabase/ssr';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Cookies from 'js-cookie';
 
 const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,8 +23,15 @@ export default function LoginButton() {
 
     // Listen for changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         setUser(session?.user ?? null);
+
+        if (session?.provider_token) {
+          console.log('LoginButton: Got provider_token', session.provider_token.substring(0, 10) + '...');
+          Cookies.set('spotify_access_token', session.provider_token, { expires: 1 / 24 }); // Expires in 1 hour
+        } else {
+          console.log('LoginButton: No provider_token in session', event);
+        }
       }
     );
 
@@ -41,6 +49,7 @@ export default function LoginButton() {
   };
 
   const handleLogout = async () => {
+    Cookies.remove('spotify_access_token');
     await supabase.auth.signOut();
     setUser(null);
   };

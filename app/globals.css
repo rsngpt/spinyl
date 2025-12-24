@@ -235,3 +235,73 @@ h6 {
     gap: 12px;
   }
 }
+
+/* Glow Hover Utility */
+.glow-hover {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.glow-hover:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+/* Navbar Buttons */
+.nav-btn {
+  padding: 10px 24px;
+  background: #fff;
+  color: #000;
+  border-radius: 500px;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  background: #fff;
+  /* Ensure it stays white */
+  /* Ensure it stays white */
+}
+
+/* Profile Icon Interactive Effect */
+.profile-hover {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  padding: 4px 8px;
+  border-radius: 50px;
+}
+
+.profile-hover:hover {
+  transform: scale(1.02);
+  /* background: removed for clean look */
+}
+
+.profile-hover:hover span {
+  color: var(--primary);
+}
+
+.profile-hover:hover .profile-avatar-container {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 15px rgba(29, 185, 84, 0.4);
+}
+
+/* Logo Hover Effect */
+.logo-hover {
+  transition: all 0.3s ease;
+  display: inline-block;
+  /* Required for transform */
+}
+
+.logo-hover:hover {
+  transform: scale(1.05);
+  text-shadow: 0 0 15px rgba(29, 185, 84, 0.6);
+  /* Brand color glow */
+  color: var(--primary);
+}

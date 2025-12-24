@@ -5,7 +5,6 @@ export default function Hero() {
         <div
             style={{
                 padding: '160px 40px 80px',
-                background: 'linear-gradient(180deg, #2a2a2a 0%, #121212 100%)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',

@@ -1,7 +1,7 @@
-import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import AlbumSwitcher from './components/AlbumSwitcher';
 import { spotifyFetch } from '@/src/lib/spotify';
+import RecentlyPlayedSlideshow from './components/RecentlyPlayedSlideshow';
 
 type Album = {
   id: string;
@@ -13,7 +13,7 @@ type Album = {
 
 async function getGlobalAlbums(): Promise<Album[]> {
   try {
-    // country=US serves as a good proxy for "Global" pop culture trends, distinct from local Indian releases
+    // country=US serves as a good proxy for "Global" pop culture trends
     const data = await spotifyFetch('browse/new-releases?country=US&limit=10');
     return mapSpotifyAlbums(data);
   } catch (error) {
@@ -54,10 +54,11 @@ export default async function Home() {
   return (
     <main style={{ minHeight: '100vh', paddingBottom: '80px', position: 'relative' }}>
       <div className="live-gradient-bg" />
-      <Navbar />
       <Hero />
 
-      <div style={{ position: 'relative', zIndex: 1 }}>
+      <div style={{ position: 'relative', zIndex: 1, marginTop: '-40px' }}>
+        <RecentlyPlayedSlideshow />
+
         <AlbumSwitcher
           globalAlbums={globalAlbums}
           indianAlbums={indianAlbums}
