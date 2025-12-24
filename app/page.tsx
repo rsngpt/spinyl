@@ -1,7 +1,6 @@
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import AlbumSwitcher from './components/AlbumSwitcher';
-
 import { spotifyFetch } from '@/src/lib/spotify';
 
 type Album = {
@@ -59,7 +58,10 @@ export default async function Home() {
       <Hero />
 
       <div style={{ position: 'relative', zIndex: 1 }}>
-        <AlbumSwitcher globalAlbums={globalAlbums} indianAlbums={indianAlbums} />
+        <AlbumSwitcher
+          globalAlbums={globalAlbums}
+          indianAlbums={indianAlbums}
+        />
       </div>
     </main>
   );

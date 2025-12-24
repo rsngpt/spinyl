@@ -19,7 +19,8 @@ type AlbumSwitcherProps = {
 export default function AlbumSwitcher({ globalAlbums, indianAlbums }: AlbumSwitcherProps) {
     const [activeTab, setActiveTab] = useState<'global' | 'india'>('global');
 
-    const activeAlbums = activeTab === 'global' ? globalAlbums : indianAlbums;
+    let activeAlbums = globalAlbums;
+    if (activeTab === 'india') activeAlbums = indianAlbums;
 
     return (
         <div className="switcher-container" style={{ maxWidth: '1400px', margin: '0 auto' }}>
@@ -40,17 +41,34 @@ export default function AlbumSwitcher({ globalAlbums, indianAlbums }: AlbumSwitc
                         position: 'relative',
                     }}
                 >
+                    {/* Sliding Background */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: '4px',
+                            left: '4px',
+                            height: 'calc(100% - 8px)',
+                            width: 'calc(50% - 4px)',
+                            background: 'var(--primary)',
+                            borderRadius: '50px',
+                            transform: activeTab === 'global' ? 'translateX(0)' : 'translateX(100%)',
+                            transition: 'transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                            zIndex: 0,
+                        }}
+                    />
+
                     <button
                         onClick={() => setActiveTab('global')}
                         style={{
                             padding: '10px 24px',
                             borderRadius: '50px',
                             border: 'none',
-                            background: activeTab === 'global' ? 'var(--primary)' : 'transparent',
+                            background: 'transparent',
                             color: activeTab === 'global' ? '#000' : 'var(--text-secondary)',
                             fontWeight: 700,
                             cursor: 'pointer',
-                            transition: 'all 0.3s ease',
+                            transition: 'color 0.3s',
+                            zIndex: 1,
                             outline: 'none',
                             fontSize: '0.95rem',
                         }}
@@ -63,11 +81,12 @@ export default function AlbumSwitcher({ globalAlbums, indianAlbums }: AlbumSwitc
                             padding: '10px 24px',
                             borderRadius: '50px',
                             border: 'none',
-                            background: activeTab === 'india' ? 'var(--primary)' : 'transparent',
+                            background: 'transparent',
                             color: activeTab === 'india' ? '#000' : 'var(--text-secondary)',
                             fontWeight: 700,
                             cursor: 'pointer',
-                            transition: 'all 0.3s ease',
+                            transition: 'color 0.3s',
+                            zIndex: 1,
                             outline: 'none',
                             fontSize: '0.95rem',
                         }}
@@ -90,26 +109,19 @@ export default function AlbumSwitcher({ globalAlbums, indianAlbums }: AlbumSwitc
             to { opacity: 1; transform: translateY(0); }
           }
         `}</style>
-
-                {activeAlbums.length > 0 ? (
-                    activeAlbums.map((album) => (
-                        <a
-                            key={album.id}
-                            href={`/album/${album.id}`}
-                            style={{
-                                textDecoration: 'none',
-                                color: 'inherit',
-                                display: 'block',
-                            }}
-                        >
-                            <AlbumCard album={album} />
-                        </a>
-                    ))
-                ) : (
-                    <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px', color: 'var(--text-secondary)' }}>
-                        <p>No albums found for this region.</p>
-                    </div>
-                )}
+                {activeAlbums.map((album) => (
+                    <a
+                        key={album.id}
+                        href={`/album/${album.id}`}
+                        style={{
+                            textDecoration: 'none',
+                            color: 'inherit',
+                            display: 'block',
+                        }}
+                    >
+                        <AlbumCard album={album} />
+                    </a>
+                ))}
             </div>
 
             <div style={{ textAlign: 'center', marginTop: '40px' }}>
