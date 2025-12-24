@@ -42,7 +42,12 @@ export async function GET(request: Request) {
 
             return NextResponse.redirect(`${origin}${next}`);
         } else {
-            console.error('Auth Code Exchange Error:', error);
+            console.error('------- AUTH CALLBACK ERROR -------');
+            console.error('Code Exchange Failed. Error Details:', JSON.stringify(error, null, 2));
+            console.error('Request URL:', request.url);
+            console.error('Auth Code (First 5 chars):', code ? code.substring(0, 5) + '...' : 'None');
+            console.error('-----------------------------------');
+
             const errorMessage = encodeURIComponent(error.message);
             return NextResponse.redirect(`${origin}/login?error=${errorMessage}`);
         }
