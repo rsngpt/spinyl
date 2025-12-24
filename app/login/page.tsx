@@ -1,14 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import SpotifyAuthButton from '../components/SpotifyAuthButton';
+import GoogleAuthButton from '../components/GoogleAuthButton';
 import { login, signup } from '../auth/actions';
 
 export default function LoginPage() {
     const [mode, setMode] = useState<'login' | 'signup'>('login');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     async function handleSubmit(formData: FormData) {
@@ -23,21 +22,13 @@ export default function LoginPage() {
             setError(result.error);
             setIsLoading(false);
         } else if (result && 'success' in result && result.success && mode === 'signup') {
-            // Signup Successful
             setSuccessMessage("Account created successfully! Please check your email to confirm, then log in.");
             setIsLoading(false);
-            setMode('login'); // Switch to login mode automatically for convenience? 
-            // User asked: "tell them sing up successfull now you can login"
-            // Let's keep them on the page but maybe switch mode to login or just show the message.
-            // Switching mode is UX friendly.
+            setMode('login');
         } else {
-            // Login Success
             if (result?.success && mode === 'login') {
-                // Force a hard reload to ensure Navbar updates instantly
-                // standard router.push() might keep stale client cache
                 window.location.href = '/';
             } else {
-                // Should not happen if logic is correct, but safe fallback
                 setIsLoading(false);
             }
         }
@@ -69,7 +60,7 @@ export default function LoginPage() {
                 </p>
 
                 <div style={{ marginBottom: '24px' }}>
-                    <SpotifyAuthButton />
+                    <GoogleAuthButton />
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '24px 0', color: '#555' }}>
@@ -160,13 +151,6 @@ export default function LoginPage() {
                     {error && (
                         <div style={{ padding: '12px', background: 'rgba(255,0,0,0.1)', border: '1px solid rgba(255,0,0,0.3)', borderRadius: '8px', color: '#ff4444', fontSize: '0.9rem' }}>
                             {decodeURIComponent(error)}
-                            {decodeURIComponent(error).includes('getting user profile') && (
-                                <div style={{ marginTop: '8px', fontSize: '0.8rem', color: '#aaa', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '8px' }}>
-                                    <strong>💡 Developer Tip:</strong> This usually means your Spotify App is in "Development Mode" and your email isn't whitelisted.
-                                    <br />
-                                    <a href="https://developer.spotify.com/dashboard" target="_blank" style={{ color: '#1db954', textDecoration: 'underline' }}>Go to Spotify Dashboard</a> -&gt; Users and Access -&gt; Add your email.
-                                </div>
-                            )}
                         </div>
                     )}
 

@@ -5,7 +5,8 @@ import { cookies } from 'next/headers';
 export async function GET(request: Request) {
     const { searchParams, origin } = new URL(request.url);
     const code = searchParams.get('code');
-    const next = searchParams.get('next') ?? '/?login_success=true';
+    const next = searchParams.get('next') ?? '/';
+    // Default to root, but logic below might override to /onboarding
 
     if (code) {
         const cookieStore = await cookies();
@@ -27,34 +28,29 @@ export async function GET(request: Request) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
 
         if (!error) {
-            // Upsert Profile Logic (Ensuring registration)
+            // Check if user has a profile with a 'username' set.
+            // If NOT, redirect to /onboarding.
             const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                const { user_metadata } = user;
-                const { error: profileError } = await supabase
-                    .from('profiles')
-                    .upsert({
-                        id: user.id,
-                        username: user_metadata.name || user_metadata.full_name || user.email?.split('@')[0],
-                        full_name: user_metadata.full_name || user_metadata.name,
-                        avatar_url: user_metadata.avatar_url || user_metadata.picture,
-                        updated_at: new Date().toISOString(),
-                    });
 
-                if (profileError) {
-                    console.error('SERVER ACTION: Profile Upsert Error:', profileError);
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('username')
+                    .eq('id', user.id)
+                    .single();
+
+                // If profile missing OR username is default/empty -> Onboarding
+                // (Assuming we want them to pick a unique one, even if we auto-gen one, 
+                // but for this pivot, let's force them to choose if it's not set cleanly).
+                if (!profile || !profile.username) {
+                    return NextResponse.redirect(`${origin}/onboarding`);
                 }
             }
 
             return NextResponse.redirect(`${origin}${next}`);
-        } else {
-            console.error('------- AUTH CALLBACK ERROR (Exchange Failed) -------');
-            console.error('Code Exchange Failed. Error Details:', JSON.stringify(error, null, 2));
-            return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error.message)}`);
         }
     }
 
-    // Fallback for when 'code' is missing
-    const errorDescription = searchParams.get('error_description') || 'auth_code_error';
-    return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(errorDescription)}`);
+    // specific handling for error (e.g. google access_denied)
+    return NextResponse.redirect(`${origin}/login?error=auth_failed`);
 }
