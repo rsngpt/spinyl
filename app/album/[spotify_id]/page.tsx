@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import Navbar from '../../components/Navbar';
+
 import ReviewSection from '../../components/ReviewSection';
 import TrackPreview from '../../components/TrackPreview';
 import { spotifyFetch } from '@/src/lib/spotify';
@@ -82,7 +82,7 @@ export default async function AlbumPage(props: PageProps) {
 
   return (
     <main style={{ minHeight: '100vh', paddingBottom: '80px', background: '#121212', color: '#fff' }}>
-      <Navbar />
+
 
       {/* Hero / Header Section */}
       <div style={{ position: 'relative', overflow: 'hidden' }}>

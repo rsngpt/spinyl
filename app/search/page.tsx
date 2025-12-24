@@ -1,4 +1,4 @@
-import Navbar from '../components/Navbar';
+
 import AlbumCard from '../components/AlbumCard';
 import { spotifySearch } from '@/src/lib/spotify';
 
@@ -38,7 +38,7 @@ export default async function SearchPage(props: SearchPageProps) {
     return (
         <main style={{ minHeight: '100vh', paddingBottom: '80px' }}>
             <div className="live-gradient-bg" />
-            <Navbar />
+
 
             <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '120px 24px 40px' }}>
                 <h1 style={{ fontSize: '2.5rem', marginBottom: '24px' }}>
