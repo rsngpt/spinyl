@@ -5,6 +5,8 @@ import TrackPreview from '../../components/TrackPreview';
 import { spotifyFetch } from '@/src/lib/spotify';
 import { getSupabaseServerClient } from '@/src/lib/supabase-server';
 
+export const dynamic = 'force-dynamic';
+
 type PageProps = {
   params: Promise<{
     spotify_id: string;
