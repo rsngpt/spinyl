@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import SearchOverlay from './SearchOverlay';
 
 export default function SearchBar({ user }: { user: any }) {
@@ -24,6 +24,19 @@ export default function SearchBar({ user }: { user: any }) {
             inputRef.current?.focus();
         }, 50);
     };
+
+    // Event Listener for External Triggers ("Start Exploring" button)
+    useEffect(() => {
+        const handleOpenSearch = () => {
+            setIsExpanded(true);
+            setTimeout(() => {
+                inputRef.current?.focus();
+            }, 100);
+        };
+
+        window.addEventListener('spinyl:open-search', handleOpenSearch);
+        return () => window.removeEventListener('spinyl:open-search', handleOpenSearch);
+    }, []);
 
     return (
         <div

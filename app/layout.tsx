@@ -9,6 +9,8 @@ export const metadata = {
 
 import { getSupabaseServerClient } from '@/src/lib/supabase-server';
 
+import Footer from './components/Footer';
+
 export default async function RootLayout({
   children,
 }: {
@@ -32,6 +34,7 @@ export default async function RootLayout({
       <body>
         <Navbar initialUser={user} initialProfile={profile} />
         {children}
+        <Footer />
       </body>
     </html>
   );
