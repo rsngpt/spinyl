@@ -3,25 +3,11 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
 export async function GET(request: Request) {
-    console.log('--- AUTH CALLBACK STARTED ---');
-    console.log('Request URL:', request.url);
-
     const { searchParams, origin } = new URL(request.url);
     const code = searchParams.get('code');
-    const errorParam = searchParams.get('error');
-    const errorDesc = searchParams.get('error_description');
-
-    console.log('Params Details:', {
-        hasCode: !!code,
-        codePartial: code ? code.substring(0, 5) + '...' : 'null',
-        error: errorParam,
-        errorDesc
-    });
-
     const next = searchParams.get('next') ?? '/?login_success=true';
 
     if (code) {
-        console.log('Attempting Supabase Code Exchange...');
         const cookieStore = await cookies();
         const supabase = createServerClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -41,12 +27,9 @@ export async function GET(request: Request) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
 
         if (!error) {
-            console.log('Code Exchange Successful. Session created.');
-
             // Upsert Profile Logic (Ensuring registration)
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
-                console.log('Upserting user profile for:', user.id);
                 const { user_metadata } = user;
                 const { error: profileError } = await supabase
                     .from('profiles')
@@ -60,30 +43,18 @@ export async function GET(request: Request) {
 
                 if (profileError) {
                     console.error('SERVER ACTION: Profile Upsert Error:', profileError);
-                } else {
-                    console.log('Profile upserted successfully.');
                 }
-            } else {
-                console.warn('Authentication successful but getUser() returned null?');
             }
 
             return NextResponse.redirect(`${origin}${next}`);
         } else {
             console.error('------- AUTH CALLBACK ERROR (Exchange Failed) -------');
             console.error('Code Exchange Failed. Error Details:', JSON.stringify(error, null, 2));
-            console.error('Request URL:', request.url);
-            console.error('Auth Code (First 5 chars):', code ? code.substring(0, 5) + '...' : 'None');
-            console.error('-----------------------------------');
-
-            const errorMessage = encodeURIComponent(error.message);
-            return NextResponse.redirect(`${origin}/login?error=${errorMessage}`);
+            return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error.message)}`);
         }
     }
 
     // Fallback for when 'code' is missing
-    console.warn('------- AUTH CALLBACK WARNING (No Code) -------');
-    console.warn('Missing "code" param. Falling back to error description.');
     const errorDescription = searchParams.get('error_description') || 'auth_code_error';
-    const encodedError = encodeURIComponent(errorDescription);
-    return NextResponse.redirect(`${origin}/login?error=${encodedError}`);
+    return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(errorDescription)}`);
 }
