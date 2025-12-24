@@ -34,11 +34,17 @@ async function getAlbumReviews(spotifyId: string) {
 
   if (!albumRow) return [];
 
-  const { data: reviews } = await supabase
+  const { data: reviews, error } = await supabase
     .from('reviews')
     .select('*, profiles(username, avatar_url)')
     .eq('album_id', albumRow.id)
     .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching reviews:', error);
+  } else {
+    console.log(`Fetched ${reviews?.length} reviews for album ${albumRow.id}`);
+  }
 
   return reviews || [];
 }
