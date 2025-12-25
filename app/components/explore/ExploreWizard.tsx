@@ -78,7 +78,11 @@ export default function ExploreWizard() {
     const finishWizard = async () => {
         setStep('RESULTS');
 
-        // Save to DB
+        // Save Local
+        localStorage.setItem('spinyl_genres', JSON.stringify(selectedGenres));
+        localStorage.setItem('spinyl_artists', JSON.stringify(selectedArtists));
+
+        // Save DB
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
             await supabase
@@ -98,7 +102,11 @@ export default function ExploreWizard() {
         setSelectedGenres([]);
         setSelectedArtists([]);
 
-        // Clear from DB
+        // Clear Local
+        localStorage.removeItem('spinyl_genres');
+        localStorage.removeItem('spinyl_artists');
+
+        // Clear DB
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
             await supabase
