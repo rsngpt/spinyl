@@ -108,7 +108,9 @@ export default function Hero() {
                                 transition: 'transform 0.2s, box-shadow 0.2s',
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: '8px'
+                                gap: '8px',
+                                position: 'relative',
+                                zIndex: 10
                             }}
                             onMouseOver={(e) => {
                                 e.currentTarget.style.transform = 'scale(1.05)';

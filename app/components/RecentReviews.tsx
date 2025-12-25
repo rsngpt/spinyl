@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { createBrowserClient } from '@supabase/ssr';
-import { Star, User } from 'lucide-react';
+import { Star, User, Disc } from 'lucide-react';
+import { getRecentReviews } from '../actions/review';
 
 type Review = {
     id: string;
@@ -33,34 +34,16 @@ export default function RecentReviews() {
     useEffect(() => {
         async function fetchReviews() {
             setLoading(true);
-            const { data, error } = await supabase
-                .from('reviews')
-                .select(`
-          id,
-          rating,
-          review_text,
-          album_id,
-          profiles (
-            username,
-            avatar_url
-          ),
-          albums (
-            name,
-            cover_image,
-            spotify_id
-          )
-        `)
-                .order('created_at', { ascending: false })
-                .limit(10);
-
-            setLoading(false);
-
-            if (!error && data) {
-                console.log('RecentReviews Data:', data);
-                setReviews(data as any);
-            } else if (error) {
+            try {
+                const data = await getRecentReviews();
+                console.log('RecentReviews Data (Server Action):', data);
+                if (data) {
+                    setReviews(data as any);
+                }
+            } catch (error) {
                 console.error('RecentReviews Error:', error);
             }
+            setLoading(false);
         }
 
         fetchReviews();
@@ -233,5 +216,3 @@ export default function RecentReviews() {
         </section >
     );
 }
-
-import { Disc } from 'lucide-react';

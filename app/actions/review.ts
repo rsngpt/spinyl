@@ -1,7 +1,62 @@
 'use server';
 
 import { getSupabaseServerClient } from '@/src/lib/supabase-server';
+import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+
+// Helper to get admin client if key exists
+const getAdminClient = () => {
+    const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const sbServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (sbUrl && sbServiceKey) {
+        return createClient(sbUrl, sbServiceKey, {
+            auth: {
+                autoRefreshToken: false,
+                persistSession: false
+            }
+        });
+    }
+    return null;
+};
+
+export async function getRecentReviews() {
+    try {
+        // Try admin client first to bypass RLS
+        const adminSupabase = getAdminClient();
+        const supabase = adminSupabase || await getSupabaseServerClient();
+
+        const { data, error } = await supabase
+            .from('reviews')
+            .select(`
+                id,
+                rating,
+                review_text,
+                album_id,
+                profiles (
+                    username,
+                    avatar_url
+                ),
+                albums (
+                  name,
+                  cover_image,
+                  spotify_id
+                )
+            `)
+            .order('created_at', { ascending: false })
+            .limit(10);
+
+        if (error) {
+            console.error('Error fetching reviews:', error);
+            return [];
+        }
+
+        return data || [];
+    } catch (e) {
+        console.error('Exception fetching reviews:', e);
+        return [];
+    }
+}
 
 type SubmitReviewResult = {
     success: boolean;
