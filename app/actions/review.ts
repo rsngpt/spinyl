@@ -22,9 +22,12 @@ const getAdminClient = () => {
 
 export async function getRecentReviews() {
     try {
+        console.log('getRecentReviews: Starting fetch...');
         // Try admin client first to bypass RLS
         const adminSupabase = getAdminClient();
         const supabase = adminSupabase || await getSupabaseServerClient();
+
+        console.log('getRecentReviews: Client created. Is Admin:', !!adminSupabase);
 
         const { data, error } = await supabase
             .from('reviews')
@@ -51,6 +54,7 @@ export async function getRecentReviews() {
             return [];
         }
 
+        console.log(`getRecentReviews: Fetched ${data?.length} reviews.`);
         return data || [];
     } catch (e) {
         console.error('Exception fetching reviews:', e);

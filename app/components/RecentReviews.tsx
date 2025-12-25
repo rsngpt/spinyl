@@ -210,7 +210,7 @@ export default function RecentReviews() {
                 </div>
             ) : (
                 <div style={{ textAlign: 'center', color: '#B3B3B3', padding: '40px' }}>
-                    <p>No reviews yet. Be the first!</p>
+                    <p>No reviews yet. Be the first to share your thoughts!</p>
                 </div>
             )}
         </section >
