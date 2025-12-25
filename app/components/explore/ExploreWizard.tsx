@@ -9,55 +9,30 @@ import './explore.css';
 
 type Step = 'GENRE' | 'ARTIST' | 'RESULTS';
 
-export default function ExploreWizard() {
-    const [step, setStep] = useState<Step>('GENRE');
-    const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
-    const [selectedArtists, setSelectedArtists] = useState<any[]>([]);
-    const [loadingVibe, setLoadingVibe] = useState(true);
+type ExploreWizardProps = {
+    initialVibe?: {
+        genres: string[];
+        artists: any[];
+    } | null;
+};
+
+export default function ExploreWizard({ initialVibe }: ExploreWizardProps) {
+    const [step, setStep] = useState<Step>(
+        (initialVibe?.genres?.length && initialVibe?.artists?.length) ? 'RESULTS' : 'GENRE'
+    );
+    const [selectedGenres, setSelectedGenres] = useState<string[]>(initialVibe?.genres || []);
+    const [selectedArtists, setSelectedArtists] = useState<any[]>(initialVibe?.artists || []);
+
+    // No longer need loading state since data comes from server
+    // const [loadingVibe, setLoadingVibe] = useState(true);
 
     const supabase = createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    useEffect(() => {
-        async function loadVibe() {
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                console.log('[ExploreWizard] User:', user?.id);
+    // Client-side fetch removed in favor of Server-Side Prop
 
-                if (!user) {
-                    setLoadingVibe(false);
-                    return;
-                }
-
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .select('vibe')
-                    .eq('id', user.id)
-                    .single();
-
-                console.log('[ExploreWizard] DB Vibe:', data?.vibe, 'Error:', error);
-
-                if (data?.vibe && !error) {
-                    const vibe = data.vibe as any;
-                    if (vibe.genres && Array.isArray(vibe.genres) && vibe.artists && Array.isArray(vibe.artists)) {
-                        console.log('[ExploreWizard] Vibe valid, switching to RESULTS');
-                        setSelectedGenres(vibe.genres);
-                        setSelectedArtists(vibe.artists);
-                        setStep('RESULTS');
-                    } else {
-                        console.log('[ExploreWizard] Vibe invalid structure');
-                    }
-                }
-            } catch (e) {
-                console.error("Failed to load vibe", e);
-            } finally {
-                setLoadingVibe(false);
-            }
-        }
-        loadVibe();
-    }, []);
 
     const handleToggleGenre = (genre: string) => {
         setSelectedGenres(prev =>
@@ -116,15 +91,7 @@ export default function ExploreWizard() {
         }
     };
 
-    // Prevent flash of wizard if vibe exists
-    if (loadingVibe) return (
-        <div className="explore-container">
-            <div className="loading-container">
-                <div className="spinner"></div>
-                <p>Loading your vibe...</p>
-            </div>
-        </div>
-    );
+
 
     return (
         <div className="explore-container">

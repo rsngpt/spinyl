@@ -13,6 +13,15 @@ export default async function Explore() {
     redirect('/login');
   }
 
+  // Fetch Vibe Server-Side to prevent loading states
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('vibe')
+    .eq('id', user.id)
+    .single();
+
+  const initialVibe = profile?.vibe as any;
+
   return (
     <main style={{ paddingTop: '80px', minHeight: '100vh' }}>
       <div className="explore-container">
@@ -25,7 +34,7 @@ export default async function Explore() {
           </p>
         </div>
 
-        <ExploreWizard />
+        <ExploreWizard initialVibe={initialVibe} />
       </div>
     </main>
   );
