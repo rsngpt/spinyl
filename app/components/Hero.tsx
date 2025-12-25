@@ -88,12 +88,21 @@ export default function Hero() {
                     <div className="animate-fade-in-up" style={{ display: 'flex', gap: '20px', animationDelay: '0.3s' }}>
                         <button
                             onClick={async () => {
-                                const { data: { session } } = await supabase.auth.getSession();
-                                if (session) {
-                                    router.push('/explore');
-                                } else {
-                                    alert('Please sign in to start exploring!');
-                                    router.push('/login');
+                                console.log('Start Exploring clicked');
+                                try {
+                                    const { data: { session }, error } = await supabase.auth.getSession();
+                                    console.log('Session check:', !!session, error);
+                                    if (session) {
+                                        console.log('Redirecting to /explore');
+                                        router.push('/explore');
+                                    } else {
+                                        console.log('Not logged in, redirecting to login');
+                                        // alert('Please sign in to start exploring!'); // Alert might be blocked or annoying
+                                        router.push('/login');
+                                    }
+                                } catch (e) {
+                                    console.error('Error in Start Exploring click:', e);
+                                    router.push('/login'); // Fallback
                                 }
                             }}
                             style={{
@@ -110,7 +119,8 @@ export default function Hero() {
                                 alignItems: 'center',
                                 gap: '8px',
                                 position: 'relative',
-                                zIndex: 10
+                                zIndex: 10,
+                                pointerEvents: 'auto' // Ensure button itself captures events against any other obscure styles
                             }}
                             onMouseOver={(e) => {
                                 e.currentTarget.style.transform = 'scale(1.05)';

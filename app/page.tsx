@@ -14,8 +14,8 @@ export default async function Home() {
           <Hero />
         </section>
 
-        <div style={{ position: 'relative', zIndex: 1, marginTop: '-40px' }}>
-          <section id="recently-played" style={{ marginBottom: '80px' }}>
+        <div style={{ position: 'relative', zIndex: 1, marginTop: '-40px', pointerEvents: 'none' }}>
+          <section id="recently-played" style={{ marginBottom: '80px', pointerEvents: 'auto' }}>
             <RecentlyPlayedSlideshow />
           </section>
 
