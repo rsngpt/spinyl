@@ -68,15 +68,15 @@ export default function Footer() {
                         <ul style={{ listStyle: 'none', padding: 0 }}>
                             <li style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#B3B3B3', marginBottom: '16px' }}>
                                 <Mail size={18} color="#1DB954" />
-                                <span style={{ fontSize: '0.95rem' }}>hello@spinyl.com</span>
+                                <span style={{ fontSize: '0.95rem' }}>spinylchord@gmail.com</span>
                             </li>
                             <li style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#B3B3B3', marginBottom: '16px' }}>
                                 <Phone size={18} color="#1DB954" />
-                                <span style={{ fontSize: '0.95rem' }}>+1 (555) 123-4567</span>
+                                <span style={{ fontSize: '0.95rem' }}>+91 8840271419</span>
                             </li>
                             <li style={{ display: 'flex', gap: '12px', alignItems: 'start', color: '#B3B3B3' }}>
                                 <MapPin size={18} color="#1DB954" style={{ marginTop: '4px' }} />
-                                <span style={{ fontSize: '0.95rem' }}>123 Music Row,<br />Nashville, TN 37203</span>
+                                <span style={{ fontSize: '0.95rem' }}>Bennett University,<br />Greater Noida, UP 201310</span>
                             </li>
                         </ul>
                     </div>
@@ -94,7 +94,7 @@ export default function Footer() {
                     fontSize: '0.9rem'
                 }}>
                     <p>&copy; {new Date().getFullYear()} Spinyl. All rights reserved.</p>
-                    <p>Made with 💚 by Music Lovers</p>
+                    <p>Made with 💚 by Roshan Gupta</p>
                 </div>
             </div>
         </footer>
