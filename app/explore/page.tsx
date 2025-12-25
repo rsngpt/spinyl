@@ -1,25 +1,22 @@
 import React from 'react';
-import AlbumCard from '../components/AlbumCard';
+import ExploreWizard from '../components/explore/ExploreWizard';
 
-// fetch album grid
-async function getAlbums() {
-  
-  const res = await fetch('/api/discover/albums', { next: { revalidate: 60 } });
-  return res.json();
-}
 export const dynamic = 'force-dynamic';
 
-export default async function Explore() {
-  const albums = await getAlbums();
-
+export default function Explore() {
   return (
-    <main className="explore-page">
-      <h1 className="title">Discover Music</h1>
+    <main style={{ paddingTop: '80px', minHeight: '100vh' }}>
+      <div className="explore-container">
+        <div className="wizard-header">
+          <h1 className="wizard-title">
+            Discover
+          </h1>
+          <p className="wizard-subtitle">
+            Find your next obsession. Mix genres and artists to curate a personalized playlist just for you.
+          </p>
+        </div>
 
-      <div className="grid">
-        {albums?.map((album: any) => (
-          <AlbumCard key={album.id} album={album} />
-        ))}
+        <ExploreWizard />
       </div>
     </main>
   );

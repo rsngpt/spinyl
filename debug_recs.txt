@@ -1,0 +1,8 @@
+Error at 2025-12-25T09:46:31.164Z: Request failed with status code 404
+Params: pop / null
+Error at 2025-12-25T09:50:25.110Z: {"error":{"status":401,"message":"Invalid access token"}}
+Params: indian,indie,indie-pop,hip-hop,pop-film / 0y59o4v8uw5crbN9M3JiL1,5NHm4TU5Twz7owibYxJfFU,6QoCrBHsojKnOrsGNfRcTN,6DARBhWbfcS9E4yJzcliqQ,4nVa6XlBFlIkF6msW57PHp
+Error at 2025-12-25T09:50:25.434Z: {"error":{"status":401,"message":"Invalid access token"}}
+Params: indian,indie,indie-pop,hip-hop,pop-film / 0y59o4v8uw5crbN9M3JiL1,5NHm4TU5Twz7owibYxJfFU,6QoCrBHsojKnOrsGNfRcTN,6DARBhWbfcS9E4yJzcliqQ,4nVa6XlBFlIkF6msW57PHp
+Error at 2025-12-25T09:52:13.067Z: {"error":{"status":401,"message":"Invalid access token"}}
+Params: indian,indie,indie-pop,hip-hop,pop-film / 0y59o4v8uw5crbN9M3JiL1,5NHm4TU5Twz7owibYxJfFU,6QoCrBHsojKnOrsGNfRcTN,6DARBhWbfcS9E4yJzcliqQ,4nVa6XlBFlIkF6msW57PHp

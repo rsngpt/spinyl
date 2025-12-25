@@ -96,8 +96,8 @@ async function getAccessToken(): Promise<string> {
 ======================= */
 
 // Generic fetch (album details, tracks, etc.)
-export async function spotifyFetch(endpoint: string) {
-  const token = await getAccessToken();
+export async function spotifyFetch(endpoint: string, accessToken?: string) {
+  const token = accessToken || await getAccessToken();
 
   try {
     const response = await axios.get(

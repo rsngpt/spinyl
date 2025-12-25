@@ -1,8 +1,15 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
+import { createBrowserClient } from '@supabase/ssr';
 
 export default function Hero() {
+    const router = useRouter();
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
     return (
         <section style={{
             minHeight: '80vh',
@@ -80,8 +87,14 @@ export default function Hero() {
 
                     <div className="animate-fade-in-up" style={{ display: 'flex', gap: '20px', animationDelay: '0.3s' }}>
                         <button
-                            onClick={() => {
-                                window.dispatchEvent(new Event('spinyl:open-search'));
+                            onClick={async () => {
+                                const { data: { session } } = await supabase.auth.getSession();
+                                if (session) {
+                                    router.push('/explore');
+                                } else {
+                                    alert('Please sign in to start exploring!');
+                                    router.push('/login');
+                                }
                             }}
                             style={{
                                 padding: '16px 32px',

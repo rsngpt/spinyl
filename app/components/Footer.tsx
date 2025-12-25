@@ -11,7 +11,8 @@ export default function Footer() {
             padding: '80px 0 40px',
             borderTop: '1px solid rgba(255,255,255,0.1)',
             position: 'relative',
-            zIndex: 10
+            zIndex: 10,
+            width: '100%'
         }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 40px' }}>
 
