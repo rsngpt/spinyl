@@ -15,6 +15,13 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
+        if (!process.env.GEMINI_API_KEY) {
+            console.error("FATAL: GEMINI_API_KEY is not set in environment variables!");
+            return NextResponse.json({
+                error: 'Server Misconfiguration: AI API Key is missing. Please add GEMINI_API_KEY to your deployment settings.'
+            }, { status: 500 });
+        }
+
         // 1. Fetch User Data (Reviews and Profile)
         // Get reviews count first
         const { count: reviewsCount } = await supabase

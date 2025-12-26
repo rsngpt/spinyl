@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Flame } from 'lucide-react';
-import RoastModal from './RoastModal';
+import { Flame, Lock } from 'lucide-react';
+import RoastModal from '@/app/components/RoastModal';
 
 interface RoastFloatingButtonProps {
     reviewsCount: number;
@@ -11,34 +11,49 @@ interface RoastFloatingButtonProps {
 
 export default function RoastFloatingButton({ reviewsCount, userId }: RoastFloatingButtonProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
 
-    // Initial simple logic: If < 5 reviews, we don't even show the button (or we show it disabled)
-    // For now, let's show it but disabled with a tooltip if count < 5
     const isEligible = reviewsCount >= 5;
 
-    if (!isEligible) {
-        // Option: Don't render at all if not eligible to keep UI clean
-        // Or render a greyed out one. Let's render nothing for now to avoid clutter, 
-        // as per "happen after 5 reviews only" request.
-        return null;
-    }
+    const handleClick = () => {
+        if (isEligible) {
+            setIsModalOpen(true);
+        }
+    };
 
     return (
         <>
             <button
-                onClick={() => setIsModalOpen(true)}
-                className="roast-fab"
-                aria-label="Roast My Taste"
+                onClick={handleClick}
+                className={`roast-fab ${!isEligible ? 'locked' : ''}`}
+                aria-label={isEligible ? "Roast My Taste" : "Need 5 Reviews to Roast"}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
             >
-                <Flame size={28} fill="#fff" strokeWidth={1.5} />
-                <span className="roast-text">Roast My Taste</span>
+                {/* Logic: 
+                    - If Eligible: Always Flame
+                    - If Locked: 
+                        - Normal: Flame
+                        - Hover: Lock 
+                */}
+                {!isEligible && isHovered ? (
+                    <Lock size={28} fill="#fff" />
+                ) : (
+                    <Flame size={28} fill="#fff" strokeWidth={1.5} />
+                )}
+
+                <span className="roast-text">
+                    {!isEligible && isHovered ? "Unlock at 5 Reviews" : "Roast My Taste"}
+                </span>
             </button>
 
-            <RoastModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                userId={userId}
-            />
+            {isEligible && (
+                <RoastModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    userId={userId}
+                />
+            )}
 
             <style jsx>{`
                 .roast-fab {
@@ -55,10 +70,11 @@ export default function RoastFloatingButton({ reviewsCount, userId }: RoastFloat
                     gap: 12px;
                     cursor: pointer;
                     box-shadow: 0 4px 20px rgba(255, 69, 0, 0.4);
-                    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease;
+                    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                     z-index: 100;
                     overflow: hidden;
                     font-family: inherit;
+                    min-width: 60px; /* Prevent total collapse */
                 }
 
                 .roast-fab:hover {
@@ -70,11 +86,26 @@ export default function RoastFloatingButton({ reviewsCount, userId }: RoastFloat
                     transform: scale(0.95);
                 }
 
+                /* Locked State Styles */
+                .roast-fab.locked {
+                    background: linear-gradient(135deg, #444 0%, #666 100%);
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+                    opacity: 0.9;
+                }
+                
+                .roast-fab.locked:hover {
+                    cursor: not-allowed;
+                    background: #333;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+                    transform: none; /* No bounce interaction */
+                }
+
                 /* Text is hidden on small screens, icon only */
                 .roast-text {
                     font-size: 1.1rem;
                     font-weight: 700;
                     white-space: nowrap;
+                    transition: opacity 0.2s;
                 }
 
                 .roast-fab::before {
@@ -104,11 +135,18 @@ export default function RoastFloatingButton({ reviewsCount, userId }: RoastFloat
                         bottom: 20px;
                         right: 20px;
                         padding: 16px;
-                        border-radius: 50%;
+                        border-radius: 50px; /* Keep pill shape for text if needed, or revert */
                     }
+                    /* On mobile, we might want to show text if locked to explain why? 
+                       Or keep generic behaviour. Responsive styling says hide text. 
+                       If text is hidden, user just sees lock icon on tap/hover which is fine.
+                    */
                     .roast-text {
                         display: none;
                     }
+                    
+                    /* If locked and hovered on mobile, maybe show a toast? 
+                       For now, standard CSS handles icon swap */
                 }
             `}</style>
         </>
