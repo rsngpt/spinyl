@@ -1,0 +1,65 @@
+[
+  {
+    "query": "Stranger Things Vol 1 artist:Kyle Dixon",
+    "found": true,
+    "name": "Stranger Things, Vol. 1 (A Netflix Original Series Soundtrack)",
+    "id": "1puplOrvmUGoq2VxsB0ENJ",
+    "artist": "Kyle Dixon & Michael Stein"
+  },
+  {
+    "query": "Stranger Things 4 artist:Kyle Dixon",
+    "found": true,
+    "name": "Stranger Things 4 (Original Score From The Netflix Series)",
+    "id": "5qRG8S2ClNtl71wEf2TKPp",
+    "artist": "Kyle Dixon & Michael Stein"
+  },
+  {
+    "query": "Master of Puppets artist:Metallica",
+    "found": true,
+    "name": "Master of Puppets (Remastered Deluxe Box Set)",
+    "id": "7CGhx630DIjdJqaBDVKc5j",
+    "artist": "Metallica"
+  },
+  {
+    "query": "Hounds of Love artist:Kate Bush",
+    "found": true,
+    "name": "Hounds Of Love",
+    "id": "5G5UwqPsxDKpxJLX4xsyuh",
+    "artist": "Kate Bush"
+  },
+  {
+    "query": "Combat Rock artist:The Clash",
+    "found": true,
+    "name": "Combat Rock (Remastered)",
+    "id": "1ZH5g1RDq3GY1OvyD0w0s2",
+    "artist": "The Clash"
+  },
+  {
+    "query": "Frontiers artist:Journey",
+    "found": true,
+    "name": "Frontiers (2023 Remaster)",
+    "id": "3pZ6D15onAaT2YyiTbcHmh",
+    "artist": "Journey"
+  },
+  {
+    "query": "The Youth of Today artist:Musical Youth",
+    "found": true,
+    "name": "The Youth Of Today",
+    "id": "2fzSaL01wmGVH2W1moTcCs",
+    "artist": "Musical Youth"
+  },
+  {
+    "query": "Like a Virgin artist:Madonna",
+    "found": true,
+    "name": "Like a Virgin",
+    "id": "2IU9ftOgyRL2caQGWK1jjX",
+    "artist": "Madonna"
+  },
+  {
+    "query": "Should I Stay Or Should I Go artist:The Clash",
+    "found": true,
+    "name": "The Karaoke Channel - Sing Should I Stay or Should I Go? Like the Clash",
+    "id": "7e1fSXYmw98J7C843MCODH",
+    "artist": "The Karaoke Channel"
+  }
+]

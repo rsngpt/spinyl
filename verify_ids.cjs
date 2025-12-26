@@ -2,34 +2,18 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const querystring = require('querystring');
+require('dotenv').config();
 
-// Basic dotenv implementation
-function loadEnv() {
-    try {
-        const envPath = path.resolve(process.cwd(), '.env');
-        const envFile = fs.readFileSync(envPath, 'utf8');
-        const lines = envFile.split('\n');
-        for (const line of lines) {
-            const match = line.match(/^([^=]+)=(.*)$/);
-            if (match) {
-                const key = match[1].trim();
-                const value = match[2].trim().replace(/^['"]|['"]$/g, '');
-                process.env[key] = value;
-            }
-        }
-        console.log('Env loaded.');
-    } catch (e) {
-        console.error('Error loading .env:', e.message);
-    }
-}
+// Basic dotenv implementation removed in favor of package
+// function loadEnv() { ... }
+// loadEnv();
 
-loadEnv();
 
 const clientId = process.env.SPOTIFY_CLIENT_ID;
 const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
 if (!clientId || !clientSecret) {
-    console.error('Missing credentials');
+    console.error('Missing credentials in .env');
     process.exit(1);
 }
 
@@ -47,7 +31,10 @@ function getAccessToken() {
             res.on('data', (chunk) => data += chunk);
             res.on('end', () => {
                 if (res.statusCode === 200) {
-                    resolve(JSON.parse(data).access_token);
+                    try {
+                        const token = JSON.parse(data).access_token;
+                        resolve(token);
+                    } catch (e) { reject('Failed to parse token response'); }
                 } else {
                     reject(`Auth failed: ${res.statusCode} ${data}`);
                 }
@@ -104,21 +91,23 @@ async function run() {
             "Combat Rock artist:The Clash",
             "Frontiers artist:Journey",
             "The Youth of Today artist:Musical Youth",
-            "Like a Virgin artist:Madonna"
+            "Like a Virgin artist:Madonna",
+            "Should I Stay Or Should I Go artist:The Clash"
         ];
 
+        const results = [];
         for (const q of queries) {
             const result = await searchAlbum(token, q);
+            results.push(result);
             if (result.found) {
                 console.log(`[FOUND] ${result.query}`);
-                console.log(`   ID: ${result.id}`);
-                console.log(`   Name: ${result.name}`);
-                console.log(`   Artist: ${result.artist}`);
             } else {
                 console.log(`[NOT FOUND] ${result.query} ${result.error || ''}`);
             }
-            console.log('---');
         }
+
+        fs.writeFileSync('ids_found.json', JSON.stringify(results, null, 2));
+        console.log('Results written to ids_found.json');
 
     } catch (error) {
         console.error('Error:', error);

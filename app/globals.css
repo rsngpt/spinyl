@@ -423,3 +423,18 @@ h6 {
   transform: scale(1.15);
   box-shadow: 0 0 15px rgba(29, 185, 84, 0.4);
 }
+.st-nav-link {
+  width: 40px;
+  height: 40px;
+  padding: 0 !important;
+  justify-content: center;
+  align-items: center;
+}
+
+.st-nav-link:hover {
+  color: #E50914 !important;
+  background: rgba(229, 9, 20, 0.15) !important;
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.6) !important;
+  transform: scale(1.15);
+  border-color: rgba(229, 9, 20, 0.5) !important;
+}

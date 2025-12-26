@@ -2,8 +2,10 @@
 
 import { createBrowserClient } from '@supabase/ssr';
 import { useEffect, useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Home, Zap, MessageCircle, Phone } from 'lucide-react';
+import SpookyTransition from './SpookyTransition';
+import { Home, Zap, MessageCircle, Phone, Ghost } from 'lucide-react';
 import LoginButton from './LoginButton'; // Or rename to generic AuthButton
 import SearchBar from './SearchBar';
 
@@ -13,7 +15,21 @@ interface NavbarProps {
 }
 
 export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const [isSpooky, setIsSpooky] = useState(false);
     const [user, setUser] = useState(initialUser);
+
+    useEffect(() => {
+        setIsSpooky(false);
+    }, [pathname]);
+
+    const handleSpookyTransition = () => {
+        router.push('/special-theme');
+        if (pathname === '/special-theme') {
+            setIsSpooky(false);
+        }
+    };
     const [profile, setProfile] = useState(initialProfile);
 
     const supabase = createBrowserClient(
@@ -91,6 +107,27 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
                     <NavLink href="/#features" icon={<Zap size={20} />} label="Features" />
                     <NavLink href="/#reviews" icon={<MessageCircle size={20} />} label="Reviews" />
                     <NavLink href="/#footer" icon={<Phone size={20} />} label="Contact" />
+                    <Link
+                        href="/special-theme"
+                        className="nav-icon-link st-nav-link"
+                        title="Stranger Things Special"
+                        style={{ textDecoration: 'none' }}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setIsSpooky(true);
+                        }}
+                    >
+                        <span style={{
+                            fontSize: '24px',
+                            fontWeight: '900',
+                            color: '#E50914',
+                            textShadow: '0 0 10px rgba(229, 9, 20, 0.8)',
+                            lineHeight: '1',
+                            paddingBottom: '2px'
+                        }}>
+                            5
+                        </span>
+                    </Link>
                 </div>
             </div>
 
@@ -147,6 +184,7 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
                     )}
                 </div>
             </div>
+            <SpookyTransition isActive={isSpooky} onComplete={handleSpookyTransition} />
         </nav>
     );
 }
