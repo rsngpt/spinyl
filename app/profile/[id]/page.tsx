@@ -4,6 +4,7 @@ import ProfileContent from '@/app/components/ProfileContent';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import ProfileHeader from '@/app/components/ProfileHeader';
+import RoastFloatingButton from '@/app/components/RoastFloatingButton';
 
 // Generate Metadata
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -165,6 +166,11 @@ export default async function ProfilePage({ params }: { params: { id: string } }
                     targetUserId={id}
                     isFollowing={isFollowing}
                 />
+
+                {/* Roast Button (Only for own profile + 5 reviews) */}
+                {isOwnProfile && (
+                    <RoastFloatingButton reviewsCount={reviewsCount} userId={profile.username || 'User'} />
+                )}
 
                 {/* Content (Reviews / Followers / Following) */}
                 <ProfileContent
