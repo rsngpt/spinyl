@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import LikeButton from './LikeButton';
 import FollowButton from './FollowButton';
+import VinylRecordDisplay from './VinylRecordDisplay';
 
 interface ProfileContentProps {
     reviews: any[];
@@ -99,17 +100,48 @@ export default function ProfileContent({
                                 transition: 'background 0.2s', cursor: 'pointer'
                             }}>
                                 <Link href={`/album/${review.albums.spotify_id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', height: '100%' }}>
-                                    <div style={{ padding: '20px', flex: 1 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
-                                            <img src={review.albums.cover_image} alt={review.albums.name} style={{ width: '60px', height: '60px', borderRadius: '4px' }} />
-                                            <div style={{ overflow: 'hidden' }}>
-                                                <div style={{ fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{review.albums.name}</div>
-                                                <div style={{ color: '#aaa', fontSize: '0.9rem' }}>{review.albums.artists[0]}</div>
+                                    <div style={{ padding: '16px', flex: 1 }}>
+                                        {/* Vinyl + Info Layout */}
+                                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+                                            {/* Vinyl Display */}
+                                            <div style={{ marginRight: '40px', flexShrink: 0 }}>
+                                                <VinylRecordDisplay
+                                                    coverUrl={review.albums.cover_image}
+                                                    rating={review.rating}
+                                                    size={60}
+                                                />
+                                            </div>
+
+                                            {/* Text Info */}
+                                            <div style={{ overflow: 'hidden', flex: 1 }}>
+                                                <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                    {review.albums.name}
+                                                </div>
+                                                <div style={{ color: '#aaa', fontSize: '0.85rem', marginBottom: '6px' }}>
+                                                    {review.albums.artists[0]}
+                                                </div>
+
+                                                {/* Rating Badge */}
+                                                <div style={{
+                                                    display: 'inline-block',
+                                                    background: review.rating >= 8 ? 'rgba(255,215,0,0.1)' : 'rgba(255,255,255,0.1)',
+                                                    border: review.rating >= 8 ? '1px solid rgba(255,215,0,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                                                    padding: '2px 8px',
+                                                    borderRadius: '12px',
+                                                }}>
+                                                    <span style={{
+                                                        fontSize: '0.75rem',
+                                                        fontWeight: 800,
+                                                        color: review.rating >= 8 ? '#FFD700' : review.rating >= 5 ? '#e2e8f0' : '#fff'
+                                                    }}>
+                                                        {review.rating}/10
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div style={{ marginBottom: '12px', color: '#FFD700' }}>{'★'.repeat(review.rating)}</div>
+
                                         <p style={{
-                                            fontSize: '0.95rem', lineHeight: '1.6', color: '#ddd', margin: 0,
+                                            fontSize: '0.9rem', lineHeight: '1.5', color: '#ddd', margin: 0,
                                             display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden'
                                         }}>
                                             {review.review_text}

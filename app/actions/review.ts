@@ -65,6 +65,7 @@ export async function getRecentReviews() {
 type SubmitReviewResult = {
     success: boolean;
     message?: string;
+    review?: any;
 };
 
 export async function submitReview(formData: FormData): Promise<SubmitReviewResult> {
@@ -72,11 +73,6 @@ export async function submitReview(formData: FormData): Promise<SubmitReviewResu
 
     // 1. Check Auth
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    console.log('Action Auth Check:', {
-        hasUser: !!user,
-        userId: user?.id,
-        error: authError?.message
-    });
     if (!user) {
         return { success: false, message: 'You must be logged in to review.' };
     }
@@ -87,7 +83,7 @@ export async function submitReview(formData: FormData): Promise<SubmitReviewResu
     const artist_names = formData.get('artist_names') as string;
     const release_date = formData.get('release_date') as string;
 
-    const rating = parseInt(formData.get('rating') as string);
+    const rating = parseFloat(formData.get('rating') as string);
     const review_text = formData.get('review_text') as string;
 
     if (!spotify_id || !rating || !review_text) {
@@ -96,7 +92,6 @@ export async function submitReview(formData: FormData): Promise<SubmitReviewResu
 
     try {
         // 2. Ensure Album Exists in DB
-        // First try to find it
         let { data: album } = await supabase
             .from('albums')
             .select('id')
@@ -104,7 +99,6 @@ export async function submitReview(formData: FormData): Promise<SubmitReviewResu
             .single();
 
         if (!album) {
-            // Insert if not found
             const { data: newAlbum, error: insertError } = await supabase
                 .from('albums')
                 .insert({
@@ -119,58 +113,68 @@ export async function submitReview(formData: FormData): Promise<SubmitReviewResu
 
             if (insertError) {
                 console.error('Error inserting album:', insertError);
-                return { success: false, message: `Failed to create album: ${insertError.message || JSON.stringify(insertError)}` };
+                return { success: false, message: 'Failed to create album record.' };
             }
             album = newAlbum;
         }
 
         if (!album) {
-            return { success: false, message: 'Album ID lookup failed.' };
+            return { success: false, message: 'Album creation failed.' };
         }
 
         // 3. Insert or Update Review
         // Check if review already exists
         const { data: existingReview } = await supabase
             .from('reviews')
-            .select('id')
+            .select('*') // Select all fields to return if no update needed? Actually we will update.
             .eq('user_id', user.id)
             .eq('album_id', album.id)
             .single();
 
-        let reviewError;
+        let reviewData;
+
         if (existingReview) {
             // Update
-            const { error: updateError } = await supabase
+            const { data: updatedReview, error: updateError } = await supabase
                 .from('reviews')
                 .update({
                     rating,
                     review_text,
-                    // updated_at could be set here if column exists
+                    created_at: new Date().toISOString() // Bump timestamp to show as fresh? Or keep original? Usually update time.
                 })
-                .eq('id', existingReview.id);
-            reviewError = updateError;
+                .eq('id', existingReview.id)
+                .select()
+                .single();
+
+            if (updateError) {
+                console.error('Error updating review:', updateError);
+                return { success: false, message: 'Failed to update review.' };
+            }
+            reviewData = updatedReview;
         } else {
             // Insert
-            const { error: insertError } = await supabase
+            const { data: newReview, error: insertError } = await supabase
                 .from('reviews')
                 .insert({
                     user_id: user.id,
                     album_id: album.id,
                     rating,
                     review_text,
-                });
-            reviewError = insertError;
-        }
+                })
+                .select()
+                .single();
 
-        if (reviewError) {
-            console.error('Error posting review:', reviewError);
-            return { success: false, message: 'Failed to post review.' };
+            if (insertError) {
+                console.error('Error inserting review:', insertError);
+                return { success: false, message: 'Failed to post review.' };
+            }
+            reviewData = newReview;
         }
 
         // 4. Smart Cache Revalidation
         revalidatePath(`/album/${spotify_id}`);
 
-        return { success: true };
+        return { success: true, review: reviewData };
 
     } catch (error) {
         console.error('Server Action Error:', error);

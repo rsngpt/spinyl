@@ -5,6 +5,9 @@ import { useState, useEffect } from 'react';
 import LoginButton from './LoginButton';
 import { submitReview } from '../actions/review';
 import Link from 'next/link';
+import VinylRatingInput from './VinylRatingInput';
+import { Share2 } from 'lucide-react';
+import SpinylCard from './SpinylCard';
 
 const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,6 +34,198 @@ type AlbumData = {
     artists: string[];
 };
 
+// Helper for initials (moved here as it's used by ReviewItem)
+const getInitials = (name: string) => {
+    return name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+};
+
+const ReviewItem = ({ review, setReviewToShare }: { review: Review, setReviewToShare: (r: Review) => void }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const profile = review.profiles || { username: 'Unknown User', avatar_url: null };
+
+    // Format Date & Time
+    const dateObj = new Date(review.created_at);
+    const dateStr = dateObj.toLocaleDateString();
+    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // Truncation Logic
+    // We rely on CSS line-clamp for the visual truncation to exactly 3 lines.
+    // We use a character threshold heuristic to decide whether to show the "Read more" button at all.
+    const CHAR_THRESHOLD = 150;
+    const isLongReview = review.review_text.length > CHAR_THRESHOLD;
+
+    // Auto-quote the text
+    const quotedText = `"${review.review_text}"`;
+
+    return (
+        <div style={{
+            borderBottom: '1px solid rgba(255,255,255,0.05)',
+            padding: '16px 0', // Reduced padding
+            position: 'relative'
+        }}>
+            {/* 3-Column Layout Container */}
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'stretch' }}>
+
+                {/* COLUMN 1: LEFT - Sleeve + Vinyl */}
+                <div style={{ position: 'relative', width: '60px', flexShrink: 0 }}>
+                    {/* Vinyl Record */}
+                    <div style={{
+                        position: 'absolute',
+                        top: '1px',
+                        left: '28px', // Adjusted offset
+                        width: '56px', // Smaller vinyl
+                        height: '56px',
+                        zIndex: 5,
+                        animation: 'spin 10s linear infinite',
+                        filter: 'brightness(0.9)'
+                    }}>
+                        <VinylRatingInput value={review.rating} onChange={() => { }} readonly />
+                    </div>
+
+                    {/* Sleeve */}
+                    <Link href={`/profile/${review.user_id}`}>
+                        <div style={{
+                            position: 'relative',
+                            width: '60px', // Smaller sleeve
+                            height: '60px',
+                            borderRadius: '2px',
+                            overflow: 'hidden',
+                            zIndex: 10,
+                            boxShadow: '3px 0 8px rgba(0,0,0,0.6)',
+                            background: '#222',
+                            cursor: 'pointer'
+                        }}>
+                            {profile.avatar_url ? (
+                                <img
+                                    src={profile.avatar_url}
+                                    alt={profile.username}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                            ) : (
+                                <div style={{
+                                    width: '100%', height: '100%',
+                                    background: 'linear-gradient(135deg, #444, #222)',
+                                    color: '#fff',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: '1.2rem', fontWeight: 800
+                                }}>
+                                    {getInitials(profile.username)}
+                                </div>
+                            )}
+                            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(120deg, rgba(255,255,255,0.1) 0%, transparent 40%)' }} />
+                        </div>
+                    </Link>
+                </div>
+
+                {/* COLUMN 2: MIDDLE - Content (Metadata + Text) */}
+                <div style={{ flex: 1, paddingLeft: '34px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {/* Metadata Block */}
+                    <div style={{ lineHeight: '1.2' }}>
+                        <Link href={`/profile/${review.user_id}`} style={{ textDecoration: 'none', color: '#fff' }}>
+                            <div style={{ fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.02em' }}>
+                                {profile.username}
+                            </div>
+                        </Link>
+                        <div style={{ fontSize: '0.7rem', color: '#666', fontWeight: 600, marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            {dateStr} <span style={{ opacity: 0.5, margin: '0 4px' }}>•</span> {timeStr}
+                        </div>
+                    </div>
+
+                    {/* Review Text */}
+                    <div>
+                        <p style={{
+                            margin: 0,
+                            lineHeight: '1.5',
+                            color: '#ddd',
+                            fontSize: '0.9rem', // Smaller text
+                            whiteSpace: 'pre-line', // Preserves newlines
+
+                            // CSS Line Clamping
+                            display: isExpanded ? 'block' : '-webkit-box',
+                            WebkitLineClamp: isExpanded ? 'unset' : 3,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                        }}>
+                            {quotedText}
+                        </p>
+                        {isLongReview && (
+                            <button
+                                onClick={() => setIsExpanded(!isExpanded)}
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#888',
+                                    fontWeight: 600,
+                                    fontSize: '0.8rem',
+                                    cursor: 'pointer',
+                                    marginTop: '2px', // Tighter spacing
+                                    padding: 0,
+                                    textDecoration: 'underline'
+                                }}
+                            >
+                                {isExpanded ? 'Show less' : 'Read more'}
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* COLUMN 3: RIGHT - Actions & Rating */}
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-end', minWidth: '80px' }}>
+
+                    {/* Top Right: Rating Badge */}
+                    <div style={{
+                        background: review.rating >= 8 ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.08)',
+                        border: review.rating >= 8 ? '1px solid rgba(255,215,0,0.4)' : '1px solid #444',
+                        padding: '2px 0', // Tighter vertical padding
+                        width: '42px', // Smaller fixed width
+                        borderRadius: '4px', // Slightly sharper corners
+                        textAlign: 'center',
+                        flexShrink: 0
+                    }}>
+                        <span style={{
+                            fontWeight: 800, // Slightly less heavy to match size
+                            fontSize: '0.85rem', // Smaller text
+                            color: review.rating >= 8 ? '#FFD700' : '#fff',
+                            letterSpacing: '-0.05em'
+                        }}>
+                            {review.rating}/10
+                        </span>
+                    </div>
+
+                    {/* Bottom Right: Share Button */}
+                    <button
+                        onClick={() => setReviewToShare(review)}
+                        title="Share Spinyl Card"
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: '#666',
+                            cursor: 'pointer',
+                            padding: '4px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            transition: 'color 0.2s',
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.color = '#fff';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.color = '#666';
+                        }}
+                    >
+                        <Share2 size={18} />
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    );
+};
+
 export default function ReviewSection({
     initialReviews,
     albumData,
@@ -42,10 +237,12 @@ export default function ReviewSection({
 }) {
     // Initialize user state with the server-passed user if available
     const [user, setUser] = useState<any>(currentUser || null);
-    const [rating, setRating] = useState(0);
+    const [rating, setRating] = useState(1); // Default to 1 (Scale 1-10)
     const [reviewText, setReviewText] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [showForm, setShowForm] = useState(false);
+    const [showForm, setShowForm] = useState(false); // Keep this state for form visibility
+    const [reviews, setReviews] = useState<Review[]>(initialReviews); // Manage reviews in state
+    const [reviewToShare, setReviewToShare] = useState<Review | null>(null);
 
     useEffect(() => {
         // If we didn't get a user from server props, try fetching client-side
@@ -59,7 +256,6 @@ export default function ReviewSection({
             setUser(currentUser);
         }
 
-        // Subscribe to changes (optional, but good for real-time)
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             (_event, session) => {
                 setUser(session?.user ?? null);
@@ -79,23 +275,41 @@ export default function ReviewSection({
             formData.append('spotify_id', albumData.spotify_id);
             formData.append('album_name', albumData.name);
             formData.append('cover_image', albumData.cover_image);
-            if (!albumData.cover_image) formData.append('cover_image', '');
-
             formData.append('artist_names', albumData.artists.join(', '));
             formData.append('release_date', albumData.release_date);
             formData.append('rating', rating.toString());
             formData.append('review_text', reviewText);
 
+            // Call the server action
             const result = await submitReview(formData);
 
-            if (!result.success) {
+            if (result.success && result.review) {
+                // Optimistically add the new review to the list
+                const newReview: Review = {
+                    ...result.review,
+                    profiles: {
+                        username: user.user_metadata?.username || user.email?.split('@')[0] || 'User',
+                        avatar_url: user.user_metadata?.avatar_url || null
+                    }
+                };
+
+                // Check if the user already has a review and update it, otherwise add new
+                const existingReviewIndex = reviews.findIndex(r => r.user_id === user.id);
+                if (existingReviewIndex > -1) {
+                    const updatedReviews = [...reviews];
+                    updatedReviews[existingReviewIndex] = newReview;
+                    setReviews(updatedReviews);
+                } else {
+                    setReviews([newReview, ...reviews]);
+                }
+
+                // Success
+                setReviewText('');
+                setRating(8); // Reset to a "Good" default
+                setShowForm(false);
+            } else {
                 throw new Error(result.message || 'Failed to submit review');
             }
-
-            // Success
-            setReviewText('');
-            setRating(0);
-            setShowForm(false);
         } catch (error: any) {
             console.error(error);
             alert(error.message || 'Failed to post review. Please try again.');
@@ -104,23 +318,45 @@ export default function ReviewSection({
         }
     };
 
-    const getInitials = (name: string) => {
-        return name ? name.substring(0, 2).toUpperCase() : '??';
-    };
-
     return (
         <div style={{ background: '#181818', borderRadius: '12px', padding: '24px' }}>
+            {/* Spinyl Card Modal */}
+            {reviewToShare && albumData && (
+                <div style={{
+                    position: 'fixed',
+                    inset: 0,
+                    zIndex: 100,
+                    background: 'rgba(0,0,0,0.8)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backdropFilter: 'blur(5px)'
+                }} onClick={() => setReviewToShare(null)}>
+                    <div onClick={(e) => e.stopPropagation()}>
+                        <SpinylCard
+                            albumName={albumData.name}
+                            artistName={albumData.artists.join(', ')}
+                            coverUrl={albumData.cover_image}
+                            rating={reviewToShare.rating}
+                            reviewText={reviewToShare.review_text}
+                            username={reviewToShare.profiles?.username || 'User'}
+                            onClose={() => setReviewToShare(null)}
+                        />
+                    </div>
+                </div>
+            )}
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                 <h2 style={{ fontSize: '1.5rem', margin: 0 }}>Reviews</h2>
                 {user && !showForm && (
                     <button
                         onClick={() => {
-                            const existingReview = initialReviews.find(r => r.user_id === user.id);
+                            const existingReview = reviews.find(r => r.user_id === user.id);
                             if (existingReview) {
                                 setRating(existingReview.rating);
                                 setReviewText(existingReview.review_text);
                             } else {
-                                setRating(0);
+                                setRating(8); // Default to Mint on new review
                                 setReviewText('');
                             }
                             setShowForm(true);
@@ -135,7 +371,7 @@ export default function ReviewSection({
                             cursor: 'pointer',
                         }}
                     >
-                        {initialReviews.some(r => r.user_id === user.id) ? 'Edit Review' : 'Write a Review'}
+                        {reviews.some(r => r.user_id === user.id) ? 'Edit Review' : 'Write a Review'}
                     </button>
                 )}
             </div>
@@ -146,27 +382,9 @@ export default function ReviewSection({
                 </div>
             ) : showForm && (
                 <form onSubmit={handleSubmit} style={{ marginBottom: '32px', background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '8px' }}>
-                    <div style={{ marginBottom: '16px' }}>
-                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem' }}>Rating</label>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                            {[1, 2, 3, 4, 5].map((star) => (
-                                <button
-                                    key={star}
-                                    type="button"
-                                    onClick={() => setRating(star)}
-                                    style={{
-                                        background: 'transparent',
-                                        border: 'none',
-                                        fontSize: '1.5rem',
-                                        cursor: 'pointer',
-                                        color: star <= rating ? '#FFD700' : '#444',
-                                        transition: 'color 0.2s',
-                                    }}
-                                >
-                                    ★
-                                </button>
-                            ))}
-                        </div>
+                    {/* NEW VINYL RATING */}
+                    <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'center' }}>
+                        <VinylRatingInput value={rating} onChange={setRating} />
                     </div>
 
                     <div style={{ marginBottom: '16px' }}>
@@ -186,7 +404,7 @@ export default function ReviewSection({
                                 fontFamily: 'inherit',
                                 resize: 'vertical',
                             }}
-                            placeholder="Share your thoughts..."
+                            placeholder="Share your thoughts... (Why is this a masterpiece or trash?)"
                         />
                     </div>
 
@@ -207,7 +425,7 @@ export default function ReviewSection({
                         </button>
                         <button
                             type="submit"
-                            disabled={isSubmitting || rating === 0}
+                            disabled={isSubmitting}
                             style={{
                                 padding: '8px 24px',
                                 background: 'var(--primary)',
@@ -215,69 +433,26 @@ export default function ReviewSection({
                                 border: 'none',
                                 borderRadius: '20px',
                                 fontWeight: 600,
-                                cursor: isSubmitting || rating === 0 ? 'not-allowed' : 'pointer',
-                                opacity: isSubmitting || rating === 0 ? 0.5 : 1,
+                                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                                opacity: isSubmitting ? 0.5 : 1,
                             }}
                         >
-                            {isSubmitting ? 'Posting...' : 'Post Review'}
+                            {isSubmitting ? 'Posting...' : 'Post Verdict'}
                         </button>
                     </div>
                 </form>
             )}
 
+            {/* Reviews List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {initialReviews.length === 0 ? (
-                    <p style={{ color: 'var(--text-secondary)' }}>No reviews yet. Be the first!</p>
+                {reviews.length === 0 ? (
+                    <p style={{ color: 'var(--text-secondary)' }}>No reviews yet. Be the first to judge.</p>
                 ) : (
-                    initialReviews.map((review) => {
-                        const profile = review.profiles || { username: 'Unknown User', avatar_url: null };
-                        return (
-                            <div key={review.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '16px' }}>
-                                {/* User Info Header */}
-                                <Link href={`/profile/${review.user_id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px', cursor: 'pointer' }}>
-                                        {profile.avatar_url ? (
-                                            <img
-                                                src={profile.avatar_url}
-                                                alt={profile.username}
-                                                style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
-                                            />
-                                        ) : (
-                                            <div style={{
-                                                width: '32px', height: '32px', borderRadius: '50%',
-                                                background: '#333', color: '#fff',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                fontSize: '0.9rem', fontWeight: 600
-                                            }}>
-                                                {getInitials(profile.username)}
-                                            </div>
-                                        )}
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                            <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{profile.username}</span>
-                                            {/* @ts-ignore - is_verified exists in DB but might be missing on loose type */}
-                                            {profile.is_verified && (
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" fill="#3D91FF" />
-                                                    <path d="M7 12L10 15L17 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                                                </svg>
-                                            )}
-                                        </div>
-                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>•</span>
-                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                                            {new Date(review.created_at).toLocaleDateString()}
-                                        </span>
-                                    </div>
-                                </Link>
-
-                                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '8px', paddingLeft: '42px' }}>
-                                    <span style={{ color: '#FFD700', fontSize: '0.9rem' }}>{'★'.repeat(review.rating)}</span>
-                                </div>
-                                <p style={{ margin: 0, lineHeight: '1.5', paddingLeft: '42px', color: '#eee' }}>{review.review_text}</p>
-                            </div>
-                        );
-                    })
+                    reviews.map((review) => (
+                        <ReviewItem key={review.id} review={review} setReviewToShare={setReviewToShare} />
+                    ))
                 )}
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

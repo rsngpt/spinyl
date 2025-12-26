@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { createBrowserClient } from '@supabase/ssr';
-import { Star, User, Disc } from 'lucide-react';
+import { User } from 'lucide-react';
 import { getRecentReviews } from '../actions/review';
+import VinylRecordDisplay from './VinylRecordDisplay';
 
 type Review = {
     id: string;
@@ -130,7 +131,7 @@ export default function RecentReviews() {
 
                         return (
                             <Link href={`/album/${album.spotify_id}`} key={`${review.id}-${index}`} className="glass-panel review-card-glow" style={{
-                                width: '350px',
+                                width: '380px', // Slightly wider to accommodate vinyl peek
                                 padding: '20px',
                                 borderRadius: '16px',
                                 flexShrink: 0,
@@ -138,62 +139,61 @@ export default function RecentReviews() {
                                 border: '1px solid rgba(255,255,255,0.08)',
                                 display: 'flex',
                                 gap: '16px',
-                                alignItems: 'start',
+                                alignItems: 'center', // Center vertically
                                 transition: 'all 0.3s ease',
                                 textDecoration: 'none',
                                 cursor: 'pointer'
                             }}>
-                                {/* Album Art */}
-                                <div style={{
-                                    width: '80px',
-                                    height: '80px',
-                                    borderRadius: '8px',
-                                    overflow: 'hidden',
-                                    flexShrink: 0,
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                                    background: '#222'
-                                }}>
-                                    {album?.cover_image ? (
-                                        <img src={album.cover_image} alt={album.name || 'Album'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                    ) : (
-                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555' }}>
-                                            <Disc size={24} />
-                                        </div>
-                                    )}
+                                {/* Vinyl Sleeve + Record Display */}
+                                <div style={{ marginRight: '30px' /* Space for peeking vinyl */ }}>
+                                    <VinylRecordDisplay
+                                        coverUrl={album?.cover_image}
+                                        rating={review.rating}
+                                        size={80}
+                                    />
                                 </div>
 
-                                <div style={{ flex: 1 }}>
-                                    {/* Header: User Info */}
-                                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', gap: '10px' }}>
-                                        <div style={{
-                                            width: '24px',
-                                            height: '24px',
-                                            borderRadius: '50%',
-                                            background: '#333',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            overflow: 'hidden'
-                                        }}>
-                                            {profile?.avatar_url ? (
-                                                <img src={profile.avatar_url} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                            ) : (
-                                                <User size={14} color="#fff" />
-                                            )}
+                                <div style={{ flex: 1, overflow: 'hidden' }}>
+                                    {/* Header: User Info & Rating Badge */}
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <div style={{
+                                                width: '20px',
+                                                height: '20px',
+                                                borderRadius: '50%',
+                                                background: '#333',
+                                                overflow: 'hidden'
+                                            }}>
+                                                {profile?.avatar_url ? (
+                                                    <img src={profile.avatar_url} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                ) : (
+                                                    <User size={12} color="#fff" />
+                                                )}
+                                            </div>
+                                            <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'rgba(255,255,255,0.8)' }}>@{profile?.username || 'Unknown'}</span>
                                         </div>
-                                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'rgba(255,255,255,0.9)' }}>@{profile?.username || 'Unknown'}</span>
-                                    </div>
 
-                                    <div style={{ display: 'flex', gap: '2px', marginBottom: '8px' }}>
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star key={i} size={10} fill={i < review.rating ? "#1DB954" : "none"} color={i < review.rating ? "#1DB954" : "#555"} />
-                                        ))}
+                                        {/* Rating Text Badge */}
+                                        <div style={{
+                                            background: review.rating >= 8 ? 'rgba(255,215,0,0.1)' : 'rgba(255,255,255,0.1)',
+                                            border: review.rating >= 8 ? '1px solid rgba(255,215,0,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                                            padding: '2px 8px',
+                                            borderRadius: '12px',
+                                        }}>
+                                            <span style={{
+                                                fontSize: '0.75rem',
+                                                fontWeight: 800,
+                                                color: review.rating >= 8 ? '#FFD700' : review.rating >= 5 ? '#e2e8f0' : '#fff'
+                                            }}>
+                                                {review.rating}/10
+                                            </span>
+                                        </div>
                                     </div>
 
                                     {/* Content */}
                                     <p style={{
                                         color: 'rgba(255,255,255,0.7)',
-                                        fontSize: '0.9rem',
+                                        fontSize: '0.85rem',
                                         lineHeight: '1.4',
                                         display: '-webkit-box',
                                         WebkitLineClamp: 2,
