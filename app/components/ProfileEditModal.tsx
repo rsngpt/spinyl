@@ -1,22 +1,127 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { updateProfile } from '@/app/actions/profile';
 
-type Props = {
-    currentUsername: string;
+type ProfileData = {
+    username: string | null;
+    full_name: string | null;
+    bio: string | null;
+    avatar_url: string | null;
 };
 
-export default function ProfileEditModal({ currentUsername }: Props) {
+type Props = {
+    profile: ProfileData;
+    onUpdate: (updated: Partial<ProfileData>) => void;
+};
+
+export default function ProfileEditModal({ profile, onUpdate }: Props) {
     const [isOpen, setIsOpen] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(profile.avatar_url);
+    const [isUploading, setIsUploading] = useState(false);
+    const [compressedFile, setCompressedFile] = useState<File | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Image Compression Helper
+    const compressImage = async (file: File): Promise<File> => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 500;
+                const MAX_HEIGHT = 500;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx?.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        const newFile = new File([blob], file.name, {
+                            type: 'image/jpeg',
+                            lastModified: Date.now(),
+                        });
+                        resolve(newFile);
+                    } else {
+                        reject(new Error('Canvas to Blob failed'));
+                    }
+                }, 'image/jpeg', 0.8); // 0.8 Quality
+            };
+            img.onerror = (error) => reject(error);
+        });
+    };
+
+    // Handle file selection preview
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            try {
+                // Show loading/optimistic preview immediately? 
+                // Better to wait for compression so we see exactly what we get.
+                const compressed = await compressImage(file);
+                setCompressedFile(compressed);
+                const objectUrl = URL.createObjectURL(compressed);
+                setPreviewUrl(objectUrl);
+            } catch (err) {
+                console.error("Compression failed", err);
+                // Fallback to original
+                setCompressedFile(file);
+                setPreviewUrl(URL.createObjectURL(file));
+            }
+        }
+    };
 
     async function handleSubmit(formData: FormData) {
+        setIsUploading(true);
+        setMessage(null);
+
+        // Inject compressed file if available
+        if (compressedFile) {
+            formData.set('avatar', compressedFile);
+        }
+
+        // Optimistic UI Update data preparation
+        const updates: Partial<ProfileData> = {
+            username: formData.get('username') as string,
+            full_name: formData.get('full_name') as string,
+            bio: formData.get('bio') as string,
+        };
+
+        if (previewUrl && previewUrl !== profile.avatar_url) {
+            // Preview is trusted
+        }
+
         const result = await updateProfile(null, formData);
+        setIsUploading(false);
+
         if (result.success) {
+            // Update parent state instantly with confirmed data from server
+            onUpdate({
+                username: result.data?.username || updates.username,
+                full_name: result.data?.full_name || updates.full_name,
+                bio: result.data?.bio || updates.bio,
+                avatar_url: result.data?.avatar_url || profile.avatar_url
+            });
+
             setIsOpen(false);
-            setMessage(null);
-            // Optional: Toast success?
+            // No reload needed now!
         } else {
             setMessage(result.message || 'Failed to update');
         }
@@ -26,102 +131,254 @@ export default function ProfileEditModal({ currentUsername }: Props) {
         return (
             <button
                 onClick={() => setIsOpen(true)}
-                style={{
-                    padding: '8px 16px',
-                    background: '#333',
-                    border: 'none',
-                    borderRadius: '4px',
-                    color: '#fff',
-                    textDecoration: 'none',
-                    fontWeight: 600,
-                    fontSize: '0.9rem',
-                    cursor: 'pointer',
-                    transition: 'background 0.2s'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.background = '#444'}
-                onMouseOut={(e) => e.currentTarget.style.background = '#333'}
+                className="edit-profile-btn"
             >
                 Edit Profile
+                <style jsx>{`
+                .edit-profile-btn {
+                    padding: 12px 0;
+                    width: 100%;
+                    min-width: 140px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 16px;
+                    color: #fff;
+                    font-weight: 700;
+                    font-size: 0.95rem;
+                    cursor: pointer;
+                    backdrop-filter: blur(10px);
+                    transition: all 0.2s ease;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                }
+                .edit-profile-btn:hover {
+                    background: rgba(255, 255, 255, 0.1);
+                    border-color: #1ed760;
+                    color: #1ed760;
+                    transform: translateY(-2px);
+                    box-shadow: 0 5px 20px rgba(30, 215, 96, 0.15);
+                }
+                `}</style>
             </button>
         );
     }
 
     return (
-        <div style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            background: 'rgba(0,0,0,0.8)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            zIndex: 10000
-        }}>
-            <div style={{
-                background: '#181818',
-                padding: '32px',
-                borderRadius: '8px',
-                width: '100%',
-                maxWidth: '400px',
-                border: '1px solid #333'
-            }}>
-                <h2 style={{ marginTop: 0, marginBottom: '24px' }}>Edit Profile</h2>
+        <div className="modal-overlay">
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h2>Edit Profile</h2>
+                    <button onClick={() => setIsOpen(false)} className="close-btn">×</button>
+                </div>
 
-                <form action={handleSubmit}>
-                    <div style={{ marginBottom: '20px' }}>
-                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: '#aaa' }}>
-                            Username
-                        </label>
-                        <input
-                            name="username"
-                            defaultValue={currentUsername}
-                            style={{
-                                width: '100%',
-                                padding: '12px',
-                                borderRadius: '4px',
-                                border: '1px solid #333',
-                                background: '#222',
-                                color: '#fff',
-                                fontSize: '1rem'
-                            }}
+                <form action={handleSubmit} className="modal-form">
+
+                    {/* Top Row: Avatar Left, Inputs Right */}
+                    <div className="top-section">
+                        {/* Avatar */}
+                        <div className="avatar-upload-section">
+                            <div
+                                className="avatar-preview"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                {previewUrl ? (
+                                    <img src={previewUrl} alt="Preview" />
+                                ) : (
+                                    <div className="avatar-placeholder">📷</div>
+                                )}
+                                <div className="avatar-overlay">CHANGE</div>
+                            </div>
+                            <input
+                                type="file"
+                                name="avatar"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                accept="image/*"
+                                hidden
+                            />
+                        </div>
+
+                        {/* User/Name Inputs */}
+                        <div className="user-inputs">
+                            <input
+                                name="username"
+                                defaultValue={profile.username || ''}
+                                placeholder="Username"
+                                required
+                            />
+                            <input
+                                name="full_name"
+                                defaultValue={profile.full_name || ''}
+                                placeholder="Full Name (Optional)"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Bio Below */}
+                    <div className="bio-section">
+                        <span className="bio-label">BIO</span>
+                        <textarea
+                            name="bio"
+                            defaultValue={profile.bio || ''}
+                            placeholder="Tell us about your vibe..."
                         />
                     </div>
 
-                    {message && (
-                        <div style={{ color: '#ff4444', marginBottom: '16px', fontSize: '0.9rem' }}>
-                            {message}
-                        </div>
-                    )}
+                    {message && <div className="error-msg">{message}</div>}
 
-                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                        <button
-                            type="button"
-                            onClick={() => setIsOpen(false)}
-                            style={{
-                                padding: '10px 20px',
-                                background: 'transparent',
-                                border: '1px solid #333',
-                                borderRadius: '4px',
-                                color: '#fff',
-                                cursor: 'pointer',
-                                fontWeight: 600
-                            }}
-                        >
+                    <div className="action-buttons">
+                        <button type="button" onClick={() => setIsOpen(false)} className="cancel-btn">
                             Cancel
                         </button>
-                        <button
-                            type="submit"
-                            style={{
-                                padding: '10px 24px',
-                                background: '#1ed760',
-                                border: 'none',
-                                borderRadius: '4px',
-                                color: '#000',
-                                cursor: 'pointer',
-                                fontWeight: 700
-                            }}
-                        >
-                            Save
+                        <button type="submit" disabled={isUploading} className="save-btn">
+                            {isUploading ? 'Saving...' : 'Save Changes'}
                         </button>
                     </div>
                 </form>
             </div>
+
+            <style jsx>{`
+                .edit-profile-btn {
+                    padding: 12px 0;
+                    width: 100%;
+                    min-width: 140px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 16px;
+                    color: #fff;
+                    font-weight: 700;
+                    font-size: 0.95rem;
+                    cursor: pointer;
+                    backdrop-filter: blur(10px);
+                    transition: all 0.2s ease;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                }
+                .edit-profile-btn:hover {
+                    background: rgba(255, 255, 255, 0.1);
+                    border-color: #1ed760;
+                    color: #1ed760;
+                    transform: translateY(-2px);
+                    box-shadow: 0 5px 20px rgba(30, 215, 96, 0.15);
+                }
+
+                .modal-overlay {
+                    position: absolute; inset: 0;
+                    background: rgba(10, 10, 10, 0.98);
+                    backdrop-filter: blur(20px);
+                    z-index: 100;
+                    display: flex; flex-direction: column;
+                    animation: fadeIn 0.2s ease-out;
+                }
+                
+                .modal-content {
+                    width: 100%; height: 100%;
+                    display: flex; flex-direction: column;
+                    background: transparent;
+                }
+
+                .modal-header {
+                    padding: 16px 20px;
+                    display: flex; justify-content: space-between; align-items: center;
+                    flex-shrink: 0;
+                    margin-bottom: 0;
+                }
+                .modal-header h2 {
+                    margin: 0; font-size: 1.1rem; color: #fff; font-weight: 800; letter-spacing: -0.5px;
+                    text-transform: uppercase;
+                }
+                .close-btn {
+                    background: rgba(255,255,255,0.1); 
+                    border: none; color: #fff; 
+                    width: 28px; height: 28px; border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 1.2rem; cursor: pointer; transition: all 0.2s;
+                }
+                .close-btn:hover { background: #ff4444; transform: rotate(90deg); }
+                
+                .modal-form { 
+                    padding: 0 20px 20px; 
+                    display: flex;
+                    flex-direction: column;
+                    height: 100%;
+                    overflow: hidden; 
+                }
+
+                .top-section {
+                    display: flex; align-items: center; gap: 16px; 
+                    margin-bottom: 20px;
+                    flex-shrink: 0;
+                }
+
+                .avatar-upload-section {
+                    margin: 0; flex-shrink: 0;
+                }
+                .avatar-preview {
+                    width: 70px; height: 70px; border-radius: 50%;
+                    overflow: hidden; position: relative; cursor: pointer;
+                    border: 2px solid #333;
+                    transition: all 0.3s;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                }
+                .avatar-preview:hover { border-color: #1ed760; }
+                .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+                .avatar-placeholder { width: 100%; height: 100%; background: #222; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+                .avatar-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.6rem; font-weight: 700; opacity: 0; transition: opacity 0.2s; }
+                .avatar-preview:hover .avatar-overlay { opacity: 1; }
+                .upload-hint { display: none; }
+
+                .user-inputs {
+                    flex: 1; display: flex; flex-direction: column; gap: 10px;
+                }
+
+                .form-group { margin: 0; }
+                .form-group label { display: none; }
+
+                input, textarea {
+                    width: 100%; padding: 10px 14px;
+                    background: rgba(255,255,255,0.05);
+                    border: 1px solid rgba(255,255,255,0.1);
+                    border-radius: 12px;
+                    color: #fff; font-size: 0.9rem;
+                    transition: all 0.2s;
+                    outline: none;
+                }
+                input:focus, textarea:focus {
+                    background: rgba(255,255,255,0.1);
+                    border-color: #1ed760;
+                }
+                textarea { 
+                    resize: none; font-family: inherit; 
+                    height: 80px; 
+                }
+
+                .bio-section {
+                    margin-bottom: 12px;
+                }
+                .bio-label {
+                    display: block; color: #666; font-size: 0.7rem; font-weight: 700; 
+                    margin-bottom: 6px; text-transform: uppercase;
+                }
+
+                .action-buttons {
+                    margin-top: auto; 
+                    display: flex; gap: 10px;
+                    padding-top: 10px;
+                }
+                .cancel-btn, .save-btn {
+                    flex: 1; padding: 12px; border-radius: 12px;
+                    font-weight: 700; font-size: 0.9rem; cursor: pointer;
+                    text-transform: uppercase; letter-spacing: 0.5px;
+                }
+                .cancel-btn { background: #222; border: 1px solid #333; color: #888; }
+                .cancel-btn:hover { background: #333; color: #fff; }
+                .save-btn { background: #1ed760; border: none; color: #000; }
+                .save-btn:hover { background: #1fdf64; }
+                .error-msg { color: #ff4444; font-size: 0.8rem; text-align: center; margin-top: 8px; }
+
+                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+            `}</style>
         </div>
     );
 }
+

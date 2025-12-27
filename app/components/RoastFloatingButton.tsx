@@ -71,7 +71,7 @@ export default function RoastFloatingButton({ reviewsCount, userId }: RoastFloat
                     cursor: pointer;
                     box-shadow: 0 4px 20px rgba(255, 69, 0, 0.4);
                     transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                    z-index: 100;
+                    z-index: 9999;
                     overflow: hidden;
                     font-family: inherit;
                     min-width: 60px; /* Prevent total collapse */

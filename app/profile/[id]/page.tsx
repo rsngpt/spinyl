@@ -147,40 +147,58 @@ export default async function ProfilePage({ params }: { params: { id: string } }
             minHeight: '100vh',
             background: 'linear-gradient(to bottom, #121212 0%, #000000 100%)',
             color: '#fff',
-            paddingTop: '100px',
-            paddingBottom: '40px'
+            paddingTop: '80px',
+            paddingBottom: '20px'
         }}>
-            <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 24px' }}>
+            <div style={{
+                maxWidth: '1400px',
+                margin: '0 auto',
+                padding: '20px 24px',
+                display: 'flex',
+                gap: '60px',
+                alignItems: 'flex-start',
+                position: 'relative'
+            }}>
 
-                {/* Profile Header */}
-                {/* Profile Header (Moved to Client Component for Responsive Styles) */}
-                <ProfileHeader
-                    profile={profile}
-                    stats={{
-                        reviewsCount,
-                        followersCount,
-                        followingCount
-                    }}
-                    isOwnProfile={isOwnProfile}
-                    currentUser={currentUser}
-                    targetUserId={id}
-                    isFollowing={isFollowing}
-                />
+                {/* Left Column: Profile Info (Sticky) */}
+                <aside style={{
+                    width: '380px',
+                    flexShrink: 0,
+                    position: 'sticky',
+                    top: '40px',
+                    height: 'fit-content'
+                }}>
+                    <ProfileHeader
+                        profile={profile}
+                        stats={{
+                            reviewsCount,
+                            followersCount,
+                            followingCount
+                        }}
+                        isOwnProfile={isOwnProfile}
+                        currentUser={currentUser}
+                        targetUserId={id}
+                        isFollowing={isFollowing}
+                    />
 
-                {/* Roast Button (Only for own profile + 5 reviews) */}
-                {isOwnProfile && (
-                    <RoastFloatingButton reviewsCount={reviewsCount} userId={profile.username || 'User'} />
-                )}
+                </aside>
 
-                {/* Content (Reviews / Followers / Following) */}
-                <ProfileContent
-                    reviews={reviewsWithLikes}
-                    followersList={followersList}
-                    followingList={followingList}
-                    isOwnProfile={isOwnProfile}
-                    currentUserId={currentUser?.id}
-                />
+                {/* Right Column: Content */}
+                <main style={{ flex: 1, minWidth: 0 }}>
+                    <ProfileContent
+                        reviews={reviewsWithLikes}
+                        followersList={followersList}
+                        followingList={followingList}
+                        isOwnProfile={isOwnProfile}
+                        currentUserId={currentUser?.id}
+                    />
+                </main>
             </div>
+
+            {/* Roast Button (Fixed Position Root Level) */}
+            {isOwnProfile && (
+                <RoastFloatingButton reviewsCount={reviewsCount} userId={profile.username || 'User'} />
+            )}
         </div>
     );
 }

@@ -12,19 +12,90 @@ export async function updateProfile(prevState: any, formData: FormData) {
     }
 
     const username = formData.get('username') as string;
+    const bio = formData.get('bio') as string;
+    const avatarFile = formData.get('avatar') as File;
 
     if (!username || username.trim().length < 3) {
         return { message: 'Username must be at least 3 characters long.', success: false };
     }
 
-    const cleanUsername = username.trim().toLowerCase(); // Force lowercase for handles? Or keep mixed? Usually handles are lower.
-    // Let's stick to input case but maybe check case-insensitive uniqueness? 
-    // For now, simpler: just rely on the unique constraint.
+    const updates: any = {
+        username: username.trim(),
+        bio: bio ? bio.trim() : null,
+        updated_at: new Date().toISOString(),
+    };
 
-    // Update Profile
+    // Handle Avatar Upload
+    if (avatarFile && avatarFile.size > 0) {
+        // Validate file type
+        if (!avatarFile.type.startsWith('image/')) {
+            return { message: 'File is not a valid image.', success: false };
+        }
+
+        // validate file size (e.g., 5MB limit)
+        if (avatarFile.size > 5 * 1024 * 1024) {
+            return { message: 'Image size must be less than 5MB.', success: false };
+        }
+
+        // --- NEW: Delete old avatar if exists ---
+        try {
+            // Get current profile to find old avatar
+            const { data: currentProfile } = await supabase
+                .from('profiles')
+                .select('avatar_url')
+                .eq('id', user.id)
+                .single();
+
+            if (currentProfile?.avatar_url) {
+                const oldUrl = currentProfile.avatar_url;
+                // Check if it's a Supabase hosted image (contains '/avatars/')
+                if (oldUrl.includes('/avatars/')) {
+                    // Extract filename: .../avatars/filename.ext
+                    const oldPath = oldUrl.split('/avatars/').pop();
+                    if (oldPath) {
+                        const { error: removeError } = await supabase.storage
+                            .from('avatars')
+                            .remove([oldPath]);
+
+                        if (removeError) {
+                            console.warn('Failed to delete old avatar:', removeError);
+                        }
+                    }
+                }
+            }
+        } catch (err) {
+            console.warn('Error handling old avatar deletion:', err);
+            // Don't block update if deletion fails
+        }
+        // ----------------------------------------
+
+        const fileExt = avatarFile.name.split('.').pop();
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError, data: uploadData } = await supabase.storage
+            .from('avatars')
+            .upload(filePath, avatarFile, {
+                upsert: true
+            });
+
+        if (uploadError) {
+            console.error('Avatar Upload Error:', uploadError);
+            return { message: 'Failed to upload avatar image.', success: false };
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(filePath);
+
+        updates.avatar_url = publicUrl;
+    } else {
+    }
+
+    // Update Profile Record
     const { error } = await supabase
         .from('profiles')
-        .update({ username: cleanUsername })
+        .update(updates)
         .eq('id', user.id);
 
     if (error) {
@@ -39,5 +110,14 @@ export async function updateProfile(prevState: any, formData: FormData) {
     revalidatePath(`/profile/${user.id}`);
     revalidatePath('/'); // Refresh places where username might be shown (like Navbar)
 
-    return { message: 'Profile updated!', success: true };
+    return {
+        message: 'Profile updated!',
+        success: true,
+        data: {
+            avatar_url: updates.avatar_url,
+            username: updates.username,
+            full_name: formData.get('full_name') as string,
+            bio: updates.bio
+        }
+    };
 }

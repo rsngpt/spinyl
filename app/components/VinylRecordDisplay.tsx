@@ -26,7 +26,7 @@ export default function VinylRecordDisplay({ coverUrl, rating, size = 80 }: Viny
                 position: 'absolute',
                 top: (size - vinylSize) / 2, // Centered vertically
                 left: peekOffset,
-                width: vinylSize,
+                width: vinylSize, // 95% of sleeve
                 height: vinylSize,
                 zIndex: 5,
                 animation: 'spin 10s linear infinite',
