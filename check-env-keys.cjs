@@ -31,6 +31,20 @@ try {
     console.log('SPOTIFY_CLIENT_ID found:', clientIdFound);
     console.log('SPOTIFY_CLIENT_SECRET found:', clientSecretFound);
 
+    let supabaseUrlFound = false;
+    let supabaseKeyFound = false;
+
+    lines.forEach((line) => {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) return;
+        const key = trimmed.split('=')[0].trim();
+        if (key === 'NEXT_PUBLIC_SUPABASE_URL') supabaseUrlFound = true;
+        if (key === 'NEXT_PUBLIC_SUPABASE_ANON_KEY') supabaseKeyFound = true;
+    });
+
+    console.log('NEXT_PUBLIC_SUPABASE_URL found:', supabaseUrlFound);
+    console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY found:', supabaseKeyFound);
+
 } catch (e) {
     console.error('Error reading .env:', e.message);
 }
