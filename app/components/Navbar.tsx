@@ -175,7 +175,7 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
             // Even on error, show the system notification so it's not empty
             // Verify if we have displayed anything yet
             if (!hasDataRef.current) {
-                setNotifications(systemNotifications);
+                setNotifications(prev => prev.length === 0 ? systemNotifications : prev);
                 hasDataRef.current = true;
             }
         } finally {

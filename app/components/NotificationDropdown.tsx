@@ -167,6 +167,7 @@ export default function NotificationDropdown({ userId, isOpen, onClose, supabase
                                 })}
                             </div>
                         )}
+                        {/* Debug footer removed for production */}
                     </motion.div>
                 </>
             )}

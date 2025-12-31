@@ -2,7 +2,14 @@
 const nextConfig = {
     experimental: {
         serverActions: {
-            allowedOrigins: ['localhost:3000', '[::1]:3000', 'localhost:3001', '[::1]:3001'],
+            allowedOrigins: [
+                'localhost:3000',
+                '[::1]:3000',
+                'localhost:3001',
+                '[::1]:3001',
+                'spinyl.vercel.app',
+                '*.vercel.app'
+            ],
         },
     },
 };
