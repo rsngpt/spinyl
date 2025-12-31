@@ -75,6 +75,11 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
             setLoadingNotifications(true);
         }
 
+        // Safety timeout: If fetch takes too long, stop loading anyway
+        const safetyTimer = setTimeout(() => {
+            setLoadingNotifications(false);
+        }, 5000);
+
         try {
             // 1. Get who I follow
             const { data: follows } = await supabase
@@ -166,6 +171,7 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
         } catch (error) {
             console.error('Error fetching notifications:', error);
         } finally {
+            clearTimeout(safetyTimer);
             setLoadingNotifications(false);
         }
     };
