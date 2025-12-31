@@ -80,12 +80,22 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
             setLoadingNotifications(false);
         }, 5000);
 
+        // Always define static announcements
+        const systemNotifications = [{
+            type: 'system',
+            id: 'system-launch-v1',
+            created_at: '2024-12-31T12:00:00.000Z',
+            message: "We've added a Notification Tab! 🔔 Never miss an update again."
+        }];
+
         try {
             // 1. Get who I follow
-            const { data: follows } = await supabase
+            const { data: follows, error: followError } = await supabase
                 .from('follows')
                 .select('following_id')
                 .eq('follower_id', user.id);
+
+            if (followError) throw followError;
 
             const followingIds = follows?.map(f => f.following_id) || [];
 
@@ -117,6 +127,9 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
 
             const [reviewsRes, followersRes] = await Promise.all([reviewsPromise, followersPromise]);
 
+            if (reviewsRes.error) console.error('Reviews fetch error:', reviewsRes.error);
+            if (followersRes.error) console.error('Followers fetch error:', followersRes.error);
+
             const reviewItems = (reviewsRes.data || []).map((r: any) => ({
                 type: 'review',
                 id: r.id,
@@ -132,19 +145,8 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
                 follower: f.follower
             }));
 
-            const combined: any[] = [...reviewItems, ...followerItems];
-
-            // Add Launch Announcement (Fixed System Notification)
-            const announcement = {
-                type: 'system',
-                id: 'system-launch-v1',
-                created_at: '2024-12-31T12:00:00.000Z', // Fixed timestamp so it doesn't trigger "unread" every time
-                message: "We've added a Notification Tab! 🔔 Never miss an update again."
-            };
-
-            // Only add if it's "recent" or just always show it at the top for now
-            // For now, simple approach: Add to list
-            combined.push(announcement);
+            // Combine fetched data with static system notifications
+            const combined: any[] = [...reviewItems, ...followerItems, ...systemNotifications];
 
             combined.sort(
                 (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -170,6 +172,12 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
             }
         } catch (error) {
             console.error('Error fetching notifications:', error);
+            // Even on error, show the system notification so it's not empty
+            // Verify if we have displayed anything yet
+            if (!hasDataRef.current) {
+                setNotifications(systemNotifications);
+                hasDataRef.current = true;
+            }
         } finally {
             clearTimeout(safetyTimer);
             setLoadingNotifications(false);
