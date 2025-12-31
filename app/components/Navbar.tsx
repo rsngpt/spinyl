@@ -1,7 +1,7 @@
 'use client';
 
 import { createBrowserClient } from '@supabase/ssr';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import SpookyTransition from './SpookyTransition';
@@ -44,17 +44,19 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
     // State for notifications
     const [notifications, setNotifications] = useState<any[]>([]);
     const [loadingNotifications, setLoadingNotifications] = useState(false);
+    const hasDataRef = useRef(false); // Track if we have data to avoid stale closure issues
 
     // Initial load and polling
     useEffect(() => {
         if (!user) return;
 
-        // 0. Load from cache immediately to prevent "Loading..." if possible
+        // 0. Load from cache immediately
         const cached = localStorage.getItem(`notifications_${user.id}`);
         if (cached) {
             try {
                 const parsed = JSON.parse(cached);
                 setNotifications(parsed);
+                hasDataRef.current = true; // Mark as having data
             } catch (e) {
                 console.error('Error parsing cached notifications', e);
             }
@@ -62,22 +64,17 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
 
         fetchNotifications();
 
-        // Poll every minute
+        // Check for updates every minute
         const interval = setInterval(fetchNotifications, 60000);
         return () => clearInterval(interval);
     }, [user, supabase]);
 
     const fetchNotifications = async () => {
-        // Only set loading if we have ABSOLUTELY no data to show
-        setLoadingNotifications(prev => {
-            // If we already have notifications (verified by state check), don't show loading spinner
-            // We can check the current state implicitly by using the callback or just relying on the variable in closure if checking rendered state
-            // Better: check the 'notifications' length from the closure, but be careful of stale closures in setInterval.
-            // Since we use the function in setInterval, it captures the closure.
-            // We should probably rely on a 'silent' flag or just checking if notifications.length === 0 inside the function scope?
-            // Actually, standard practice for "background refresh" is NOT to set loading=true unless explicit refresh.
-            return notifications.length === 0;
-        });
+        // Only set loading if we have NO data at all (ref persists across renders)
+        if (!hasDataRef.current) {
+            setLoadingNotifications(true);
+        }
+
         try {
             // 1. Get who I follow
             const { data: follows } = await supabase
@@ -149,7 +146,9 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
             );
 
             // Update state
+
             setNotifications(combined);
+            hasDataRef.current = true; // Mark as having data
 
             // Update cache
             if (user?.id) {
