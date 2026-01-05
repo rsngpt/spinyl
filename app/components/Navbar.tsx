@@ -252,18 +252,18 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
             }}
         >
             {/* Left Side: Logo + Nav Icons */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
-                <Link href="/" style={{ textDecoration: 'none', display: 'inline-block' }}>
-                    <h1 className="logo-hover" style={{
-                        fontSize: '1.5rem',
-                        margin: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        cursor: 'pointer'
-                    }}>
-                        Spinyl
-                    </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+                    <img
+                        src="/spinyl-logo-white.png"
+                        alt="Spinyl"
+                        className="logo-hover"
+                        style={{
+                            height: '30px',
+                            objectFit: 'contain',
+                            cursor: 'pointer'
+                        }}
+                    />
                 </Link>
 
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
