@@ -21,8 +21,8 @@ interface NotificationDropdownProps {
 export default function NotificationDropdown({ userId, isOpen, onClose, supabase, notifications, loading, onRefresh }: NotificationDropdownProps) {
     // Union type for reviews and follows (kept for reference or better typing if we pass typed props)
     type NotificationItem =
-        | { type: 'review'; id: string; created_at: string; profiles: { username: string; avatar_url: string | null } | null; albums: { id: string; name: string; cover_image: string } | null; }
-        | { type: 'follow'; id: string; created_at: string; follower: { username: string; avatar_url: string | null } | null; }
+        | { type: 'review'; id: string; created_at: string; profiles: { username: string; avatar_url: string | null } | null; albums: { id: string; spotify_id: string; name: string; cover_image: string } | null; }
+        | { type: 'follow'; id: string; created_at: string; follower: { username: string; avatar_url: string | null } | null; follower_user_id?: string; }
         | { type: 'system'; id: string; created_at: string; message: string; };
 
     return (
@@ -74,7 +74,7 @@ export default function NotificationDropdown({ userId, isOpen, onClose, supabase
                                         return (
                                             <Link
                                                 key={notif.id}
-                                                href={`/album/${notif.albums?.id}`}
+                                                href={notif.albums?.spotify_id ? `/album/${notif.albums.spotify_id}` : '#'}
                                                 style={{ textDecoration: 'none' }}
                                                 onClick={onClose}
                                             >
@@ -120,27 +120,34 @@ export default function NotificationDropdown({ userId, isOpen, onClose, supabase
                                     } else if (notif.type === 'follow') {
                                         // Follow Notification
                                         return (
-                                            <div key={notif.id} className="notification-item" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px', borderRadius: '8px', transition: 'background 0.2s' }}
-                                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
-                                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                            <Link
+                                                key={notif.id}
+                                                href={`/profile/${notif.follower_user_id}`}
+                                                style={{ textDecoration: 'none', color: 'inherit' }}
+                                                onClick={onClose}
                                             >
-                                                <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, background: '#333' }}>
-                                                    {notif.follower?.avatar_url ? (
-                                                        <img src={notif.follower.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                                    ) : (
-                                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{(notif.follower?.username || '?')[0].toUpperCase()}</div>
-                                                    )}
+                                                <div className="notification-item" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px', borderRadius: '8px', transition: 'background 0.2s' }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                                >
+                                                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, background: '#333' }}>
+                                                        {notif.follower?.avatar_url ? (
+                                                            <img src={notif.follower.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                        ) : (
+                                                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{(notif.follower?.username || '?')[0].toUpperCase()}</div>
+                                                        )}
+                                                    </div>
+                                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                                        <p style={{ fontSize: '0.9rem', margin: 0, lineHeight: '1.4' }}>
+                                                            <span style={{ fontWeight: 600, color: '#fff' }}>{notif.follower?.username || 'Someone'}</span>
+                                                            <span style={{ color: '#aaa' }}> started following you</span>
+                                                        </p>
+                                                        <p style={{ fontSize: '0.75rem', color: '#666', margin: '4px 0 0' }}>
+                                                            {new Date(notif.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} at {new Date(notif.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <div style={{ flex: 1, minWidth: 0 }}>
-                                                    <p style={{ fontSize: '0.9rem', margin: 0, lineHeight: '1.4' }}>
-                                                        <span style={{ fontWeight: 600, color: '#fff' }}>{notif.follower?.username || 'Someone'}</span>
-                                                        <span style={{ color: '#aaa' }}> started following you</span>
-                                                    </p>
-                                                    <p style={{ fontSize: '0.75rem', color: '#666', margin: '4px 0 0' }}>
-                                                        {new Date(notif.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} at {new Date(notif.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
-                                                    </p>
-                                                </div>
-                                            </div>
+                                            </Link>
                                         );
                                     } else {
                                         // System Notification

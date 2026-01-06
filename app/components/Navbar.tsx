@@ -51,7 +51,7 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
         if (!user) return;
 
         // 0. Load from cache immediately
-        const cached = localStorage.getItem(`notifications_${user.id}`);
+        const cached = localStorage.getItem(`notifications_v4_${user.id}`);
         if (cached) {
             try {
                 const parsed = JSON.parse(cached);
@@ -106,7 +106,7 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
                     id,
                     created_at,
                     profiles!user_id (username, avatar_url),
-                    albums (id, name, cover_image)
+                    albums (id, spotify_id, name, cover_image)
                 `)
                 .in('user_id', followingIds)
                 .order('created_at', { ascending: false })
@@ -142,7 +142,8 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
                 type: 'follow',
                 id: `follow-${f.follower_id}-${f.created_at}`,
                 created_at: f.created_at,
-                follower: f.follower
+                follower: f.follower,
+                follower_user_id: f.follower_id
             }));
 
             // Combine fetched data with static system notifications
@@ -159,7 +160,7 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
 
             // Update cache
             if (user?.id) {
-                localStorage.setItem(`notifications_${user.id}`, JSON.stringify(combined));
+                localStorage.setItem(`notifications_v4_${user.id}`, JSON.stringify(combined));
             }
 
             // Check unread status
