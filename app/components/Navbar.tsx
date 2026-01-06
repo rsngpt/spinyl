@@ -1,9 +1,29 @@
+/**
+ * CRITICAL ARCHITECTURE NOTE:
+ * This component uses a "Direct Client" pattern for fetching notifications.
+ * 
+ * ISSUE:
+ * In production, the standard `createBrowserClient` can hang indefinitely when 
+ * trying to hydrate the session from localStorage/cookies, causing a "deadlock" 
+ * where `fetchNotifications` waits forever for `isAuthReady`.
+ * 
+ * SOLUTION:
+ * We use `initialSession` prop passed from Server Component (RootLayout).
+ * We create a specialized, disposable Supabase client (`fetchClient`) that:
+ * 1. Uses the Access Token directly from the server prop.
+ * 2.Has `persistSession: false` (MEMORY ONLY).
+ * 
+ * DO NOT REVERT TO STANDARD `supabase.from(...)` FOR CRITICAL INITIAL FETCHES.
+ * ALWAYS USE `fetchClient` OR ENSURE DIRECT TOKEN USAGE.
+ */
+
 'use client';
 
 import { createBrowserClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js'; // DIRECT CLIENT IMPORT
 import { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+// ... existing imports ...
 import Link from 'next/link';
 import SpookyTransition from './SpookyTransition';
 import { Home, Ghost, Bell } from 'lucide-react';
@@ -59,9 +79,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
     // HYDRATE CLIENT SESSION IF NEEDED
     useEffect(() => {
         const hydrate = async () => {
-            console.log('Navbar: Hydration started.');
             if (initialSession && initialSession.access_token) {
-                console.log('Navbar: Forcing session hydration from server prop...');
                 try {
                     // Race against a timeout so we don't hang forever
                     const setSessionPromise = supabase.auth.setSession({
@@ -73,25 +91,18 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     );
 
                     await Promise.race([setSessionPromise, timeoutPromise]);
-                    console.log('Navbar: setSession success');
                 } catch (e) {
-                    console.error('Navbar: setSession warning (proceeding anyway):', e);
+                    // Silent catch or minimal warn
+                    // console.warn('Navbar: setSession warning:', e);
                 }
-            } else {
-                console.log('Navbar: No initialSession provided (Guest mode).');
             }
-            console.log('Navbar: Setting isAuthReady = true');
             setIsAuthReady(true);
         };
         hydrate();
     }, [initialSession, supabase]);
 
     const fetchNotifications = async () => {
-        if (!isAuthReady) {
-            console.log('Navbar: Auth not ready, skipping fetch');
-            return;
-        }
-        console.log('Navbar: Starting fetchNotifications for user:', user?.id);
+        if (!isAuthReady) return;
 
         // Only set loading if we have NO data at all
         if (!hasDataRef.current) {
@@ -106,7 +117,6 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
         // This bypasses any "browser client" state issues (like locks or timeouts)
         let fetchClient: any = supabase;
         if (initialSession && initialSession.access_token) {
-            console.log('Navbar: Using DIRECT CLIENT for fetch (bypassing browser state)');
             fetchClient = createClient(
                 process.env.NEXT_PUBLIC_SUPABASE_URL!,
                 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -179,9 +189,8 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
 
             if (realNotifsRes.error) {
                 console.error('Real Notifs fetch error:', realNotifsRes.error);
-            } else {
-                console.log('DEBUG: Real Notifs Raw:', realNotifsRes.data);
             }
+            // Removed debug log: console.log('DEBUG: Real Notifs Raw:', realNotifsRes.data);
 
             // Fetch profiles & Comment details manually
             let realNotifsWithDetails: any[] = [];
