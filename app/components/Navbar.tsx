@@ -97,6 +97,8 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
     }, [user, supabase]);
 
     const fetchNotifications = async () => {
+        console.log('Navbar: Starting fetchNotifications for user:', user?.id);
+
         // Only set loading if we have NO data at all (ref persists across renders)
         if (!hasDataRef.current) {
             setLoadingNotifications(true);
