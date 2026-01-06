@@ -51,16 +51,29 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
     // HYDRATE CLIENT SESSION IF NEEDED
     useEffect(() => {
         const hydrate = async () => {
+            console.log('Navbar: Hydration started. InitialSession:', !!initialSession);
             if (initialSession && initialSession.access_token) {
+                console.log('Navbar: Checking existing session...');
                 const { data } = await supabase.auth.getSession();
                 if (!data.session) {
-                    console.log('Navbar: Hydrating session manually from server prop');
-                    await supabase.auth.setSession({
-                        access_token: initialSession.access_token,
-                        refresh_token: initialSession.refresh_token
-                    });
+                    console.log('Navbar: Session is missing. Manually setting session...');
+                    try {
+                        const { error } = await supabase.auth.setSession({
+                            access_token: initialSession.access_token,
+                            refresh_token: initialSession.refresh_token
+                        });
+                        if (error) console.error('Navbar: setSession error:', error);
+                        else console.log('Navbar: setSession success');
+                    } catch (e) {
+                        console.error('Navbar: setSession EXCEPTION:', e);
+                    }
+                } else {
+                    console.log('Navbar: Session already exists.');
                 }
+            } else {
+                console.log('Navbar: No initialSession provided.');
             }
+            console.log('Navbar: Setting isAuthReady = true');
             setIsAuthReady(true);
         };
         hydrate();
