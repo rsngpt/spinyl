@@ -10,7 +10,19 @@ export async function getSupabaseServerClient() {
     {
       cookies: {
         get(name: string) {
-          return cookieStore.get(name)?.value;
+          const value = cookieStore.get(name)?.value;
+          // Handle double-stringified cookies (fixes "Cannot create property 'user' on string")
+          if (value && value.startsWith('"') && value.endsWith('"')) {
+            try {
+              const parsed = JSON.parse(value);
+              if (typeof parsed === 'string') {
+                return parsed;
+              }
+            } catch {
+              // Ignore parse errors, return original value
+            }
+          }
+          return value;
         },
         set(name: string, value: string, options: CookieOptions) {
           try {
