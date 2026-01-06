@@ -13,9 +13,10 @@ import NotificationDropdown from './NotificationDropdown';
 interface NavbarProps {
     initialUser: any; // Using any to match existing loose typing, or import User type
     initialProfile: any;
+    initialSession?: any; // Add session prop
 }
 
-export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
+export default function Navbar({ initialUser, initialProfile, initialSession }: NavbarProps) {
     const router = useRouter();
     const pathname = usePathname();
 
@@ -23,6 +24,7 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
     const [user, setUser] = useState(initialUser);
     const [showNotifications, setShowNotifications] = useState(false);
     const [hasUnread, setHasUnread] = useState(false);
+    const [profile, setProfile] = useState(initialProfile);
 
     useEffect(() => {
         setIsSpooky(false);
@@ -34,12 +36,33 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
             setIsSpooky(false);
         }
     };
-    const [profile, setProfile] = useState(initialProfile);
 
     const [supabase] = useState(() => createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     ));
+
+    // HYDRATE CLIENT SESSION IF NEEDED
+    useEffect(() => {
+        if (initialSession && initialSession.access_token) {
+            /*
+             * This is crucial when HttpOnly cookies are used. The client-side client
+             * can't read the cookie, so we must manually "tell" it the session exists.
+             * Ideally, `createBrowserClient` should handle this but sometimes it misses
+             * if the cookie domain/path doesn't match perfectly or if it's strict mode.
+             */
+            supabase.auth.getSession().then(({ data }) => {
+                if (!data.session) {
+                    console.log('Navbar: Hydrating session manually from server prop');
+                    supabase.auth.setSession({
+                        access_token: initialSession.access_token,
+                        refresh_token: initialSession.refresh_token
+                    });
+                }
+            });
+        }
+    }, [initialSession, supabase]);
+
 
     // State for notifications
     const [notifications, setNotifications] = useState<any[]>([]);

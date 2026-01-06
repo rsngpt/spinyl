@@ -16,7 +16,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const supabase = await getSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   let profile = null;
   if (user) {
@@ -31,7 +32,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Navbar initialUser={user} initialProfile={profile} />
+        <Navbar initialUser={user} initialProfile={profile} initialSession={session} />
         {children}
       </body>
     </html>
