@@ -149,6 +149,37 @@ export default function NotificationDropdown({ userId, isOpen, onClose, supabase
                                                 </div>
                                             </Link>
                                         );
+                                    } else if (notif.type === 'comment' || notif.type === 'mention') {
+                                        return (
+                                            <Link
+                                                key={notif.id}
+                                                href={notif.resource_id ? `/album/${notif.resource_id}${notif.review_id ? `?reviewId=${notif.review_id}` : ''}` : '#'}
+                                                style={{ textDecoration: 'none', color: 'inherit' }}
+                                                onClick={onClose}
+                                            >
+                                                <div className="notification-item" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px', borderRadius: '8px', transition: 'background 0.2s', cursor: 'pointer' }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                                >
+                                                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, background: '#333' }}>
+                                                        {notif.actor?.avatar_url ? (
+                                                            <img src={notif.actor.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                        ) : (
+                                                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{(notif.actor?.username || '?')[0].toUpperCase()}</div>
+                                                        )}
+                                                    </div>
+                                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                                        <p style={{ fontSize: '0.9rem', margin: 0, lineHeight: '1.4' }}>
+                                                            <span style={{ fontWeight: 600, color: '#fff' }}>{notif.actor?.username || 'Someone'}</span>
+                                                            <span style={{ color: '#aaa' }}> {notif.message}</span>
+                                                        </p>
+                                                        <p style={{ fontSize: '0.75rem', color: '#666', margin: '4px 0 0' }}>
+                                                            {new Date(notif.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} at {new Date(notif.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        );
                                     } else {
                                         // System Notification
                                         return (

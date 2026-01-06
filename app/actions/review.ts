@@ -181,3 +181,34 @@ export async function submitReview(formData: FormData): Promise<SubmitReviewResu
         return { success: false, message: 'An unexpected error occurred.' };
     }
 }
+
+export async function deleteReview(reviewId: string, spotifyId: string) {
+    const supabase = await getSupabaseServerClient();
+
+    // 1. Check Auth
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return { success: false, message: 'Unauthorized' };
+    }
+
+    try {
+        // 2. Delete Review (Ensure user owns it)
+        const { error } = await supabase
+            .from('reviews')
+            .delete()
+            .eq('id', reviewId)
+            .eq('user_id', user.id);
+
+        if (error) {
+            console.error('Error deleting review:', error);
+            return { success: false, message: 'Failed to delete review.' };
+        }
+
+        // 3. Revalidate
+        revalidatePath(`/album/${spotifyId}`);
+        return { success: true };
+    } catch (error) {
+        console.error('Exception deleting review:', error);
+        return { success: false, message: 'An error occurred.' };
+    }
+}

@@ -2,12 +2,14 @@
 
 import { createBrowserClient } from '@supabase/ssr';
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import LoginButton from './LoginButton';
-import { submitReview } from '../actions/review';
+import { submitReview, deleteReview } from '../actions/review';
 import Link from 'next/link';
 import VinylRatingInput from './VinylRatingInput';
-import { Share2 } from 'lucide-react';
+import { Share2, MessageCircle, Heart, MoreHorizontal } from 'lucide-react';
 import SpinylCard from './SpinylCard';
+import ReviewModal from './ReviewModal';
 
 const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,7 +36,7 @@ type AlbumData = {
     artists: string[];
 };
 
-// Helper for initials (moved here as it's used by ReviewItem)
+// Helper for initials
 const getInitials = (name: string) => {
     return name
         .split(' ')
@@ -44,8 +46,21 @@ const getInitials = (name: string) => {
         .slice(0, 2);
 };
 
-const ReviewItem = ({ review, setReviewToShare }: { review: Review, setReviewToShare: (r: Review) => void }) => {
+// ReviewItem now delegates Modal opening to parent
+const ReviewItem = ({
+    review,
+    setReviewToShare,
+    onOpenComments,
+    currentUser
+}: {
+    review: Review,
+    setReviewToShare: (r: Review) => void,
+    onOpenComments: () => void,
+    currentUser: any
+}) => {
     const [isExpanded, setIsExpanded] = useState(false);
+    const [isLiked, setIsLiked] = useState(false); // Placeholder
+
     const profile = review.profiles || { username: 'Unknown User', avatar_url: null };
 
     // Format Date & Time
@@ -54,31 +69,25 @@ const ReviewItem = ({ review, setReviewToShare }: { review: Review, setReviewToS
     const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     // Truncation Logic
-    // We rely on CSS line-clamp for the visual truncation to exactly 3 lines.
-    // We use a character threshold heuristic to decide whether to show the "Read more" button at all.
     const CHAR_THRESHOLD = 150;
     const isLongReview = review.review_text.length > CHAR_THRESHOLD;
-
-    // Auto-quote the text
     const quotedText = `"${review.review_text}"`;
 
     return (
         <div style={{
             borderBottom: '1px solid rgba(255,255,255,0.05)',
-            padding: '16px 0', // Reduced padding
+            padding: '24px 0',
             position: 'relative'
         }}>
-            {/* 3-Column Layout Container */}
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'stretch' }}>
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
 
-                {/* COLUMN 1: LEFT - Sleeve + Vinyl */}
+                {/* LEFT: Sleeve + Vinyl */}
                 <div style={{ position: 'relative', width: '60px', flexShrink: 0 }}>
-                    {/* Vinyl Record */}
                     <div style={{
                         position: 'absolute',
                         top: '1px',
-                        left: '28px', // Adjusted offset
-                        width: '56px', // Smaller vinyl
+                        left: '28px',
+                        width: '56px',
                         height: '56px',
                         zIndex: 5,
                         animation: 'spin 10s linear infinite',
@@ -87,11 +96,10 @@ const ReviewItem = ({ review, setReviewToShare }: { review: Review, setReviewToS
                         <VinylRatingInput value={review.rating} onChange={() => { }} readonly />
                     </div>
 
-                    {/* Sleeve */}
                     <Link href={`/profile/${review.user_id}`}>
                         <div style={{
                             position: 'relative',
-                            width: '60px', // Smaller sleeve
+                            width: '60px',
                             height: '60px',
                             borderRadius: '2px',
                             overflow: 'hidden',
@@ -122,9 +130,8 @@ const ReviewItem = ({ review, setReviewToShare }: { review: Review, setReviewToS
                     </Link>
                 </div>
 
-                {/* COLUMN 2: MIDDLE - Content (Metadata + Text) */}
-                <div style={{ flex: 1, paddingLeft: '34px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    {/* Metadata Block */}
+                {/* MIDDLE: Content */}
+                <div style={{ flex: 1, paddingLeft: '34px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <div style={{ lineHeight: '1.2' }}>
                         <Link href={`/profile/${review.user_id}`} style={{ textDecoration: 'none', color: '#fff' }}>
                             <div style={{ fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.02em' }}>
@@ -136,16 +143,13 @@ const ReviewItem = ({ review, setReviewToShare }: { review: Review, setReviewToS
                         </div>
                     </div>
 
-                    {/* Review Text */}
                     <div>
                         <p style={{
                             margin: 0,
                             lineHeight: '1.5',
                             color: '#ddd',
-                            fontSize: '0.9rem', // Smaller text
-                            whiteSpace: 'pre-line', // Preserves newlines
-
-                            // CSS Line Clamping
+                            fontSize: '0.95rem',
+                            whiteSpace: 'pre-line',
                             display: isExpanded ? 'block' : '-webkit-box',
                             WebkitLineClamp: isExpanded ? 'unset' : 3,
                             WebkitBoxOrient: 'vertical',
@@ -163,7 +167,7 @@ const ReviewItem = ({ review, setReviewToShare }: { review: Review, setReviewToS
                                     fontWeight: 600,
                                     fontSize: '0.8rem',
                                     cursor: 'pointer',
-                                    marginTop: '2px', // Tighter spacing
+                                    marginTop: '2px',
                                     padding: 0,
                                     textDecoration: 'underline'
                                 }}
@@ -172,53 +176,54 @@ const ReviewItem = ({ review, setReviewToShare }: { review: Review, setReviewToS
                             </button>
                         )}
                     </div>
+
+                    {/* ACTION BAR */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '8px', color: '#888' }}>
+                        <button
+                            onClick={() => setIsLiked(!isLiked)}
+                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: isLiked ? '#E91E63' : 'inherit', transition: 'color 0.2s' }}
+                        >
+                            <Heart size={18} fill={isLiked ? "#E91E63" : "none"} />
+                            <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{isLiked ? '1' : ''}</span>
+                        </button>
+
+                        <button
+                            onClick={onOpenComments}
+                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: 'inherit', transition: 'color 0.2s' }}
+                        >
+                            <MessageCircle size={18} />
+                            {/* Comments Count could be passed here if we had it */}
+                        </button>
+
+                        <button
+                            onClick={() => setReviewToShare(review)}
+                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'inherit', marginLeft: 'auto' }}
+                        >
+                            <MoreHorizontal size={18} />
+                        </button>
+                    </div>
                 </div>
 
-                {/* COLUMN 3: RIGHT - Actions & Rating */}
-                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-end', minWidth: '80px' }}>
-
-                    {/* Top Right: Rating Badge */}
+                {/* RIGHT: Rating */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', minWidth: '60px' }}>
                     <div style={{
                         background: review.rating >= 8 ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.08)',
                         border: review.rating >= 8 ? '1px solid rgba(255,215,0,0.4)' : '1px solid #444',
-                        padding: '2px 0', // Tighter vertical padding
-                        width: '42px', // Smaller fixed width
-                        borderRadius: '4px', // Slightly sharper corners
+                        padding: '2px 0',
+                        width: '42px',
+                        borderRadius: '4px',
                         textAlign: 'center',
                         flexShrink: 0
                     }}>
                         <span style={{
-                            fontWeight: 800, // Slightly less heavy to match size
-                            fontSize: '0.85rem', // Smaller text
+                            fontWeight: 800,
+                            fontSize: '0.85rem',
                             color: review.rating >= 8 ? '#FFD700' : '#fff',
                             letterSpacing: '-0.05em'
                         }}>
                             {review.rating}/10
                         </span>
                     </div>
-
-                    {/* Bottom Right: Share Button */}
-                    <button
-                        onClick={() => setReviewToShare(review)}
-                        title="Share Spinyl Card"
-                        style={{
-                            background: 'transparent',
-                            border: 'none',
-                            color: '#666',
-                            cursor: 'pointer',
-                            padding: '4px',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            transition: 'color 0.2s',
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.color = '#fff';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.color = '#666';
-                        }}
-                    >
-                        <Share2 size={18} />
-                    </button>
                 </div>
 
             </div>
@@ -233,9 +238,9 @@ export default function ReviewSection({
 }: {
     initialReviews: Review[];
     albumData: AlbumData;
-    currentUser?: any; // Accepting the user object from server
+    currentUser?: any;
 }) {
-    // Initialize user state with the server-passed user if available
+    const searchParams = useSearchParams();
     const [user, setUser] = useState<any>(currentUser || null);
     const [rating, setRating] = useState(1); // Default to 1 (Scale 1-10)
     const [reviewText, setReviewText] = useState('');
@@ -243,6 +248,55 @@ export default function ReviewSection({
     const [showForm, setShowForm] = useState(false); // Keep this state for form visibility
     const [reviews, setReviews] = useState<Review[]>(initialReviews); // Manage reviews in state
     const [reviewToShare, setReviewToShare] = useState<Review | null>(null);
+
+    // Deep Linking State
+    const [activeReview, setActiveReview] = useState<Review | null>(null);
+
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+    // Check URL for reviewId to auto-open
+    useEffect(() => {
+        const reviewId = searchParams.get('reviewId');
+        if (reviewId && reviews.length > 0) {
+            const target = reviews.find(r => r.id === reviewId);
+            if (target) {
+                setActiveReview(target);
+                // Optional: clear params from URL without reload
+            }
+        }
+    }, [searchParams, reviews]);
+
+    const handleDeleteClick = () => {
+        setShowDeleteConfirm(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!user) return;
+        const existingReview = reviews.find(r => r.user_id === user.id);
+        if (!existingReview) return;
+
+        setIsDeleting(true);
+        try {
+            const result = await deleteReview(existingReview.id, albumData.spotify_id);
+            if (result.success) {
+                // Remove from state
+                setReviews(reviews.filter(r => r.id !== existingReview.id));
+                // Reset form
+                setReviewText('');
+                setRating(8);
+                setShowForm(false);
+                setShowDeleteConfirm(false);
+            } else {
+                alert(result.message || 'Failed to delete review');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('An error occurred');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     useEffect(() => {
         // If we didn't get a user from server props, try fetching client-side
@@ -320,6 +374,17 @@ export default function ReviewSection({
 
     return (
         <div style={{ background: '#181818', borderRadius: '12px', padding: '24px' }}>
+            {/* SINGLE Shared Review Modal for Deep Linking */}
+            {activeReview && (
+                <ReviewModal
+                    isOpen={!!activeReview}
+                    onClose={() => setActiveReview(null)}
+                    review={activeReview}
+                    spotifyId={albumData.spotify_id}
+                    currentUser={user}
+                />
+            )}
+
             {/* Spinyl Card Modal */}
             {reviewToShare && albumData && (
                 <div style={{
@@ -342,6 +407,71 @@ export default function ReviewSection({
                             username={reviewToShare.profiles?.username || 'User'}
                             onClose={() => setReviewToShare(null)}
                         />
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteConfirm && (
+                <div style={{
+                    position: 'fixed',
+                    inset: 0,
+                    zIndex: 101, // Above everything
+                    background: 'rgba(0,0,0,0.8)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backdropFilter: 'blur(5px)'
+                }} onClick={() => setShowDeleteConfirm(false)}>
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            background: '#222',
+                            border: '1px solid #333',
+                            borderRadius: '12px',
+                            padding: '24px',
+                            maxWidth: '400px',
+                            width: '90%',
+                            boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+                            textAlign: 'center'
+                        }}
+                    >
+                        <h3 style={{ marginTop: 0, marginBottom: '12px', fontSize: '1.2rem', color: '#fff' }}>Delete Review?</h3>
+                        <p style={{ color: '#aaa', marginBottom: '24px', lineHeight: '1.5' }}>
+                            Are you sure you want to delete your review? This action cannot be undone.
+                        </p>
+                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                            <button
+                                onClick={() => setShowDeleteConfirm(false)}
+                                style={{
+                                    padding: '10px 20px',
+                                    borderRadius: '20px',
+                                    border: '1px solid #444',
+                                    background: 'transparent',
+                                    color: '#fff',
+                                    cursor: 'pointer',
+                                    fontWeight: 600
+                                }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                disabled={isDeleting}
+                                style={{
+                                    padding: '10px 20px',
+                                    borderRadius: '20px',
+                                    border: 'none',
+                                    background: '#ff3b30',
+                                    color: '#fff',
+                                    cursor: isDeleting ? 'not-allowed' : 'pointer',
+                                    fontWeight: 600,
+                                    opacity: isDeleting ? 0.7 : 1
+                                }}
+                            >
+                                {isDeleting ? 'Deleting...' : 'Delete'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -408,7 +538,27 @@ export default function ReviewSection({
                         />
                     </div>
 
-                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                        {reviews.some(r => r.user_id === user?.id) && (
+                            <button
+                                type="button"
+                                onClick={handleDeleteClick}
+                                disabled={isDeleting}
+                                style={{
+                                    marginRight: 'auto',
+                                    padding: '8px 16px',
+                                    background: 'rgba(255, 59, 48, 0.1)',
+                                    border: '1px solid rgba(255, 59, 48, 0.3)',
+                                    color: '#ff3b30',
+                                    borderRadius: '20px',
+                                    cursor: isDeleting ? 'not-allowed' : 'pointer',
+                                    fontSize: '0.85rem',
+                                    fontWeight: 600
+                                }}
+                            >
+                                {isDeleting ? 'Deleting...' : 'Delete'}
+                            </button>
+                        )}
                         <button
                             type="button"
                             onClick={() => setShowForm(false)}
@@ -449,7 +599,13 @@ export default function ReviewSection({
                     <p style={{ color: 'var(--text-secondary)' }}>No reviews yet. Be the first to judge.</p>
                 ) : (
                     reviews.map((review) => (
-                        <ReviewItem key={review.id} review={review} setReviewToShare={setReviewToShare} />
+                        <ReviewItem
+                            key={review.id}
+                            review={review}
+                            setReviewToShare={setReviewToShare}
+                            onOpenComments={() => setActiveReview(review)} // Open centralized modal
+                            currentUser={user}
+                        />
                     ))
                 )}
             </div >

@@ -125,10 +125,40 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
                 .order('created_at', { ascending: false })
                 .limit(10);
 
-            const [reviewsRes, followersRes] = await Promise.all([reviewsPromise, followersPromise]);
+            // 4. Real Notifications (Comments, Mentions)
+            const realNotificationsPromise = supabase
+                .from('notifications')
+                .select('*, comments(review_id)')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false })
+                .limit(10);
+
+            const [reviewsRes, followersRes, realNotifsRes] = await Promise.all([reviewsPromise, followersPromise, realNotificationsPromise]);
 
             if (reviewsRes.error) console.error('Reviews fetch error:', reviewsRes.error);
             if (followersRes.error) console.error('Followers fetch error:', followersRes.error);
+            if (realNotifsRes.error) console.error('Real Notifs fetch error:', realNotifsRes.error);
+
+            // Fetch profiles for real notifications manually (since we might not have efficient joins setup yet)
+            let realNotifsWithProfiles: any[] = [];
+            if (realNotifsRes.data && realNotifsRes.data.length > 0) {
+                const actorIds = [...new Set(realNotifsRes.data.map((n: any) => n.actor_id).filter(Boolean))];
+                if (actorIds.length > 0) {
+                    const { data: actors } = await supabase
+                        .from('profiles')
+                        .select('id, username, avatar_url')
+                        .in('id', actorIds);
+
+                    const actorMap = new Map(actors?.map((a: any) => [a.id, a]) || []);
+
+                    realNotifsWithProfiles = realNotifsRes.data.map((n: any) => ({
+                        ...n,
+                        actor: n.actor_id ? actorMap.get(n.actor_id) : null
+                    }));
+                } else {
+                    realNotifsWithProfiles = realNotifsRes.data;
+                }
+            }
 
             const reviewItems = (reviewsRes.data || []).map((r: any) => ({
                 type: 'review',
@@ -146,8 +176,20 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
                 follower_user_id: f.follower_id
             }));
 
+            const realNotifItems = realNotifsWithProfiles.map((n: any) => ({
+                type: n.type || 'system', // 'comment' or 'mention'
+                id: n.id,
+                created_at: n.created_at,
+                message: n.message,
+                resource_id: n.resource_id,
+                actor: n.actor,
+                // Add extended props if needed for logic
+                comment_id: n.comment_id,
+                review_id: n.comments?.review_id // Link for deep linking
+            }));
+
             // Combine fetched data with static system notifications
-            const combined: any[] = [...reviewItems, ...followerItems, ...systemNotifications];
+            const combined: any[] = [...reviewItems, ...followerItems, ...realNotifItems, ...systemNotifications];
 
             combined.sort(
                 (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
