@@ -153,9 +153,10 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
                 .limit(10);
 
             // 4. Real Notifications (Comments, Mentions)
+            // SIMPLIFIED QUERY: Fetch raw notifications first to avoid Join issues
             const realNotificationsPromise = supabase
                 .from('notifications')
-                .select('*, comments(review_id)')
+                .select('*')
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false })
                 .limit(10);
@@ -164,27 +165,46 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
 
             if (reviewsRes.error) console.error('Reviews fetch error:', reviewsRes.error);
             if (followersRes.error) console.error('Followers fetch error:', followersRes.error);
-            if (realNotifsRes.error) console.error('Real Notifs fetch error:', realNotifsRes.error);
 
-            // Fetch profiles for real notifications manually (since we might not have efficient joins setup yet)
-            let realNotifsWithProfiles: any[] = [];
+            // DEBUG LOGGING
+            if (realNotifsRes.error) {
+                console.error('Real Notifs fetch error:', realNotifsRes.error);
+            } else {
+                console.log('DEBUG: Real Notifs Raw:', realNotifsRes.data);
+            }
+
+            // Fetch profiles & Comment details manually
+            let realNotifsWithDetails: any[] = [];
             if (realNotifsRes.data && realNotifsRes.data.length > 0) {
+                // 1. Get Actor Profiles
                 const actorIds = [...new Set(realNotifsRes.data.map((n: any) => n.actor_id).filter(Boolean))];
+                let actorMap = new Map();
+
                 if (actorIds.length > 0) {
                     const { data: actors } = await supabase
                         .from('profiles')
                         .select('id, username, avatar_url')
                         .in('id', actorIds);
-
-                    const actorMap = new Map(actors?.map((a: any) => [a.id, a]) || []);
-
-                    realNotifsWithProfiles = realNotifsRes.data.map((n: any) => ({
-                        ...n,
-                        actor: n.actor_id ? actorMap.get(n.actor_id) : null
-                    }));
-                } else {
-                    realNotifsWithProfiles = realNotifsRes.data;
+                    actorMap = new Map(actors?.map((a: any) => [a.id, a]) || []);
                 }
+
+                // 2. Get Comment Details (for review_id)
+                const commentIds = [...new Set(realNotifsRes.data.map((n: any) => n.comment_id).filter(Boolean))];
+                let commentMap = new Map();
+
+                if (commentIds.length > 0) {
+                    const { data: comments } = await supabase
+                        .from('comments')
+                        .select('id, review_id')
+                        .in('id', commentIds);
+                    commentMap = new Map(comments?.map((c: any) => [c.id, c]) || []);
+                }
+
+                realNotifsWithDetails = realNotifsRes.data.map((n: any) => ({
+                    ...n,
+                    actor: n.actor_id ? actorMap.get(n.actor_id) : null,
+                    comments: n.comment_id ? commentMap.get(n.comment_id) : null
+                }));
             }
 
             const reviewItems = (reviewsRes.data || []).map((r: any) => ({
@@ -203,16 +223,16 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
                 follower_user_id: f.follower_id
             }));
 
-            const realNotifItems = realNotifsWithProfiles.map((n: any) => ({
+            const realNotifItems = realNotifsWithDetails.map((n: any) => ({
                 type: n.type || 'system', // 'comment' or 'mention'
                 id: n.id,
                 created_at: n.created_at,
                 message: n.message,
                 resource_id: n.resource_id,
                 actor: n.actor,
-                // Add extended props if needed for logic
+                // Add extended props
                 comment_id: n.comment_id,
-                review_id: n.comments?.review_id // Link for deep linking
+                review_id: n.comments?.review_id // Manually linked review ID
             }));
 
             // Combine fetched data with static system notifications
