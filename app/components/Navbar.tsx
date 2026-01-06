@@ -39,7 +39,14 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
 
     const [supabase] = useState(() => createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            auth: {
+                persistSession: false, // Fix hanging by disabling local storage
+                autoRefreshToken: true,
+                detectSessionInUrl: false
+            }
+        }
     ));
 
     // State for notifications
