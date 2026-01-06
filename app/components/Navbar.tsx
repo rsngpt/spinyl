@@ -69,6 +69,33 @@ export default function Navbar({ initialUser, initialProfile }: NavbarProps) {
         return () => clearInterval(interval);
     }, [user, supabase]);
 
+    // Realtime Subscription
+    useEffect(() => {
+        if (!user) return;
+
+        const channel = supabase
+            .channel(`notifications:${user.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'notifications',
+                    filter: `user_id=eq.${user.id}`
+                },
+                () => {
+                    console.log('Realtime: New notification received');
+                    fetchNotifications();
+                    setHasUnread(true);
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [user, supabase]);
+
     const fetchNotifications = async () => {
         // Only set loading if we have NO data at all (ref persists across renders)
         if (!hasDataRef.current) {
