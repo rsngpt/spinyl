@@ -1,85 +1,64 @@
-'use client';
+import { getSupabaseServerClient } from '@/src/lib/supabase-server';
 
-import { createBrowserClient } from '@supabase/ssr';
-import { useEffect, useState } from 'react';
+export default async function DebugPage() {
+    const supabase = await getSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-export default function DebugPage() {
-    const [logs, setLogs] = useState<string[]>([]);
-    const [user, setUser] = useState<any>(null);
+    let logs = [];
+    logs.push(`Server Time: ${new Date().toISOString()}`);
 
-    const log = (msg: string, data?: any) => {
-        setLogs(prev => [...prev, `${new Date().toISOString().split('T')[1]} - ${msg} ${data ? JSON.stringify(data) : ''}`]);
-    };
+    if (!user) {
+        logs.push('ERROR: No User logged in (Server Side)!');
+        return <Pre logs={logs} />;
+    }
 
-    useEffect(() => {
-        const run = async () => {
-            log('Starting Debug...');
+    logs.push(`User Found: ${user.id}`);
+    logs.push(`User Role: ${user.role}`);
 
-            const supabase = createBrowserClient(
-                process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-            );
+    // 1. Check Notifications Table
+    const { data: notifs, error: notifError, count } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact' })
+        .eq('user_id', user.id);
 
-            log('Supabase Client created.');
-            log('URL: ' + process.env.NEXT_PUBLIC_SUPABASE_URL);
+    if (notifError) {
+        logs.push(`ERROR Fetching Notifications: ${JSON.stringify(notifError)}`);
+    } else {
+        logs.push(`Notifications Found: ${notifs?.length} (Total Count: ${count})`);
+        if (notifs && notifs.length > 0) {
+            logs.push(`Sample Notification: ${JSON.stringify(notifs[0], null, 2)}`);
+        }
+    }
 
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
+    // 2. Check Follows
+    const { data: follows, error: followError } = await supabase
+        .from('follows')
+        .select('*')
+        .eq('follower_id', user.id);
 
-            if (!user) {
-                log('ERROR: No User logged in!');
-                return;
-            }
-
-            log('User Found:', user.id);
-
-            // 1. Check Notifications Table
-            const { data: notifs, error: notifError, count } = await supabase
-                .from('notifications')
-                .select('*', { count: 'exact' })
-                .eq('user_id', user.id);
-
-            if (notifError) {
-                log('ERROR Fetching Notifications:', notifError);
-            } else {
-                log(`Notifications Found: ${notifs?.length} (Total Count: ${count})`);
-                if (notifs && notifs.length > 0) {
-                    log('Sample Notification:', notifs[0]);
-                } else {
-                    // Try fetching ANY notification to check RLS
-                    const { count: totalNotifs } = await supabase.from('notifications').select('*', { count: 'exact', head: true });
-                    log(`Global Notifications Count (Head check): ${totalNotifs}`);
-                }
-            }
-
-            // 2. Check Follows
-            const { data: follows, error: followError } = await supabase
-                .from('follows')
-                .select('*')
-                .eq('follower_id', user.id);
-
-            if (followError) {
-                log('ERROR Fetching Follows:', followError);
-            } else {
-                log(`Follows Found: ${follows?.length}`);
-            }
-
-            log('Debug Complete.');
-        };
-
-        run();
-    }, []);
+    if (followError) {
+        logs.push(`ERROR Fetching Follows: ${JSON.stringify(followError)}`);
+    } else {
+        logs.push(`Follows Found: ${follows?.length}`);
+    }
 
     return (
         <div style={{ padding: '40px', background: '#000', color: '#0f0', minHeight: '100vh', fontFamily: 'monospace' }}>
-            <h1>Debug Console</h1>
-            <div>
-                <strong>User:</strong> {user ? user.id : 'Not Logged In'}
-            </div>
+            <h1>Server-Side Debug Console</h1>
+            <div><strong>User:</strong> {user.id}</div>
             <hr style={{ borderColor: '#333' }} />
             <pre style={{ whiteSpace: 'pre-wrap' }}>
-                {logs.join('\n')}
+                {logs.join('\n\n')}
             </pre>
+        </div>
+    );
+}
+
+function Pre({ logs }: { logs: string[] }) {
+    return (
+        <div style={{ padding: '40px', background: '#000', color: '#f00', minHeight: '100vh', fontFamily: 'monospace' }}>
+            <h1>Server-Side Debug Console (Error)</h1>
+            <pre style={{ whiteSpace: 'pre-wrap' }}>{logs.join('\n\n')}</pre>
         </div>
     );
 }
