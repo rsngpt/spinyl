@@ -55,15 +55,19 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
             if (initialSession && initialSession.access_token) {
                 console.log('Navbar: Forcing session hydration from server prop...');
                 try {
-                    // Skip checking getSession() as it can hang. Just overwrite.
-                    const { error } = await supabase.auth.setSession({
+                    // Race against a timeout so we don't hang forever
+                    const setSessionPromise = supabase.auth.setSession({
                         access_token: initialSession.access_token,
                         refresh_token: initialSession.refresh_token
                     });
-                    if (error) console.error('Navbar: setSession error:', error);
-                    else console.log('Navbar: setSession success');
+                    const timeoutPromise = new Promise((_, reject) =>
+                        setTimeout(() => reject(new Error('Hydration Timeout')), 1000)
+                    );
+
+                    await Promise.race([setSessionPromise, timeoutPromise]);
+                    console.log('Navbar: setSession success');
                 } catch (e) {
-                    console.error('Navbar: setSession EXCEPTION:', e);
+                    console.error('Navbar: setSession warning (proceeding anyway):', e);
                 }
             } else {
                 console.log('Navbar: No initialSession provided (Guest mode).');
