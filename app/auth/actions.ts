@@ -3,7 +3,7 @@
 import { getSupabaseServerClient } from '@/src/lib/supabase-server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { headers } from 'next/headers';
+import { headers, cookies } from 'next/headers';
 
 export async function login(formData: FormData) {
     const supabase = await getSupabaseServerClient();
