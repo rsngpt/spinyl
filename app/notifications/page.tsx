@@ -74,8 +74,8 @@ export default async function NotificationsPage() {
             commentIds.length > 0 ? supabase.from('comments').select('id, review_id').in('id', commentIds) : { data: [] }
         ]);
 
-        const actorMap = new Map(actorsRes.data?.map((a: any) => [a.id, a]) || []);
-        const commentMap = new Map(commentsRes.data?.map((c: any) => [c.id, c]) || []);
+        const actorMap = new Map(actorsRes.data?.map((a: any) => [a.id, a] as [any, any]) || []);
+        const commentMap = new Map(commentsRes.data?.map((c: any) => [c.id, c] as [any, any]) || []);
 
         realNotifsWithDetails = realNotifsRes.data.map((n: any) => ({
             ...n,
