@@ -181,6 +181,30 @@ export default function SearchOverlay({ query, isVisible, onClose, user }: Searc
                     padding: 40px;
                     animation: fadeIn 0.3s ease;
                 }
+
+                @media (max-width: 768px) {
+                    .search-overlay {
+                        top: 0;
+                        height: 100vh;
+                        padding: 20px;
+                        padding-bottom: 140px; /* Space for floating search bar */
+                        z-index: 1001; /* Above Navbar (1000) */
+                    }
+                    .search-tabs {
+                        margin-top: 60px; /* Push down content below safe area/status bar if needed */
+                        padding-bottom: 8px;
+                        margin-bottom: 24px;
+                    }
+                    .tab-btn {
+                        padding: 6px 12px;
+                        font-size: 0.9rem;
+                    }
+                    .result-card.large {
+                         /* Stack full width on mobile */
+                         grid-column: span 1;
+                    }
+                }
+
                 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
                 .search-content {

@@ -422,21 +422,22 @@ export default function Hero() {
                     div[style*="grid-template-columns"] {
                         grid-template-columns: 1fr !important;
                         text-align: center;
-                         gap: 80px !important;
+                         gap: 40px !important;
                     }
                     div[style*="text-align: left"] {
                         text-align: center !important;
                         align-items: center;
                         display: flex;
                         flex-direction: column;
+                        margin: 0 auto;
                     }
-                    .animate-float {
-                        width: 280px !important;
+                    /* HIDE VINYL ON MOBILE */
+                    .vinyl-group, .tone-arm {
+                        display: none !important;
                     }
-                     div[style*="width: '320px'"] { /* Target the record specifically */
-                        width: 240px !important;
-                        height: 240px !important;
-                     }
+                    div[style*="justify-content: center"] {
+                         display: none !important; /* Hide the wrapper too to remove spacing */
+                    }
                 }
             `}</style>
         </section>

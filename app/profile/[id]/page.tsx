@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 import ProfileHeader from '@/app/components/ProfileHeader';
 import RoastFloatingButton from '@/app/components/RoastFloatingButton';
+import LogoutButton from '@/app/components/LogoutButton';
 
 // Generate Metadata
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -148,26 +149,11 @@ export default async function ProfilePage({ params }: { params: { id: string } }
             background: 'linear-gradient(to bottom, #121212 0%, #000000 100%)',
             color: '#fff',
             paddingTop: '80px',
-            paddingBottom: '20px'
+            paddingBottom: '120px'
         }}>
-            <div style={{
-                maxWidth: '1400px',
-                margin: '0 auto',
-                padding: '20px 24px',
-                display: 'flex',
-                gap: '60px',
-                alignItems: 'flex-start',
-                position: 'relative'
-            }}>
-
-                {/* Left Column: Profile Info (Sticky) */}
-                <aside style={{
-                    width: '380px',
-                    flexShrink: 0,
-                    position: 'sticky',
-                    top: '40px',
-                    height: 'fit-content'
-                }}>
+            <div className="profile-page-container">
+                {/* Left Column: Profile Info */}
+                <aside className="profile-sidebar">
                     <ProfileHeader
                         profile={profile}
                         stats={{
@@ -184,7 +170,7 @@ export default async function ProfilePage({ params }: { params: { id: string } }
                 </aside>
 
                 {/* Right Column: Content */}
-                <main style={{ flex: 1, minWidth: 0 }}>
+                <main style={{ flex: 1, minWidth: 0, width: '100%' }}>
                     <ProfileContent
                         reviews={reviewsWithLikes}
                         followersList={followersList}
@@ -197,7 +183,10 @@ export default async function ProfilePage({ params }: { params: { id: string } }
 
             {/* Roast Button (Fixed Position Root Level) */}
             {isOwnProfile && (
-                <RoastFloatingButton reviewsCount={reviewsCount} userId={profile.username || 'User'} />
+                <>
+                    <LogoutButton />
+                    <RoastFloatingButton reviewsCount={reviewsCount} userId={profile.username || 'User'} />
+                </>
             )}
         </div>
     );

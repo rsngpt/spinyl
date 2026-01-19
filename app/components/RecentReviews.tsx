@@ -92,127 +92,138 @@ export default function RecentReviews() {
 
 
     return (
-        <section style={{
-            padding: '100px 0',
-            overflow: 'hidden',
-            position: 'relative',
-            zIndex: 2
-        }}>
-            <div style={{ textAlign: 'center', marginBottom: '50px' }}>
-                <h3 className="text-gradient" style={{
-                    fontSize: '3rem',
-                    fontWeight: '800',
-                    letterSpacing: '-0.03em',
-                    marginBottom: '10px'
-                }}>
-                    On The Record
-                </h3>
-                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem' }}>
-                    Join the conversation. See what the Spinyl community is listening to right now.
-                </p>
-            </div>
-
-            {loading ? (
-                <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-                    <div className="spinner"></div>
+        <>
+            <section style={{
+                padding: '100px 0',
+                overflow: 'hidden',
+                position: 'relative',
+                zIndex: 2
+            }}>
+                <div style={{ textAlign: 'center', marginBottom: '50px' }}>
+                    <h3 className="text-gradient" style={{
+                        fontSize: '3rem',
+                        fontWeight: '800',
+                        letterSpacing: '-0.03em',
+                        marginBottom: '10px'
+                    }}>
+                        On The Record
+                    </h3>
+                    <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem' }}>
+                        Join the conversation. See what the Spinyl community is listening to right now.
+                    </p>
                 </div>
-            ) : reviews.length > 0 ? (
-                <div style={{
-                    display: 'flex',
-                    width: 'fit-content',
-                    gap: '24px'
-                }} className="animate-marquee-fast">
-                    {/* Render twice for seamless loop */}
-                    {[...reviews, ...reviews].map((review, index) => {
-                        const album = Array.isArray(review.albums) ? review.albums[0] : review.albums;
-                        const profile = Array.isArray(review.profiles) ? review.profiles[0] : review.profiles;
 
-                        if (!album?.spotify_id) return null;
+                {loading ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+                        <div className="spinner"></div>
+                    </div>
+                ) : reviews.length > 0 ? (
+                    <div style={{
+                        display: 'flex',
+                        width: 'fit-content',
+                        gap: '24px'
+                    }} className="animate-marquee-fast">
+                        {/* Render twice for seamless loop */}
+                        {[...reviews, ...reviews].map((review, index) => {
+                            const album = Array.isArray(review.albums) ? review.albums[0] : review.albums;
+                            const profile = Array.isArray(review.profiles) ? review.profiles[0] : review.profiles;
 
-                        return (
-                            <Link href={`/album/${album.spotify_id}`} key={`${review.id}-${index}`} className="glass-panel review-card-glow" style={{
-                                width: '380px', // Slightly wider to accommodate vinyl peek
-                                padding: '20px',
-                                borderRadius: '16px',
-                                flexShrink: 0,
-                                background: 'rgba(255,255,255,0.03)',
-                                border: '1px solid rgba(255,255,255,0.08)',
-                                display: 'flex',
-                                gap: '16px',
-                                alignItems: 'center', // Center vertically
-                                transition: 'all 0.3s ease',
-                                textDecoration: 'none',
-                                cursor: 'pointer'
-                            }}>
-                                {/* Vinyl Sleeve + Record Display */}
-                                <div style={{ marginRight: '30px' /* Space for peeking vinyl */ }}>
-                                    <VinylRecordDisplay
-                                        coverUrl={album?.cover_image}
-                                        rating={review.rating}
-                                        size={80}
-                                    />
-                                </div>
+                            if (!album?.spotify_id) return null;
 
-                                <div style={{ flex: 1, overflow: 'hidden' }}>
-                                    {/* Header: User Info & Rating Badge */}
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <div style={{
-                                                width: '20px',
-                                                height: '20px',
-                                                borderRadius: '50%',
-                                                background: '#333',
-                                                overflow: 'hidden'
-                                            }}>
-                                                {profile?.avatar_url ? (
-                                                    <img src={profile.avatar_url} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                                ) : (
-                                                    <User size={12} color="#fff" />
-                                                )}
-                                            </div>
-                                            <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'rgba(255,255,255,0.8)' }}>@{profile?.username || 'Unknown'}</span>
-                                        </div>
-
-                                        {/* Rating Text Badge */}
-                                        <div style={{
-                                            background: review.rating >= 8 ? 'rgba(255,215,0,0.1)' : 'rgba(255,255,255,0.1)',
-                                            border: review.rating >= 8 ? '1px solid rgba(255,215,0,0.3)' : '1px solid rgba(255,255,255,0.1)',
-                                            padding: '2px 8px',
-                                            borderRadius: '12px',
-                                        }}>
-                                            <span style={{
-                                                fontSize: '0.75rem',
-                                                fontWeight: 800,
-                                                color: review.rating >= 8 ? '#FFD700' : review.rating >= 5 ? '#e2e8f0' : '#fff'
-                                            }}>
-                                                {review.rating}/10
-                                            </span>
-                                        </div>
+                            return (
+                                <Link href={`/album/${album.spotify_id}`} key={`${review.id}-${index}`} className="glass-panel review-card-glow review-card-responsive" style={{
+                                    padding: '20px',
+                                    borderRadius: '16px',
+                                    flexShrink: 0,
+                                    background: 'rgba(255,255,255,0.03)',
+                                    border: '1px solid rgba(255,255,255,0.08)',
+                                    display: 'flex',
+                                    gap: '16px',
+                                    alignItems: 'center', // Center vertically
+                                    transition: 'all 0.3s ease',
+                                    textDecoration: 'none',
+                                    cursor: 'pointer'
+                                }}>
+                                    {/* Vinyl Sleeve + Record Display */}
+                                    <div style={{ marginRight: '30px' /* Space for peeking vinyl */ }}>
+                                        <VinylRecordDisplay
+                                            coverUrl={album?.cover_image}
+                                            rating={review.rating}
+                                            size={80}
+                                        />
                                     </div>
 
-                                    {/* Content */}
-                                    <p style={{
-                                        color: 'rgba(255,255,255,0.7)',
-                                        fontSize: '0.85rem',
-                                        lineHeight: '1.4',
-                                        display: '-webkit-box',
-                                        WebkitLineClamp: 2,
-                                        WebkitBoxOrient: 'vertical',
-                                        overflow: 'hidden',
-                                        fontStyle: 'italic'
-                                    }}>
-                                        "{review.review_text || 'No comment'}"
-                                    </p>
-                                </div>
-                            </Link>
-                        );
-                    })}
-                </div>
-            ) : (
-                <div style={{ textAlign: 'center', color: '#B3B3B3', padding: '40px' }}>
-                    <p>No reviews yet. Be the first to share your thoughts!</p>
-                </div>
-            )}
-        </section >
+                                    <div style={{ flex: 1, overflow: 'hidden' }}>
+                                        {/* Header: User Info & Rating Badge */}
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <div style={{
+                                                    width: '20px',
+                                                    height: '20px',
+                                                    borderRadius: '50%',
+                                                    background: '#333',
+                                                    overflow: 'hidden'
+                                                }}>
+                                                    {profile?.avatar_url ? (
+                                                        <img src={profile.avatar_url} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                    ) : (
+                                                        <User size={12} color="#fff" />
+                                                    )}
+                                                </div>
+                                                <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'rgba(255,255,255,0.8)' }}>@{profile?.username || 'Unknown'}</span>
+                                            </div>
+
+                                            {/* Rating Text Badge */}
+                                            <div style={{
+                                                background: review.rating >= 8 ? 'rgba(255,215,0,0.1)' : 'rgba(255,255,255,0.1)',
+                                                border: review.rating >= 8 ? '1px solid rgba(255,215,0,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                                                padding: '2px 8px',
+                                                borderRadius: '12px',
+                                            }}>
+                                                <span style={{
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: 800,
+                                                    color: review.rating >= 8 ? '#FFD700' : review.rating >= 5 ? '#e2e8f0' : '#fff'
+                                                }}>
+                                                    {review.rating}/10
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Content */}
+                                        <p style={{
+                                            color: 'rgba(255,255,255,0.7)',
+                                            fontSize: '0.85rem',
+                                            lineHeight: '1.4',
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: 2,
+                                            WebkitBoxOrient: 'vertical',
+                                            overflow: 'hidden',
+                                            fontStyle: 'italic'
+                                        }}>
+                                            "{review.review_text || 'No comment'}"
+                                        </p>
+                                    </div>
+                                </Link>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div style={{ textAlign: 'center', color: '#B3B3B3', padding: '40px' }}>
+                        <p>No reviews yet. Be the first to share your thoughts!</p>
+                    </div>
+                )}
+            </section>
+            <style jsx global>{`
+               .review-card-responsive {
+                   width: 380px;
+               }
+               @media (max-width: 768px) {
+                   .review-card-responsive {
+                       width: 300px !important; /* Smaller on mobile */
+                   }
+               }
+            `}</style>
+        </>
     );
 }

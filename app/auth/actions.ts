@@ -6,9 +6,9 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 
 export async function login(formData: FormData) {
+    const supabase = await getSupabaseServerClient();
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
-    const supabase = await getSupabaseServerClient();
 
     const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -20,23 +20,24 @@ export async function login(formData: FormData) {
     }
 
     revalidatePath('/', 'layout');
-    return { success: true };
+    redirect('/');
 }
 
 export async function signup(formData: FormData) {
-    const origin = (await headers()).get('origin');
+    const supabase = await getSupabaseServerClient();
+    const headersList = await headers();
+    const origin = headersList.get('origin');
+
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     const username = formData.get('username') as string;
-    const supabase = await getSupabaseServerClient();
 
-    const { error, data } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
             data: {
-                username: username,
-                full_name: username, // compatibility
+                full_name: username,
                 avatar_url: '',
             },
             emailRedirectTo: `${origin}/auth/callback`,
@@ -47,6 +48,28 @@ export async function signup(formData: FormData) {
         return { error: error.message };
     }
 
-    // Success! Profile is handled by DB trigger.
     return { success: true };
+}
+
+export async function signOutAction() {
+    const supabase = await getSupabaseServerClient();
+    await supabase.auth.signOut();
+
+    // Manual Nuke: Find and delete all Supabase cookies
+    const cookieStore = await cookies();
+    const allCookies = cookieStore.getAll();
+
+    // Filter for cookies that look like Supabase tokens
+    const supabaseCookies = allCookies.filter(c =>
+        c.name.includes('sb-') && c.name.includes('-auth-token') ||
+        c.name.startsWith('sb-')
+    );
+
+    // Delete them explicitly
+    supabaseCookies.forEach(c => {
+        cookieStore.delete(c.name);
+    });
+
+    revalidatePath('/', 'layout');
+    redirect('/login');
 }

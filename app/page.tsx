@@ -15,15 +15,15 @@ export default async function Home() {
         </section>
 
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <section id="recently-played" style={{ marginBottom: '80px' }}>
+          <section id="recently-played" className="section-spacing">
             <RecentlyPlayedSlideshow />
           </section>
 
-          <section id="features" style={{ marginBottom: '80px' }}>
+          <section id="features" className="section-spacing">
             <FeaturesSection />
           </section>
 
-          <section id="reviews" style={{ marginBottom: '80px' }}>
+          <section id="reviews" className="section-spacing">
             <RecentReviews />
           </section>
         </div>
