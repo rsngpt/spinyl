@@ -219,7 +219,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 if (commentIds.length > 0) {
                     const { data: comments } = await fetchClient
                         .from('comments')
-                        .select('id, review_id')
+                        .select('id, review_id, reviews(id, albums(spotify_id))')
                         .in('id', commentIds);
                     commentMap = new Map(comments?.map((c: any) => [c.id, c]) || []);
                 }
@@ -255,6 +255,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 resource_id: n.resource_id,
                 actor: n.actor,
                 comment_id: n.comment_id,
+                comments: n.comments,
                 review_id: n.comments?.review_id
             }));
 

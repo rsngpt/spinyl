@@ -74,6 +74,7 @@ export default function SearchOverlay({ query, isVisible, onClose, user }: Searc
         if (item.type === 'user') router.push(`/profile/${item.id}`);
         // Handle other types later (e.g., album page)
         else if (item.type === 'album') router.push(`/album/${item.id}`);
+        else if (item.type === 'track') router.push(`/track/${item.id}`);
         else console.log('Clicked', item); // Placeholder
         onClose();
     };
