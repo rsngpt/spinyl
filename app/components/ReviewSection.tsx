@@ -1,15 +1,17 @@
 'use client';
 
 import { createBrowserClient } from '@supabase/ssr';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import LoginButton from './LoginButton';
 import { submitReview, deleteReview } from '../actions/review';
 import Link from 'next/link';
 import VinylRatingInput from './VinylRatingInput';
-import { Share2, MessageCircle, Heart, MoreHorizontal } from 'lucide-react';
+import { Share2, MessageCircle, Heart, MoreHorizontal, Download } from 'lucide-react';
 import SpinylCard from './SpinylCard';
 import ReviewModal from './ReviewModal';
+import InstagramStoryCard from './InstagramStoryCard';
+import html2canvas from 'html2canvas';
 
 const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -50,13 +52,17 @@ const getInitials = (name: string) => {
 const ReviewItem = ({
     review,
     setReviewToShare,
+    handleShareToStory,
     onOpenComments,
-    currentUser
+    currentUser,
+    isGeneratingStory
 }: {
     review: Review,
     setReviewToShare: (r: Review) => void,
+    handleShareToStory: (r: Review) => void,
     onOpenComments: () => void,
-    currentUser: any
+    currentUser: any,
+    isGeneratingStory: boolean
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isLiked, setIsLiked] = useState(false); // Placeholder
@@ -195,11 +201,27 @@ const ReviewItem = ({
                             {/* Comments Count could be passed here if we had it */}
                         </button>
 
+                        {/* Share Button (Story) */}
+                        {/* Share Button (Story) */}
                         <button
-                            onClick={() => setReviewToShare(review)}
-                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'inherit', marginLeft: 'auto' }}
+                            onClick={() => handleShareToStory(review)}
+                            disabled={isGeneratingStory}
+                            title="Share as Instagram Story"
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: 0,
+                                cursor: isGeneratingStory ? 'wait' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                color: 'inherit',
+                                transition: 'color 0.2s',
+                                marginLeft: 'auto',
+                                opacity: isGeneratingStory ? 0.5 : 1
+                            }}
                         >
-                            <MoreHorizontal size={18} />
+                            <Share2 size={18} />
                         </button>
                     </div>
                 </div>
@@ -254,6 +276,61 @@ export default function ReviewSection({
 
     const [isDeleting, setIsDeleting] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+    // Instagram Story Generation State
+    const [storyData, setStoryData] = useState<any | null>(null);
+    const storyCardRef = useRef<HTMLDivElement>(null);
+
+    const [isGeneratingStory, setIsGeneratingStory] = useState(false);
+
+    const handleShareToStory = async (review: Review) => {
+        if (isGeneratingStory) return;
+        setIsGeneratingStory(true);
+
+        // 1. Set data to render the hidden card
+        setStoryData({
+            albumName: albumData.name,
+            artistName: albumData.artists.join(', '),
+            coverUrl: albumData.cover_image,
+            rating: review.rating,
+            reviewText: review.review_text,
+            username: review.profiles?.username || 'User',
+            userAvatar: review.profiles?.avatar_url
+        });
+
+        // 2. Wait for state update and render
+        // Increased timeout to 500ms to allow DOM to settle and image to potentially start loading
+        setTimeout(async () => {
+            if (storyCardRef.current) {
+                try {
+                    console.log("Starting Capture...");
+                    const canvas = await html2canvas(storyCardRef.current, {
+                        useCORS: true,
+                        scale: 2, // High res for quality
+                        backgroundColor: '#111',
+                        logging: true,
+                        allowTaint: true,
+                        foreignObjectRendering: false // sometimes helps with filters
+                    });
+
+                    console.log("Capture complete. Downloading...");
+                    const link = document.createElement('a');
+                    link.download = `spinyl-story-${albumData.name.replace(/\s+/g, '-')}.png`;
+                    link.href = canvas.toDataURL('image/png', 1.0);
+                    link.click();
+                } catch (err) {
+                    console.error("Story generation failed:", err);
+                    alert("Failed to generate story image. Check console for details.");
+                } finally {
+                    setStoryData(null); // Cleanup
+                    setIsGeneratingStory(false);
+                }
+            } else {
+                console.error("Story card ref missing");
+                setIsGeneratingStory(false);
+            }
+        }, 1000); // Give it a full second for images to be ready
+    };
 
     // Check URL for reviewId to auto-open
     useEffect(() => {
@@ -374,6 +451,13 @@ export default function ReviewSection({
 
     return (
         <div style={{ background: '#181818', borderRadius: '12px', padding: '24px' }}>
+            {/* HIDDEN STORY CARD FOR GENERATION */}
+            {storyData && (
+                <div style={{ position: 'fixed', top: '-10000px', left: '-10000px', zIndex: -1 }}>
+                    <InstagramStoryCard ref={storyCardRef} {...storyData} />
+                </div>
+            )}
+
             {/* SINGLE Shared Review Modal for Deep Linking */}
             {activeReview && (
                 <ReviewModal
@@ -603,8 +687,10 @@ export default function ReviewSection({
                             key={review.id}
                             review={review}
                             setReviewToShare={setReviewToShare}
-                            onOpenComments={() => setActiveReview(review)} // Open centralized modal
+                            handleShareToStory={handleShareToStory}
+                            onOpenComments={() => setActiveReview(review)}
                             currentUser={user}
+                            isGeneratingStory={isGeneratingStory}
                         />
                     ))
                 )}
