@@ -15,12 +15,19 @@ export async function middleware(request: NextRequest) {
             cookies: {
                 get(name: string) {
                     const value = request.cookies.get(name)?.value
-                    if (value && value.startsWith('"') && value.endsWith('"')) {
+                    if (value) {
                         try {
-                            const parsed = JSON.parse(value)
-                            if (typeof parsed === 'string') {
-                                return parsed
+                            let current = value;
+                            // Recursively unwrap if the value is a stringified JSON string
+                            while (current.startsWith('"') && current.endsWith('"')) {
+                                const parsed = JSON.parse(current);
+                                if (typeof parsed === 'string') {
+                                    current = parsed;
+                                } else {
+                                    break;
+                                }
                             }
+                            return current;
                         } catch {
                             // Ignore
                         }
