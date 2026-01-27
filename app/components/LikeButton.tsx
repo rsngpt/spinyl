@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { toggleLikeReview } from '../actions/like';
 import { useRouter } from 'next/navigation';
+import { Heart } from 'lucide-react';
 
 interface LikeButtonProps {
     reviewId: string;
@@ -54,19 +55,28 @@ export default function LikeButton({ reviewId, initialIsLiked, initialLikeCount 
                 gap: '6px',
                 color: isLiked ? '#E91E63' : '#888',
                 fontSize: '0.9rem',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                transition: 'all 0.2s'
+                padding: '0 12px',
+                height: '40px',
+                borderRadius: '8px',
+                transition: 'all 0.2s',
+                lineHeight: 1,
+                justifyContent: 'center'
             }}
         >
-            <span style={{ fontSize: '1.1rem', transform: isLiked ? 'scale(1.1)' : 'scale(1)', transition: 'transform 0.2s' }}>
-                {isLiked ? '❤️' : '🤍'}
-            </span>
-            <span>{likeCount || 0}</span>
+            <Heart
+                size={20}
+                fill={isLiked ? '#E91E63' : 'none'}
+                color={isLiked ? '#E91E63' : '#888'}
+                style={{ transition: 'all 0.2s', transform: isLiked ? 'scale(1.1)' : 'scale(1)' }}
+            />
+            <span style={{ fontWeight: 600 }}>{likeCount || 0}</span>
             <style jsx>{`
                 .like-btn:hover {
-                    background: rgba(255,255,255,0.05);
-                    color: ${isLiked ? '#E91E63' : '#fff'};
+                    background: rgba(255,255,255,0.05) !important;
+                    color: ${isLiked ? '#E91E63' : '#fff'} !important;
+                }
+                .like-btn:hover svg {
+                    color: ${isLiked ? '#E91E63' : '#fff'} !important;
                 }
             `}</style>
         </button>

@@ -141,6 +141,11 @@ export default async function AlbumPage(props: PageProps) {
               <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 🎵 {genreList}
               </span>
+              {reviews.length > 0 && (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#FFD700', fontWeight: 'bold' }}>
+                  ⭐ {(reviews.reduce((acc: number, r: any) => acc + (r.rating || 0), 0) / reviews.length).toFixed(1)}/10
+                </span>
+              )}
               <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 💬 {reviews.length} Reviews
               </span>

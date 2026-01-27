@@ -10,26 +10,7 @@ export async function getSupabaseServerClient() {
     {
       cookies: {
         get(name: string) {
-          const value = cookieStore.get(name)?.value;
-
-          if (value) {
-            try {
-              let current = value;
-              // Recursively unwrap/parse if the value is a stringified JSON string
-              while (current.startsWith('"') && current.endsWith('"')) {
-                const parsed = JSON.parse(current);
-                if (typeof parsed === 'string') {
-                  current = parsed;
-                } else {
-                  break;
-                }
-              }
-              return current;
-            } catch {
-              // Ignore parse errors, return original value
-            }
-          }
-          return value;
+          return cookieStore.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
           try {

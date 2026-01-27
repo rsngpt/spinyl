@@ -14,25 +14,7 @@ export async function middleware(request: NextRequest) {
         {
             cookies: {
                 get(name: string) {
-                    const value = request.cookies.get(name)?.value
-                    if (value) {
-                        try {
-                            let current = value;
-                            // Recursively unwrap if the value is a stringified JSON string
-                            while (current.startsWith('"') && current.endsWith('"')) {
-                                const parsed = JSON.parse(current);
-                                if (typeof parsed === 'string') {
-                                    current = parsed;
-                                } else {
-                                    break;
-                                }
-                            }
-                            return current;
-                        } catch {
-                            // Ignore
-                        }
-                    }
-                    return value
+                    return request.cookies.get(name)?.value
                 },
                 set(name: string, value: string, options: CookieOptions) {
                     request.cookies.set({

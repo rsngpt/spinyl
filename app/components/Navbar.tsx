@@ -29,7 +29,7 @@ import SpookyTransition from './SpookyTransition';
 import NotificationDropdown from './NotificationDropdown';
 import MobileSearch from './MobileSearch';
 import SearchBar from './SearchBar';
-import { Home, Ghost, Bell, User, Search } from 'lucide-react';
+import { Home, Ghost, Bell, User, Search, Disc } from 'lucide-react';
 
 interface NavbarProps {
     initialUser: any;
@@ -419,6 +419,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
 
                     <div className="desktop-only-links" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                         <NavLink href="/#hero" icon={<Home size={20} />} label="Home" />
+                        <NavLink href="/feed" icon={<Disc size={20} />} label="Feed" />
 
                         <Link
                             href="/special-theme"
@@ -539,6 +540,9 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
             <div className="mobile-bottom-nav">
                 <Link href="/" className="nav-icon-link" title="Home">
                     <Home size={24} />
+                </Link>
+                <Link href="/feed" className="nav-icon-link" title="Feed">
+                    <Disc size={24} />
                 </Link>
 
                 {/* Mobile Search Trigger */}
