@@ -1,11 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import { FeedItem } from '../../actions/feed';
 import VinylRecordDisplay from '../VinylRecordDisplay';
 import LikeButton from '../LikeButton';
 import { MessageCircle, Share2, MoreHorizontal, Quote } from 'lucide-react';
+import InstagramStoryCard from '../InstagramStoryCard';
+import html2canvas from 'html2canvas';
+import { getBase64Image } from '../../actions/image-proxy';
 
 interface FeedPostProps {
     post: FeedItem;
@@ -47,15 +50,84 @@ export default function FeedPost({ post }: FeedPostProps) {
         return "now";
     };
 
-    const handleShare = () => {
-        if (albums?.spotify_id) {
-            const url = `${window.location.origin}/album/${albums.spotify_id}`;
-            navigator.clipboard.writeText(url);
+    const [storyData, setStoryData] = useState<any | null>(null);
+    const storyCardRef = useRef<HTMLDivElement>(null);
+    const [isGeneratingStory, setIsGeneratingStory] = useState(false);
+
+    const handleShareToStory = async () => {
+        if (isGeneratingStory) return;
+        setIsGeneratingStory(true);
+
+        // 1. Fetch images as Base64 to bypass CORS
+        let base64Cover = albums?.cover_image || '';
+        let base64Avatar = profiles?.avatar_url || null;
+
+        try {
+            if (albums?.cover_image) {
+                const coverRes = await getBase64Image(albums.cover_image);
+                if (coverRes.success && coverRes.data) base64Cover = coverRes.data;
+            }
+            if (profiles?.avatar_url) {
+                const avatarRes = await getBase64Image(profiles.avatar_url);
+                if (avatarRes.success && avatarRes.data) base64Avatar = avatarRes.data;
+            }
+        } catch (e) {
+            console.error("Failed to proxy images", e);
         }
+
+        // 2. Set data to render the hidden card
+        setStoryData({
+            albumName: albums?.name || '',
+            artistName: albums?.artists?.[0] || '',
+            coverUrl: base64Cover,
+            rating: rating,
+            reviewText: review_text || '',
+            username: profiles?.username || 'User',
+            userAvatar: base64Avatar
+        });
+
+        // 2. Wait for state update and render
+        setTimeout(async () => {
+            if (storyCardRef.current) {
+                try {
+                    console.log("Starting Capture...");
+                    const canvas = await html2canvas(storyCardRef.current, {
+                        useCORS: true,
+                        scale: 2, // High res for quality
+                        backgroundColor: '#111',
+                        logging: true,
+                        allowTaint: false, // Changed to false to force CORS usage
+                        foreignObjectRendering: false
+                    });
+
+                    console.log("Capture complete. Downloading...");
+                    const link = document.createElement('a');
+                    link.download = `spinyl-story-${(albums?.name || 'album').replace(/\s+/g, '-')}.png`;
+                    link.href = canvas.toDataURL('image/png', 1.0);
+                    link.click();
+                } catch (err) {
+                    console.error("Story generation failed:", err);
+                    alert("Failed to generate story image. Check console for details.");
+                } finally {
+                    setStoryData(null); // Cleanup
+                    setIsGeneratingStory(false);
+                }
+            } else {
+                console.error("Story card ref missing");
+                setIsGeneratingStory(false);
+            }
+        }, 1000);
     };
 
     return (
         <div className="feed-post-wrapper">
+            {/* HIDDEN STORY CARD FOR GENERATION */}
+            {storyData && (
+                <div style={{ position: 'fixed', top: '-10000px', left: '-10000px', zIndex: -1 }}>
+                    <InstagramStoryCard ref={storyCardRef} {...storyData} />
+                </div>
+            )}
+
             {/* Blurry Ambient Background */}
             <div className="ambient-bg" style={{ backgroundImage: `url(${albums?.cover_image})` }} />
 
@@ -134,7 +206,12 @@ export default function FeedPost({ post }: FeedPostProps) {
                         <span>{comments_count > 0 ? comments_count : ''}</span>
                     </Link>
 
-                    <button className="action-btn share-btn" onClick={handleShare}>
+                    <button
+                        className="action-btn share-btn"
+                        onClick={handleShareToStory}
+                        disabled={isGeneratingStory}
+                        style={{ opacity: isGeneratingStory ? 0.5 : 1, cursor: isGeneratingStory ? 'wait' : 'pointer' }}
+                    >
                         <Share2 size={20} />
                     </button>
                 </div>

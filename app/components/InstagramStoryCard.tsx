@@ -13,6 +13,8 @@ interface InstagramStoryCardProps {
     userAvatar?: string | null;
 }
 
+
+
 // Fixed resolution for IG Stories: 1080 x 1920
 const InstagramStoryCard = forwardRef<HTMLDivElement, InstagramStoryCardProps>(({
     albumName,
