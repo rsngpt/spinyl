@@ -651,7 +651,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
             {/* Mobile Bottom Control Panel - MOVED OUTSIDE NAV to ensure fixed bottom positioning */}
             <div className="mobile-bottom-nav">
                 <Link href="/feed" className="nav-icon-link" title="Feed">
-                    <Disc size={24} />
+                    <Home size={26} strokeWidth={1.5} />
                 </Link>
 
                 {/* Mobile Search Trigger */}
@@ -661,22 +661,19 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     onClick={() => setIsMobileSearchOpen(true)}
                     style={{ cursor: 'pointer' }}
                 >
-                    <Search size={24} />
+                    <Search size={26} strokeWidth={1.5} />
                 </div>
 
-                {/* Center Action Button */}
                 {/* Center Action Button */}
                 <Link
                     href="/compose"
                     className="nav-icon-link"
                     title="Add Hot Take"
                     style={{
-                        cursor: 'pointer',
-                        transform: 'scale(1.1)', // Slightly larger
-                        border: '1px solid rgba(255,255,255,0.2)'
+                        cursor: 'pointer'
                     }}
                 >
-                    <Plus size={24} />
+                    <Plus size={26} strokeWidth={1.5} />
                 </Link>
 
                 <div
@@ -685,7 +682,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     onClick={() => setIsSpooky(true)}
                     style={{ cursor: 'pointer' }}
                 >
-                    <span style={{ fontSize: '24px', fontWeight: '900', color: '#E50914' }}>5</span>
+                    <Ghost size={26} strokeWidth={1.5} color="#E50914" />
                 </div>
 
 
@@ -693,7 +690,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 {user ? (
                     <Link href={`/profile/${user.id}`} className="nav-icon-link" title="Profile">
                         <div style={{
-                            width: '28px', height: '28px', borderRadius: '50%',
+                            width: '26px', height: '26px', borderRadius: '50%',
                             background: 'var(--primary)', overflow: 'hidden',
                             display: 'flex', alignItems: 'center', justifyContent: 'center'
                         }}>
@@ -708,7 +705,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     </Link>
                 ) : (
                     <Link href="/login" className="nav-icon-link" title="Login">
-                        <User size={24} />
+                        <User size={26} strokeWidth={1.5} />
                     </Link>
                 )}
             </div>
@@ -833,17 +830,27 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     .mobile-bottom-nav {
                         display: flex;
                         position: fixed;
-                        bottom: 0;
-                        left: 0;
-                        right: 0;
-                        background: rgba(10, 10, 10, 0.95);
-                        backdrop-filter: blur(10px);
-                        height: 60px;
-                        justify-content: space-around;
+                        bottom: 15px; /* Lifted from bottom */
+                        left: 50%;
+                        transform: translateX(-50%); /* Centered */
+                        width: auto;
+                        min-width: 360px; /* Made wider */
+                        max-width: 95%;
+                        
+                        background: rgba(20, 20, 20, 0.5); /* Semi-transparent dark base */
+                        backdrop-filter: blur(30px) saturate(180%);
+                        -webkit-backdrop-filter: blur(30px) saturate(180%);
+                        
+                        height: 70px; /* Comfortable height */
+                        padding: 0 30px; /* Increased side padding */
+                        border-radius: 40px; /* Pill shape */
+                        
+                        justify-content: space-between; /* Push icons apart */
                         align-items: center;
                         z-index: 1000;
-                        border-top: 1px solid rgba(255, 255, 255, 0.1);
-                        padding: 0 10px;
+                        
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
                     }
 
                     .nav-icon-link {
