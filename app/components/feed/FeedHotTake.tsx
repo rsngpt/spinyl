@@ -2,17 +2,11 @@
 
 import React from 'react';
 import { Quote } from 'lucide-react';
+import { HotTakeFeedItem } from '../../actions/feed';
 import Link from 'next/link';
 
 interface FeedHotTakeProps {
-    item: {
-        id: string;
-        content: string;
-        profiles: {
-            username: string | null;
-            avatar_url: string | null;
-        } | null;
-    };
+    item: HotTakeFeedItem;
 }
 
 export default function FeedHotTake({ item }: FeedHotTakeProps) {

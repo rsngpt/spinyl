@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
-import { FeedItem } from '../../actions/feed';
+import { FeedItem, ReviewFeedItem } from '../../actions/feed';
 import VinylRecordDisplay from '../VinylRecordDisplay';
 import LikeButton from '../LikeButton';
 import { MessageCircle, Share2, MoreHorizontal, Quote } from 'lucide-react';
@@ -11,7 +11,7 @@ import html2canvas from 'html2canvas';
 import { getBase64Image } from '../../actions/image-proxy';
 
 interface FeedPostProps {
-    post: FeedItem;
+    post: ReviewFeedItem;
     variant?: 'vertical' | 'horizontal';
 }
 

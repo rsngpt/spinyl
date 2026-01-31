@@ -3,7 +3,7 @@
 import { getSupabaseServerClient } from '@/src/lib/supabase-server';
 
 // Update FeedItem to support both types
-export type FeedItem = {
+export type ReviewFeedItem = {
     type: 'review';
     id: string;
     created_at: string;
@@ -24,7 +24,9 @@ export type FeedItem = {
     likes_count: number;
     comments_count: number;
     is_liked_by_user: boolean;
-} | {
+};
+
+export type HotTakeFeedItem = {
     type: 'hot_take';
     id: string;
     created_at: string;
@@ -37,6 +39,10 @@ export type FeedItem = {
         username: string | null;
         avatar_url: string | null;
     } | null;
+};
+
+export type FeedItem = (ReviewFeedItem | HotTakeFeedItem) & {
+    layoutType?: 'vertical' | 'horizontal';
 };
 
 export async function getGlobalFeed(offset = 0, limit = 10): Promise<FeedItem[]> {
