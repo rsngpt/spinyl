@@ -29,7 +29,7 @@ import SpookyTransition from './SpookyTransition';
 import NotificationDropdown from './NotificationDropdown';
 import MobileSearch from './MobileSearch';
 import SearchBar from './SearchBar';
-import { Home, Ghost, Bell, User, Search, Disc } from 'lucide-react';
+import { Home, Ghost, Bell, User, Search, Disc, Plus } from 'lucide-react';
 
 interface NavbarProps {
     initialUser: any;
@@ -51,6 +51,35 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
     useEffect(() => {
         setIsSpooky(false);
     }, [pathname]);
+
+    // SAFETY: Sanitize LocalStorage to prevent "Cannot create property 'user' on string" error
+    useEffect(() => {
+        try {
+            const key = `sb-${process.env.NEXT_PUBLIC_SUPABASE_URL!.split('//')[1].split('.')[0]}-auth-token`;
+            const raw = localStorage.getItem(key);
+            if (raw) {
+                // If the first char is NOT '{' or '[' it might be double encoded or just wrong 
+                // But specifically for this error, the value IS a stringified JSON but treated as a string by the client? 
+                // Actually the error is "Cannot create property 'user' on string X" where X is the stringified JSON.
+                // This usually implies the client expected an object but got a string string.
+
+                // Let's try to parse it.
+                try {
+                    const parsed = JSON.parse(raw);
+                    if (typeof parsed === 'string') {
+                        console.warn('Found double-encoded Supabase session. Cleaning up...');
+                        localStorage.removeItem(key);
+                        window.location.reload();
+                    }
+                } catch (e) {
+                    // if it's not valid JSON, it's also bad
+                    // localStorage.removeItem(key); 
+                }
+            }
+        } catch (e) {
+            // ignore
+        }
+    }, []);
 
     const handleSpookyTransition = () => {
         router.push('/special-theme');
@@ -102,16 +131,24 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
         hydrate();
     }, [initialSession, supabase]);
 
-    // Memoize the Direct Client to avoid "Multiple GoTrueClient instances" warning
-    const fetchClient = useMemo(() => {
-        if (initialSession && initialSession.access_token) {
+    // Memo removed - we need dynamic token for long sessions
+
+    // Helper to get authenticated client dynamically
+    const getDynamicClient = async () => {
+        // 1. Try to get fresh session from browser client
+        const { data: { session } } = await supabase.auth.getSession();
+
+        // 2. Fallback to initialSession if browser session is missing (rare race condition)
+        const token = session?.access_token || initialSession?.access_token;
+
+        if (token) {
             return createClient(
                 process.env.NEXT_PUBLIC_SUPABASE_URL!,
                 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
                 {
                     global: {
                         headers: {
-                            Authorization: `Bearer ${initialSession.access_token}`
+                            Authorization: `Bearer ${token}`
                         }
                     },
                     auth: {
@@ -121,10 +158,10 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
             );
         }
         return supabase;
-    }, [initialSession?.access_token, supabase]);
+    };
 
     const fetchNotifications = async () => {
-        if (!isAuthReady) return;
+        if (!isAuthReady || !user) return;
 
         // Only set loading if we have NO data at all
         if (!hasDataRef.current) {
@@ -135,7 +172,8 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
             setLoadingNotifications(false);
         }, 5000);
 
-        // Uses the memoized client
+        // Uses the memoized client via dynamic fetch
+        const fetchClient = await getDynamicClient();
 
 
         const systemNotifications = [{
@@ -152,7 +190,10 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 .select('following_id')
                 .eq('follower_id', user.id);
 
-            if (followError) throw followError;
+            if (followError) {
+                console.error("Follow fetch error:", followError);
+                throw followError;
+            }
 
             const followingIds = follows?.map((f: any) => f.following_id) || [];
 
@@ -280,7 +321,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 }
             }
         } catch (error) {
-            console.error('Error fetching notifications:', error);
+            console.error('Error fetching notifications (Detailed):', JSON.stringify(error, Object.getOwnPropertyNames(error)));
             if (!hasDataRef.current) {
                 setNotifications(prev => prev.length === 0 ? systemNotifications : prev);
                 hasDataRef.current = true;
@@ -402,8 +443,46 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     justifyContent: 'space-between'
                 }}
             >
+                <div className="mobile-nav-home">
+                    <Link
+                        href="/"
+                        onClick={(e) => {
+                            if (pathname === '/') {
+                                e.preventDefault();
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }
+                        }}
+                        style={{ color: 'inherit', display: 'flex' }}
+                    >
+                        <Home size={24} />
+                    </Link>
+                </div>
+
+                {/* Mobile Centered Logo */}
+                <div className="mobile-nav-logo">
+                    <Link
+                        href="/"
+                        onClick={(e) => {
+                            if (pathname === '/') {
+                                e.preventDefault();
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }
+                        }}
+                        style={{ display: 'flex' }}
+                    >
+                        <img
+                            src="/spinyl-logo-white.png"
+                            alt="Spinyl"
+                            style={{
+                                height: '30px',
+                                objectFit: 'contain'
+                            }}
+                        />
+                    </Link>
+                </div>
+
                 {/* Desktop Left Group: Logo + Links */}
-                <div className="nav-left-group" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div className="nav-left-group desktop-logo-group" style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
                     <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
                         <img
                             src="/spinyl-logo-white.png"
@@ -417,7 +496,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                         />
                     </Link>
 
-                    <div className="desktop-only-links" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                    <div className="desktop-only-links" style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
                         <NavLink href="/#hero" icon={<Home size={20} />} label="Home" />
                         <NavLink href="/feed" icon={<Disc size={20} />} label="Feed" />
 
@@ -446,14 +525,27 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 </div>
 
                 {/* Desktop Right Group: Search + Profile */}
-                <div className="desktop-search-profile" style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                <div className="desktop-search-profile" style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
                     <div className="nav-search-container">
                         <SearchBar user={user} />
                     </div>
 
-                    <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '20px' }}>
                         {user ? (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                                <Link
+                                    href="/compose"
+                                    className="nav-icon-link"
+                                    title="Add Hot Take"
+                                    style={{
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center'
+                                    }}
+                                >
+                                    <Plus size={20} />
+                                </Link>
                                 <button
                                     className="nav-icon-link"
                                     style={{
@@ -534,13 +626,30 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                         )}
                     </div>
                 </div>
+
+
+                {/* Mobile Top Notification Bell */}
+                {user && (
+                    <div
+                        className="mobile-nav-bell"
+                        onClick={() => {
+                            setHasUnread(false);
+                            if (user?.id) {
+                                localStorage.setItem(`lastReadTime_${user.id}`, Date.now().toString());
+                            }
+                            router.push('/notifications');
+                        }}
+                    >
+                        <Bell size={24} />
+                        {hasUnread && (
+                            <span className="notification-dot" />
+                        )}
+                    </div>
+                )}
             </nav>
 
             {/* Mobile Bottom Control Panel - MOVED OUTSIDE NAV to ensure fixed bottom positioning */}
             <div className="mobile-bottom-nav">
-                <Link href="/" className="nav-icon-link" title="Home">
-                    <Home size={24} />
-                </Link>
                 <Link href="/feed" className="nav-icon-link" title="Feed">
                     <Disc size={24} />
                 </Link>
@@ -555,6 +664,21 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     <Search size={24} />
                 </div>
 
+                {/* Center Action Button */}
+                {/* Center Action Button */}
+                <Link
+                    href="/compose"
+                    className="nav-icon-link"
+                    title="Add Hot Take"
+                    style={{
+                        cursor: 'pointer',
+                        transform: 'scale(1.1)', // Slightly larger
+                        border: '1px solid rgba(255,255,255,0.2)'
+                    }}
+                >
+                    <Plus size={24} />
+                </Link>
+
                 <div
                     className="nav-icon-link st-nav-link"
                     title="Special Theme"
@@ -564,35 +688,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     <span style={{ fontSize: '24px', fontWeight: '900', color: '#E50914' }}>5</span>
                 </div>
 
-                {/* Mobile Notification Trigger - Reuses same logic as desktop */}
-                {user && (
-                    <div
-                        className="nav-icon-link"
-                        title="Notifications"
-                        onClick={() => {
-                            setHasUnread(false);
-                            if (user?.id) {
-                                localStorage.setItem(`lastReadTime_${user.id}`, Date.now().toString());
-                            }
-                            router.push('/notifications');
-                        }}
-                        style={{ cursor: 'pointer', position: 'relative' }}
-                    >
-                        <Bell size={24} />
-                        {hasUnread && (
-                            <span style={{
-                                position: 'absolute',
-                                top: '0',
-                                right: '0',
-                                width: '8px',
-                                height: '8px',
-                                backgroundColor: '#E50914',
-                                borderRadius: '50%',
-                                border: '1px solid black'
-                            }} />
-                        )}
-                    </div>
-                )}
+
 
                 {user ? (
                     <Link href={`/profile/${user.id}`} className="nav-icon-link" title="Profile">
@@ -665,14 +761,198 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 .mobile-bottom-nav {
                     display: none;
                 }
+
+                .mobile-nav-bell, .mobile-nav-home {
+                    display: none;
+                    cursor: pointer;
+                    position: relative;
+                    padding: 8px;
+                    color: rgba(255, 255, 255, 0.8);
+                }
+
+                .notification-dot {
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    width: 8px;
+                    height: 8px;
+                    background-color: #E50914;
+                    border-radius: 50%;
+                    border: 1px solid black;
+                    box-shadow: 0 0 4px rgba(229, 9, 20, 0.8)
+                }
+
+                .mobile-nav-logo {
+                    display: none;
+                }
+
+                @media (max-width: 768px) {
+                    /* Hide Desktop Logo Group on Mobile */
+                    .desktop-logo-group {
+                        display: none !important;
+                    }
+
+                    /* Keep Logo Centered */
+                    :global(.navbar-container) {
+                        /* justify-content is irrelevant now as we use absolute positioning */
+                        justify-content: center !important; 
+                        position: relative; 
+                    }
+
+                    .mobile-nav-logo {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        position: absolute !important;
+                        left: 50%;
+                        top: 50%;
+                        transform: translate(-50%, -50%);
+                        z-index: 10;
+                    }
+
+                    .mobile-nav-bell {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        position: absolute !important;
+                        right: 16px;
+                    }
+
+                    .mobile-nav-home {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        position: absolute !important;
+                        left: 16px;
+                    }
+
+                    .desktop-search-profile {
+                        display: none !important;
+                    }
+
+                    .mobile-bottom-nav {
+                        display: flex;
+                        position: fixed;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                        background: rgba(10, 10, 10, 0.95);
+                        backdrop-filter: blur(10px);
+                        height: 60px;
+                        justify-content: space-around;
+                        align-items: center;
+                        z-index: 1000;
+                        border-top: 1px solid rgba(255, 255, 255, 0.1);
+                        padding: 0 10px;
+                    }
+
+                    .nav-icon-link {
+                         padding: 10px;
+                         color: rgba(255,255,255,0.7);
+                    }
+
+                    .mobile-notification-wrapper {
+                        position: fixed;
+                        top: 70px;
+                        right: 0;
+                        left: 0;
+                        bottom: 60px;
+                        z-index: 999;
+                        background: rgba(0,0,0,0.5);
+                    }
+
+                    /* Ensure dropdown takes full width on mobile if needed or just fix center */
+                    :global(.notification-dropdown) {
+                        width: 90vw !important;
+                        right: 5vw !important;
+                        left: 5vw !important;
+                        max-height: 70vh !important;
+                    }
+                }
+
+                .nav-icon-link {
+                    color: rgba(255, 255, 255, 0.7);
+                    display: flex;
+                    align-items: center;
+                    transition: all 0.2s ease;
+                }
+
+                .nav-icon-link:hover {
+                    color: #fff;
+                    transform: translateY(-2px);
+                }
+
+                .nav-link {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    color: rgba(255, 255, 255, 0.7);
+                    text-decoration: none;
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    transition: all 0.2s ease;
+                    padding: 8px 12px;
+                    border-radius: 8px;
+                }
+
+                .nav-link:hover {
+                    color: #fff;
+                    background: rgba(255, 255, 255, 0.05);
+                }
+
+                .nav-link span {
+                    display: inline-block;
+                }
+
+                .nav-btn {
+                    background: #fff;
+                    color: #000;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 30px;
+                    font-weight: 700;
+                    text-decoration: none;
+                    transition: all 0.2s ease;
+                    cursor: pointer;
+                }
+
+                .nav-btn:hover {
+                    transform: scale(1.05);
+                    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+                }
+
+                .logo-hover {
+                    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                }
+
+                /* Logo hover animation removed as per user request */
+
+                .profile-hover:hover .profile-avatar-container {
+                     border-color: #fff !important;
+                     box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+                }
+
+                .profile-hover:hover span {
+                    color: #fff !important;
+                }
             `}</style>
         </>
     );
 }
 
-function NavLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
+function NavLink({ href, icon, label }: { href: string, icon: React.ReactNode, label: string }) {
+    const pathname = usePathname();
+    const isActive = pathname === href;
+
     return (
-        <Link href={href} className="nav-icon-link" title={label}>
+        <Link
+            href={href}
+            className={`nav-link ${isActive ? 'active' : ''}`}
+            style={{
+                color: isActive ? '#fff' : 'rgba(255, 255, 255, 0.7)',
+                background: isActive ? 'rgba(255, 255, 255, 0.1)' : 'transparent'
+            }}
+        >
             {icon}
         </Link>
     );

@@ -13,10 +13,7 @@ import ReviewModal from './ReviewModal';
 import InstagramStoryCard from './InstagramStoryCard';
 import html2canvas from 'html2canvas';
 
-const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+
 
 type Review = {
     id: string;
@@ -262,6 +259,10 @@ export default function ReviewSection({
     albumData: AlbumData;
     currentUser?: any;
 }) {
+    const [supabase] = useState(() => createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    ));
     const searchParams = useSearchParams();
     const [user, setUser] = useState<any>(currentUser || null);
     const [rating, setRating] = useState(1); // Default to 1 (Scale 1-10)

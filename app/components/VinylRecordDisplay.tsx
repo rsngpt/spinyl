@@ -7,27 +7,28 @@ interface VinylRecordDisplayProps {
     coverUrl: string | null;
     rating: number;
     size?: number; // Base size of the sleeve (e.g., 80px)
+    className?: string; // Allow external styling overrides
 }
 
-export default function VinylRecordDisplay({ coverUrl, rating, size = 80 }: VinylRecordDisplayProps) {
-    // Vinyl size is slightly smaller than sleeve to look realistic inside
-    const vinylSize = size * 0.95;
-    const peekOffset = size * 0.5; // How much it sticks out (50%)
+export default function VinylRecordDisplay({ coverUrl, rating, size = 80, className = '' }: VinylRecordDisplayProps) {
+    // Responsive Sizing: Use percentages so external CSS width overrides work
 
     return (
-        <div style={{
-            position: 'relative',
-            width: size,
-            height: size,
-            flexShrink: 0
-        }}>
+        <div
+            className={className}
+            style={{
+                position: 'relative',
+                width: size,
+                height: size,
+                flexShrink: 0
+            }}>
             {/* The Vinyl Record (Peeking Out) */}
             <div style={{
                 position: 'absolute',
-                top: (size - vinylSize) / 2, // Centered vertically
-                left: peekOffset,
-                width: vinylSize, // 95% of sleeve
-                height: vinylSize,
+                top: '2.5%', // (100% - 95%) / 2
+                left: '50%', // Peeking out half-way
+                width: '95%',
+                height: '95%',
                 zIndex: 5,
                 animation: 'spin 10s linear infinite',
                 filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.5))'

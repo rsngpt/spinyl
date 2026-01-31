@@ -12,9 +12,10 @@ import { getBase64Image } from '../../actions/image-proxy';
 
 interface FeedPostProps {
     post: FeedItem;
+    variant?: 'vertical' | 'horizontal';
 }
 
-export default function FeedPost({ post }: FeedPostProps) {
+export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) {
     const {
         id,
         created_at,
@@ -120,7 +121,7 @@ export default function FeedPost({ post }: FeedPostProps) {
     };
 
     return (
-        <div className="feed-post-wrapper">
+        <div className={`feed-post-wrapper ${variant}`}>
             {/* HIDDEN STORY CARD FOR GENERATION */}
             {storyData && (
                 <div style={{ position: 'fixed', top: '-10000px', left: '-10000px', zIndex: -1 }}>
@@ -128,12 +129,9 @@ export default function FeedPost({ post }: FeedPostProps) {
                 </div>
             )}
 
-            {/* Blurry Ambient Background */}
-            <div className="ambient-bg" style={{ backgroundImage: `url(${albums?.cover_image})` }} />
-
-            <div className="feed-post glass-panel">
-                {/* Header */}
-                <div className="post-header" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+            <div className={`feed-post glass-panel ${variant}`}>
+                {/* Header (Always Top) */}
+                <div className="post-header">
                     <Link href={`/profile/${post.user_id}`} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', textDecoration: 'none', color: 'white' }}>
                         <div style={{ width: '42px', height: '42px', flexShrink: 0, padding: '2px', background: 'linear-gradient(45deg, #1DB954, #1ed760)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', background: '#121212', border: '2px solid #121212' }}>
@@ -157,13 +155,14 @@ export default function FeedPost({ post }: FeedPostProps) {
 
                 {/* Main Content Layout */}
                 <div className="post-body">
-                    {/* Left: Vinyl Art */}
+                    {/* Left/Top: Vinyl Art */}
                     <div className="vinyl-section">
                         <Link href={`/album/${albums?.spotify_id}`}>
                             <VinylRecordDisplay
                                 coverUrl={albums?.cover_image}
                                 rating={rating}
-                                size={140}
+                                size={variant === 'horizontal' ? 200 : 140}
+                                className="feed-posts-vinyl"
                             />
                         </Link>
                         <div className="rating-pill">
@@ -173,7 +172,7 @@ export default function FeedPost({ post }: FeedPostProps) {
                         </div>
                     </div>
 
-                    {/* Right: Review & Info */}
+                    {/* Right/Bottom: Review & Info */}
                     <div className="content-section">
                         <div className="album-meta">
                             <Link href={`/album/${albums?.spotify_id}`} className="album-title-link">
@@ -188,225 +187,270 @@ export default function FeedPost({ post }: FeedPostProps) {
                                 <p className="review-text">{review_text}</p>
                             </div>
                         )}
+
+                        {/* Footer Actions (In horizontal, pushed to bottom of content section) */}
+                        {variant === 'horizontal' && (
+                            <div className="post-footer horizontal-footer">
+                                <div className="action-btn-wrapper">
+                                    <LikeButton
+                                        reviewId={id}
+                                        initialIsLiked={is_liked_by_user}
+                                        initialLikeCount={likes_count}
+                                    />
+                                </div>
+
+                                <Link href={`/album/${albums?.spotify_id}`} className="action-btn">
+                                    <MessageCircle size={20} />
+                                    <span>{comments_count > 0 ? comments_count : ''}</span>
+                                </Link>
+
+                                <button
+                                    className="action-btn share-btn"
+                                    onClick={handleShareToStory}
+                                    disabled={isGeneratingStory}
+                                    style={{ opacity: isGeneratingStory ? 0.5 : 1, cursor: isGeneratingStory ? 'wait' : 'pointer' }}
+                                >
+                                    <Share2 size={20} />
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                {/* Footer Actions */}
-                <div className="post-footer">
-                    <div className="action-btn-wrapper">
-                        <LikeButton
-                            reviewId={id}
-                            initialIsLiked={is_liked_by_user}
-                            initialLikeCount={likes_count}
-                        />
+                {/* Footer Actions (Vertical Only) */}
+                {variant === 'vertical' && (
+                    <div className="post-footer">
+                        <div className="action-btn-wrapper">
+                            <LikeButton
+                                reviewId={id}
+                                initialIsLiked={is_liked_by_user}
+                                initialLikeCount={likes_count}
+                            />
+                        </div>
+
+                        <Link href={`/album/${albums?.spotify_id}`} className="action-btn">
+                            <MessageCircle size={20} />
+                            <span>{comments_count > 0 ? comments_count : ''}</span>
+                        </Link>
+
+                        <button
+                            className="action-btn share-btn"
+                            onClick={handleShareToStory}
+                            disabled={isGeneratingStory}
+                            style={{ opacity: isGeneratingStory ? 0.5 : 1, cursor: isGeneratingStory ? 'wait' : 'pointer' }}
+                        >
+                            <Share2 size={20} />
+                        </button>
                     </div>
-
-                    <Link href={`/album/${albums?.spotify_id}`} className="action-btn">
-                        <MessageCircle size={20} />
-                        <span>{comments_count > 0 ? comments_count : ''}</span>
-                    </Link>
-
-                    <button
-                        className="action-btn share-btn"
-                        onClick={handleShareToStory}
-                        disabled={isGeneratingStory}
-                        style={{ opacity: isGeneratingStory ? 0.5 : 1, cursor: isGeneratingStory ? 'wait' : 'pointer' }}
-                    >
-                        <Share2 size={20} />
-                    </button>
-                </div>
+                )}
             </div>
 
             <style jsx>{`
                 .feed-post-wrapper {
                     position: relative;
-                    margin-bottom: 40px;
-                    border-radius: 24px;
+                    border-radius: 16px;
+                    width: 100%;
+                    break-inside: avoid;
+                    overflow: hidden;
+                    box-sizing: border-box;
                 }
 
                 .ambient-bg {
-                    position: absolute;
-                    top: -20%;
-                    left: -20%;
-                    right: -20%;
-                    bottom: -20%;
-                    background-size: cover;
-                    background-position: center;
-                    filter: blur(60px) brightness(0.4) saturate(1.2);
-                    opacity: 0.4;
-                    z-index: 0;
-                    border-radius: 40px;
-                    pointer-events: none;
+                    display: none;
                 }
 
                 .feed-post {
                     position: relative;
                     z-index: 1;
-                    background: rgba(20, 20, 20, 0.6);
-                    backdrop-filter: blur(20px);
+                    background: #181818;
                     border: 1px solid rgba(255, 255, 255, 0.08);
-                    border-radius: 24px;
+                    border-radius: 16px;
                     overflow: hidden;
-                    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
-                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+                    display: flex;
+                    flex-direction: column;
                 }
                 
                 .feed-post:hover {
-                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-                    border-color: rgba(255, 255, 255, 0.15);
+                    transform: translateY(-4px);
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                    border-color: rgba(255, 255, 255, 0.2);
                 }
 
+                /* ========================
+                   HEADER
+                   ======================== */
                 .post-header {
-                    padding: 16px 20px;
+                    padding: 12px 16px;
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-                }
-
-                .user-info-v2 {
-                    display: flex !important;
-                    flex-direction: row !important;
-                    align-items: center !important;
-                    gap: 12px !important;
-                    text-decoration: none;
-                    color: white;
-                }
-
-                .avatar-ring {
-                    width: 42px;
-                    height: 42px;
-                    padding: 2px;
-                    background: linear-gradient(45deg, var(--primary), #1ed760);
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
                     flex-shrink: 0;
                 }
 
-                .avatar-container {
-                    width: 100%;
-                    height: 100%;
-                    border-radius: 50%;
-                    overflow: hidden;
-                    background: #121212;
-                    border: 2px solid #121212;
-                }
-
-                .avatar-container img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-
-                .avatar-placeholder {
-                    width: 100%;
-                    height: 100%;
-                    background: #333;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-weight: 700;
-                    font-size: 0.9rem;
-                }
-
-                .username {
-                    font-weight: 700;
-                    font-size: 0.95rem;
-                    line-height: normal;
-                    margin: 0;
-                    color: white;
-                }
-
-                .scrobble-time {
-                    font-size: 0.85rem;
-                    color: #888;
-                    font-weight: 400;
-                }
-
-                .separator {
-                    color: #777;
-                    font-size: 0.8rem;
-                    line-height: normal;
-                    margin: 0 4px;
-                }
-
-                .more-btn {
-                    background: none;
-                    border: none;
-                    color: #666;
-                    cursor: pointer;
-                    padding: 8px;
-                    border-radius: 50%;
-                    transition: background 0.2s;
-                }
-                
-                .more-btn:hover {
-                    background: rgba(255, 255, 255, 0.05);
-                    color: white;
-                }
-
+                /* ========================
+                   BODY LAYOUTS
+                   ======================== */
                 .post-body {
-                    padding: 20px;
+                    padding: 0 16px 16px 16px;
                     display: flex;
-                    gap: 24px;
+                    flex-direction: column;
+                    gap: 16px;
+                    width: 100%;
+                    box-sizing: border-box;
                 }
-                
-                .vinyl-section {
+
+                /* --- VERTICAL (Default) --- */
+                .feed-post:not(.horizontal) .vinyl-section {
+                    width: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center; /* Strictly Center Vinyl */
+                    justify-content: center;
+                    margin: 0;
+                    padding: 8px 70px 16px 0; /* padding-right 70px shifts center left by 35px */
+                    position: relative;
+                    box-sizing: border-box;
+                }
+
+                .feed-post:not(.horizontal) .vinyl-section a {
+                    /* Reset hacks, let padding handle it */
+                    display: block;
+                    width: auto;
+                    margin-right: 0;
+                    transition: margin 0.2s ease;
+                }
+
+                .feed-post:not(.horizontal) .content-section {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    align-items: center; /* Center Content */
+                    text-align: center; /* Center Text */
+                }
+
+                .feed-post:not(.horizontal) .album-meta {
+                    align-items: center;
+                }
+
+                .feed-post:not(.horizontal) .review-text {
+                    text-align: center;
+                }
+
+                /* --- HORIZONTAL (Wide) --- */
+                .feed-post.horizontal .post-body {
+                    flex-direction: row;
+                    align-items: center; /* Vertically center content */
+                    gap: 0; /* Gap handled by vinyl section margin */
+                    padding: 0 24px 24px 32px;
+                }
+
+                .feed-post.horizontal .vinyl-section {
+                    width: auto;
                     flex-shrink: 0;
                     display: flex;
                     flex-direction: column;
-                    align-items: center;
-                    gap: 12px;
-                    margin-right: 50px;
+                    align-items: flex-start;
+                    margin: 0;
+                    position: relative;
+                    padding-top: 4px;
+                    
+                    /* CRITICAL FIX: Reserve space for the 90px vinyl overflow + 50px visible gap */
+                    margin-right: 140px; 
                 }
-                
-                .rating-pill span {
-                    font-size: 0.8rem;
-                    font-weight: 800;
-                    padding: 4px 10px;
-                    border-radius: 20px;
-                    letter-spacing: 0.5px;
-                }
-                
-                .rating-pill span.gold { background: rgba(255, 215, 0, 0.15); color: #FFD700; border: 1px solid rgba(255, 215, 0, 0.2); }
-                .rating-pill span.silver { background: rgba(226, 232, 240, 0.15); color: #e2e8f0; border: 1px solid rgba(226, 232, 240, 0.2); }
-                .rating-pill span.bronze { background: rgba(205, 127, 50, 0.15); color: #cd7f32; border: 1px solid rgba(205, 127, 50, 0.2); }
 
-                .content-section {
+                /* Mobile Reset */
+                @media (max-width: 768px) {
+                    .feed-post.horizontal .vinyl-section {
+                        margin-right: 0; /* Reset for mobile */
+                    }
+                }
+
+                .feed-post.horizontal .vinyl-section a {
+                    margin-right: 0; /* Removed child margin */
+                }
+
+                .feed-post.horizontal .content-section {
                     flex: 1;
-                    min-width: 0;
+                    min-width: 0; /* Prevent flex overflow */
                     display: flex;
                     flex-direction: column;
                     gap: 12px;
-                    padding-top: 4px;
+                    align-items: flex-start; /* Left align content */
+                    text-align: left;
+                    padding-top: 0;
                 }
 
+                /* ========================
+                   COMPONENTS
+                   ======================== */
+
+                /* Rating Pill */
+                .rating-pill {
+                    position: absolute;
+                    top: 0px;
+                    right: 10px;
+                    z-index: 10;
+                }
+                
+                /* In vertical, centering perfectly might mean the pill needs to not be absolute or be better placed. 
+                   User said "album cover and vinyl combined... centered". 
+                   Let's stick to absolute top-right of the vinyl section for now. */
+                .feed-post:not(.horizontal) .rating-pill {
+                    right: 50%;
+                    transform: translateX(60px); /* Move it to the right of the center vinyl */
+                    top: 10px;
+                }
+                
+                .feed-post.horizontal .rating-pill {
+                    right: -10px;
+                    top: -5px;
+                }
+
+                .rating-pill span {
+                    font-size: 0.75rem;
+                    font-weight: 800;
+                    padding: 4px 8px;
+                    border-radius: 12px;
+                    letter-spacing: 0.5px;
+                    background: rgba(0,0,0,0.8) !important;
+                    backdrop-filter: blur(4px);
+                    border: 1px solid rgba(255,255,255,0.2) !important;
+                    color: white;
+                }
+                .rating-pill span.gold { color: #FFD700; border-color: #FFD700 !important; }
+                .rating-pill span.silver { color: #e2e8f0; }
+                .rating-pill span.bronze { color: #cd7f32; }
+
+                /* Typography */
                 .album-meta {
                     display: flex;
                     flex-direction: column;
+                    align-items: flex-start;
+                    width: 100%;
                 }
 
                 .album-title-link {
                     text-decoration: none;
                     color: white;
+                    display: block;
+                    width: 100%;
                 }
 
                 .album-title {
                     margin: 0;
-                    font-size: 1.3rem;
-                    font-weight: 800;
-                    line-height: 1.2;
-                    letter-spacing: -0.5px;
+                    font-size: 1.1rem;
+                    font-weight: 700;
+                    line-height: 1.25;
+                    word-wrap: break-word;
                 }
                 
-                .album-title:hover {
-                    text-decoration: underline;
+                .feed-post.horizontal .album-title {
+                    font-size: 1.5rem;
                 }
 
                 .artist-name {
-                    font-size: 0.95rem;
+                    font-size: 0.9rem;
                     color: #aaa;
                     font-weight: 500;
                 }
@@ -414,34 +458,39 @@ export default function FeedPost({ post }: FeedPostProps) {
                 .review-box {
                     position: relative;
                     margin-top: 4px;
-                }
-
-                .quote-icon {
-                    position: absolute;
-                    top: -6px;
-                    left: -10px;
-                    color: rgba(255, 255, 255, 0.1);
-                    width: 24px;
-                    height: 24px;
+                    width: 100%;
                 }
 
                 .review-text {
                     font-size: 0.95rem;
                     line-height: 1.6;
-                    color: rgba(255, 255, 255, 0.85);
-                    position: relative;
-                    z-index: 1;
-                    padding-left: 12px; 
-                    border-left: 2px solid rgba(255, 255, 255, 0.1);
+                    color: #ddd;
+                    overflow: visible;
+                    padding: 0;
+                    border: none;
+                    margin: 0;
+                    white-space: pre-wrap; /* Preserve line breaks */
                 }
 
+                /* Footer */
                 .post-footer {
-                    padding: 12px 20px;
-                    background: rgba(0, 0, 0, 0.2);
+                    padding: 12px 16px;
+                    border-top: 1px solid rgba(255,255,255,0.05);
+                    background: transparent;
                     display: flex;
                     align-items: center;
-                    justify-content: flex-start; /* Changed from space-between */
-                    gap: 8px; /* Gap between Like and Comment */
+                    justify-content: space-between; 
+                    gap: 8px;
+                    flex-shrink: 0;
+                }
+                
+                .horizontal-footer {
+                    margin-top: auto;
+                    padding-top: 16px; 
+                    border-top: none !important;
+                    padding-left: 0 !important;
+                    width: 100%;
+                    justify-content: flex-start;
                 }
 
                 .action-btn-wrapper {
@@ -454,51 +503,118 @@ export default function FeedPost({ post }: FeedPostProps) {
                     border: none;
                     display: flex;
                     align-items: center;
-                    gap: 6px;
+                    gap: 4px;
                     color: #888;
                     cursor: pointer;
-                    padding: 0 12px;
-                    height: 40px;
-                    border-radius: 8px;
+                    padding: 4px 8px;
+                    border-radius: 6px;
                     transition: all 0.2s;
                     text-decoration: none;
-                    font-size: 0.9rem;
+                    font-size: 0.8rem;
                     font-weight: 600;
-                    justify-content: center;
                     line-height: 1;
                 }
 
                 .action-btn:hover {
-                    background: rgba(255, 255, 255, 0.05);
+                    background: rgba(255, 255, 255, 0.1);
                     color: white;
                 }
 
-                .share-btn {
-                    margin-left: auto;
+                .more-btn {
+                    background: none;
+                    border: none;
+                    color: #555;
+                    cursor: pointer;
+                    padding: 4px;
                 }
-                @media (max-width: 500px) {
-                    .post-body {
-                        padding: 12px;
-                        gap: 12px;
+                .more-btn:hover {
+                    color: #fff;
+                }
+
+                /* Mobile Queries - Catching up to 900px for safety */
+                @media (max-width: 900px) {
+                    /* PREPARE VINYL WRAPPER FOR CSS OVERRIDE via CLASS */
+                    :global(.feed-posts-vinyl) {
+                        width: 90px !important;
+                        height: 90px !important;
+                    }
+
+                    .post-header {
+                        padding: 8px 12px;
+                    }
+                    .post-header span {
+                        font-size: 0.75rem !important;
+                    }
+
+                    /* NO TRANSFORMS, JUST PURE SIZING */
+                    .feed-post:not(.horizontal) .vinyl-section a,
+                    .feed-post.horizontal .vinyl-section a {
+                        transform: none !important;
+                        margin: 0 !important;
+                        display: block;
+                    }
+
+                    /* VERTICAL POSTS: Center everything */
+                    .feed-post:not(.horizontal) .vinyl-section {
+                        padding-right: 45px; 
+                        padding-top: 12px;
+                        padding-bottom: 4px;
+                        min-height: auto;
+                        margin-bottom: 0;
+                    }
+
+                    /* HORIZONTAL POSTS: Top Align for clean "row" look */
+                    .feed-post.horizontal .post-body {
+                        flex-direction: row; /* KEEP ROW */
+                        align-items: flex-start; /* TOP ALIGN */
+                        padding: 0 12px 12px 12px;
+                        gap: 0;
+                    }
+
+                    .feed-post.horizontal .vinyl-section {
+                        width: auto;
+                        margin-right: 16px !important; /* Tighten gap */
+                        padding-right: 45px;
+                        padding-top: 0; /* Flush top */
+                        padding-bottom: 8px;
+                        box-sizing: border-box;
+                        min-height: auto;
+                        flex-shrink: 0;
+                    }
+
+                    .feed-post.horizontal .content-section {
+                        align-items: flex-start; /* LEFT ALIGNED */
+                        text-align: left;
+                        width: auto;
+                        flex: 1; /* Take remaining space */
+                        gap: 6px;
+                    }
+
+                    .feed-post.horizontal .album-meta {
+                         align-items: flex-start;
                     }
                     
-                    .vinyl-section {
-                        margin-right: 10px;
-                        transform: scale(0.75);
-                        transform-origin: top left;
-                        margin-bottom: -30px;
+                    .feed-post.horizontal .review-text {
+                        text-align: left;
                     }
 
-                    .album-title {
-                        font-size: 1.1rem;
+                    /* Typography Reductions */
+                    .album-title, .feed-post.horizontal .album-title {
+                        font-size: 0.9rem !important; 
+                        line-height: 1.2;
                     }
-
                     .artist-name {
-                        font-size: 0.85rem;
+                        font-size: 0.75rem;
+                    }
+                    .review-text {
+                        font-size: 0.8rem;
+                        line-height: 1.4;
                     }
 
-                    .review-text {
-                        font-size: 0.85rem;
+                    .horizontal-footer {
+                        width: 100%;
+                        justify-content: flex-start;
+                        padding-top: 8px;
                     }
                 }
             `}</style>
