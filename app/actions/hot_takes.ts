@@ -123,7 +123,10 @@ export async function getHotTakeComments(hotTakeId: string) {
         .eq('hot_take_id', hotTakeId)
         .order('created_at', { ascending: true });
 
-    return comments || [];
+    return (comments || []).map(c => ({
+        ...c,
+        profiles: Array.isArray(c.profiles) ? c.profiles[0] : c.profiles
+    }));
 }
 
 export async function getHotTakeById(id: string) {
@@ -173,7 +176,7 @@ export async function getHotTakeById(id: string) {
     };
 
     // Also fetch comments (server-side for initial render)
-    const { data: comments } = await supabase
+    const { data: commentsRaw } = await supabase
         .from('hot_take_comments')
         .select(`
             id,
@@ -185,5 +188,10 @@ export async function getHotTakeById(id: string) {
         .eq('hot_take_id', id)
         .order('created_at', { ascending: true });
 
-    return { item, comments: comments || [] };
+    const comments = (commentsRaw || []).map(c => ({
+        ...c,
+        profiles: Array.isArray(c.profiles) ? c.profiles[0] : c.profiles
+    }));
+
+    return { item, comments };
 }
