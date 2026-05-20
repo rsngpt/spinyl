@@ -43,10 +43,10 @@ export default function Hero() {
                     <div style={{
                         display: 'inline-block',
                         padding: '8px 16px',
-                        background: 'rgba(29, 185, 84, 0.1)',
-                        border: '1px solid rgba(29, 185, 84, 0.3)',
+                        background: 'rgba(255, 159, 104, 0.1)',
+                        border: '1px solid rgba(255, 159, 104, 0.3)',
                         borderRadius: '50px',
-                        color: '#1ed760',
+                        color: '#ffb488',
                         fontSize: '0.9rem',
                         fontWeight: 600,
                         marginBottom: '24px',
@@ -84,8 +84,8 @@ export default function Hero() {
                             href="/explore"
                             style={{
                                 padding: '16px 32px',
-                                background: '#1DB954',
-                                color: '#000',
+                                background: '#ff9f68',
+                                color: '#4e260f',
                                 borderRadius: '500px',
                                 fontWeight: 700,
                                 fontSize: '1.1rem',
@@ -101,7 +101,7 @@ export default function Hero() {
                             }}
                             onMouseOver={(e) => {
                                 e.currentTarget.style.transform = 'scale(1.05)';
-                                e.currentTarget.style.boxShadow = '0 0 30px rgba(29, 185, 84, 0.4)';
+                                e.currentTarget.style.boxShadow = '0 0 30px rgba(255, 159, 104, 0.4)';
                             }}
                             onMouseOut={(e) => {
                                 e.currentTarget.style.transform = 'scale(1)';
@@ -199,7 +199,7 @@ export default function Hero() {
                                 width: '80px',
                                 height: '80px',
                                 borderRadius: '50%',
-                                background: '#1DB954',
+                                background: '#ff9f68',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -405,7 +405,7 @@ export default function Hero() {
                             position: 'absolute',
                             top: '10%',
                             right: '10%',
-                            background: '#1ed760',
+                            background: '#ff9f68',
                             width: '60px',
                             height: '60px',
                             borderRadius: '50%',

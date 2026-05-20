@@ -27,7 +27,7 @@ export default function Footer() {
                     {/* Column 1: Brand */}
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
-                            <div style={{ width: '32px', height: '32px', background: '#1DB954', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#000' }}>S</div>
+                            <div style={{ width: '32px', height: '32px', background: '#ff9f68', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#4e260f' }}>S</div>
                             <h2 style={{ fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-0.02em', color: '#fff' }}>Spinyl</h2>
                         </div>
                         <p style={{ color: '#B3B3B3', lineHeight: '1.6', fontSize: '0.95rem', marginBottom: '32px', maxWidth: '300px' }}>
@@ -68,15 +68,15 @@ export default function Footer() {
                         <h4 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '24px', fontWeight: '700' }}>Get in Touch</h4>
                         <ul style={{ listStyle: 'none', padding: 0 }}>
                             <li style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#B3B3B3', marginBottom: '16px' }}>
-                                <Mail size={18} color="#1DB954" />
+                                <Mail size={18} color="#ff9f68" />
                                 <span style={{ fontSize: '0.95rem' }}>spinylchord@gmail.com</span>
                             </li>
                             <li style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#B3B3B3', marginBottom: '16px' }}>
-                                <Phone size={18} color="#1DB954" />
+                                <Phone size={18} color="#ff9f68" />
                                 <span style={{ fontSize: '0.95rem' }}>+91 8840271419</span>
                             </li>
                             <li style={{ display: 'flex', gap: '12px', alignItems: 'start', color: '#B3B3B3' }}>
-                                <MapPin size={18} color="#1DB954" style={{ marginTop: '4px' }} />
+                                <MapPin size={18} color="#ff9f68" style={{ marginTop: '4px' }} />
                                 <span style={{ fontSize: '0.95rem' }}>Bennett University,<br />Greater Noida, UP 201310</span>
                             </li>
                         </ul>
@@ -95,7 +95,7 @@ export default function Footer() {
                     fontSize: '0.9rem'
                 }}>
                     <p>&copy; {new Date().getFullYear()} Spinyl. All rights reserved.</p>
-                    <p>Made with 💚 by Roshan Gupta</p>
+                    <p>Made with 🧡 by Roshan Gupta</p>
                 </div>
             </div>
         </footer>
@@ -117,11 +117,13 @@ function SocialIcon({ href, icon }: { href: string; icon: React.ReactNode }) {
             cursor: 'pointer'
         }}
             onMouseOver={(e) => {
-                e.currentTarget.style.background = '#1DB954';
+                e.currentTarget.style.background = '#ff9f68';
+                e.currentTarget.style.color = '#4e260f';
                 e.currentTarget.style.transform = 'translateY(-3px)';
             }}
             onMouseOut={(e) => {
                 e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                e.currentTarget.style.color = '#fff';
                 e.currentTarget.style.transform = 'translateY(0)';
             }}
         >
@@ -140,7 +142,7 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
                 transition: 'color 0.2s ease'
             }}
                 className="hover:text-white"
-                onMouseOver={(e) => e.currentTarget.style.color = '#1DB954'}
+                onMouseOver={(e) => e.currentTarget.style.color = '#ff9f68'}
                 onMouseOut={(e) => e.currentTarget.style.color = '#B3B3B3'}
             >
                 {children}

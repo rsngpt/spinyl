@@ -153,10 +153,10 @@ export default function ProfileEditModal({ profile, onUpdate }: Props) {
                 }
                 .edit-profile-btn:hover {
                     background: rgba(255, 255, 255, 0.1);
-                    border-color: #1ed760;
-                    color: #1ed760;
+                    border-color: var(--md-sys-color-primary);
+                    color: var(--md-sys-color-primary);
                     transform: translateY(-2px);
-                    box-shadow: 0 5px 20px rgba(30, 215, 96, 0.15);
+                    box-shadow: 0 5px 20px rgba(255, 159, 104, 0.15);
                 }
                 `}</style>
             </button>
@@ -256,10 +256,10 @@ export default function ProfileEditModal({ profile, onUpdate }: Props) {
                 }
                 .edit-profile-btn:hover {
                     background: rgba(255, 255, 255, 0.1);
-                    border-color: #1ed760;
-                    color: #1ed760;
+                    border-color: var(--md-sys-color-primary);
+                    color: var(--md-sys-color-primary);
                     transform: translateY(-2px);
-                    box-shadow: 0 5px 20px rgba(30, 215, 96, 0.15);
+                    box-shadow: 0 5px 20px rgba(255, 159, 104, 0.15);
                 }
 
                 .modal-overlay {
@@ -320,7 +320,7 @@ export default function ProfileEditModal({ profile, onUpdate }: Props) {
                     transition: all 0.3s;
                     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
                 }
-                .avatar-preview:hover { border-color: #1ed760; }
+                .avatar-preview:hover { border-color: var(--md-sys-color-primary); }
                 .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
                 .avatar-placeholder { width: 100%; height: 100%; background: #222; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
                 .avatar-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.6rem; font-weight: 700; opacity: 0; transition: opacity 0.2s; }
@@ -344,8 +344,8 @@ export default function ProfileEditModal({ profile, onUpdate }: Props) {
                     outline: none;
                 }
                 input:focus, textarea:focus {
-                    background: rgba(255,255,255,0.1);
-                    border-color: #1ed760;
+                    background: rgba(255, 255, 255, 0.1);
+                    border-color: var(--md-sys-color-primary);
                 }
                 textarea { 
                     resize: none; font-family: inherit; 
@@ -372,8 +372,8 @@ export default function ProfileEditModal({ profile, onUpdate }: Props) {
                 }
                 .cancel-btn { background: #222; border: 1px solid #333; color: #888; }
                 .cancel-btn:hover { background: #333; color: #fff; }
-                .save-btn { background: #1ed760; border: none; color: #000; }
-                .save-btn:hover { background: #1fdf64; }
+                .save-btn { background: var(--md-sys-color-primary); border: none; color: var(--md-sys-color-on-primary); }
+                .save-btn:hover { background: var(--primary-hover); }
                 .error-msg { color: #ff4444; font-size: 0.8rem; text-align: center; margin-top: 8px; }
 
                 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

@@ -17,8 +17,8 @@ export default async function FeedPage() {
                 .feed-page {
                     min-height: 100vh;
                     padding-top: 100px; /* Navbar offset */
-                    background: #121212;
-                    color: white;
+                    background: var(--md-sys-color-background);
+                    color: var(--md-sys-color-on-background);
                 }
             `}</style>
         </main>

@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { formatFriendlyDate } from '../../src/lib/date-utils';
+
 
 interface NotificationListItemProps {
     notification: any; // Using any for now to match strict type union complexity in parent
@@ -135,7 +137,7 @@ export default function NotificationListItem({ notification, onClose }: Notifica
                 <div style={{ flex: 1, minWidth: 0 }}>
                     {content}
                     <span style={{ fontSize: '0.75rem', color: '#666', marginTop: '4px', display: 'block' }}>
-                        {new Date(notification.created_at).toLocaleDateString()}
+                        {formatFriendlyDate(notification.created_at)}
                     </span>
                 </div>
             </div>

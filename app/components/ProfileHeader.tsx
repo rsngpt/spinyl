@@ -129,7 +129,7 @@ export default function ProfileHeader({
                     <div className="user-title">
                         <h1>@{profileState.username || 'Music Lover'}</h1>
                         {profileState.full_name && (
-                            <p style={{ margin: '8px 0 0', color: '#1ed760', fontWeight: 600, fontSize: '1rem' }}>
+                            <p style={{ margin: '8px 0 0', color: 'var(--md-sys-color-primary)', fontWeight: 600, fontSize: '1rem' }}>
                                 {profileState.full_name}
                             </p>
                         )}

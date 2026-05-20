@@ -22,16 +22,16 @@ export default function Loading() {
                     }
                     
                     @keyframes glow-pulse {
-                        0% { box-shadow: 0 0 15px rgba(29, 185, 84, 0.3); }
-                        50% { box-shadow: 0 0 30px rgba(29, 185, 84, 0.8), 0 0 50px rgba(29, 185, 84, 0.2); }
-                        100% { box-shadow: 0 0 15px rgba(29, 185, 84, 0.3); }
+                        0% { box-shadow: 0 0 15px rgba(255, 159, 104, 0.3); }
+                        50% { box-shadow: 0 0 30px rgba(255, 159, 104, 0.8), 0 0 50px rgba(255, 159, 104, 0.2); }
+                        100% { box-shadow: 0 0 15px rgba(255, 159, 104, 0.3); }
                     }
 
                     .vinyl-record {
                         width: 80px;
                         height: 80px;
                         border-radius: 50%;
-                        background: radial-gradient(circle, #1DB954 25%, #181818 26%, #181818 28%, #111 30%, #111 32%, #222 34%, #111 36%, #222 38%, #111 40%, #222 42%, #111 44%, #222 46%, #111 50%, #222 55%, #111 60%, #222 70%, #111 100%);
+                        background: radial-gradient(circle, #ff9f68 25%, #181818 26%, #181818 28%, #111 30%, #111 32%, #222 34%, #111 36%, #222 38%, #111 40%, #222 42%, #111 44%, #222 46%, #111 50%, #222 55%, #111 60%, #222 70%, #111 100%);
                         position: relative;
                         animation: spin-record 1.2s linear infinite, glow-pulse 2s ease-in-out infinite;
                         border: 2px solid #222;
@@ -44,7 +44,7 @@ export default function Loading() {
                         transform: translate(-50%, -50%);
                         width: 24px;
                         height: 24px;
-                        background: #1DB954;
+                        background: #ff9f68;
                         border-radius: 50%;
                         border: 2px solid #151515;
                     }

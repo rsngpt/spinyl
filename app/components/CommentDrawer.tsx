@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getComments, addComment, deleteComment } from '../actions/comments';
 import { X, Send, MoreHorizontal, Trash2 } from 'lucide-react';
+import { formatFriendlyDate } from '../../src/lib/date-utils';
+
 
 interface Comment {
     id: string;
@@ -219,7 +221,7 @@ function CommentItem({ comment, onReply, currentUserId, onDelete }: { comment: C
             <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{comment.profiles.username}</span>
-                    <span style={{ fontSize: '0.75rem', color: '#666' }}>{new Date(comment.created_at).toLocaleDateString()}</span>
+                    <span style={{ fontSize: '0.75rem', color: '#666' }}>{formatFriendlyDate(comment.created_at)}</span>
                 </div>
                 <p style={{ margin: '4px 0', fontSize: '0.95rem', lineHeight: '1.4', color: '#ddd', whiteSpace: 'pre-wrap' }}>
                     {comment.content}

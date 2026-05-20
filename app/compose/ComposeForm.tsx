@@ -174,8 +174,8 @@ export default function ComposeForm({ userAvatar, username }: ComposeFormProps) 
                                 onClick={handleSubmit}
                                 disabled={isPending || !isPostable}
                                 style={{
-                                    backgroundColor: isPostable ? '#1DB954' : 'rgba(255, 255, 255, 0.1)',
-                                    color: isPostable ? '#000000' : 'rgba(255, 255, 255, 0.4)',
+                                    backgroundColor: isPostable ? 'var(--md-sys-color-primary)' : 'rgba(255, 255, 255, 0.1)',
+                                    color: isPostable ? 'var(--md-sys-color-on-primary)' : 'rgba(255, 255, 255, 0.4)',
                                     border: 'none',
                                     padding: '10px 24px',
                                     borderRadius: '24px',
@@ -192,13 +192,13 @@ export default function ComposeForm({ userAvatar, username }: ComposeFormProps) 
                                 onMouseOver={(e) => {
                                     if (isPostable && !isPending) {
                                         e.currentTarget.style.transform = 'scale(1.05)';
-                                        e.currentTarget.style.backgroundColor = '#1ed760';
+                                        e.currentTarget.style.backgroundColor = 'var(--primary-hover)';
                                     }
                                 }}
                                 onMouseOut={(e) => {
                                     if (isPostable && !isPending) {
                                         e.currentTarget.style.transform = 'scale(1)';
-                                        e.currentTarget.style.backgroundColor = '#1DB954';
+                                        e.currentTarget.style.backgroundColor = 'var(--md-sys-color-primary)';
                                     }
                                 }}
                             >

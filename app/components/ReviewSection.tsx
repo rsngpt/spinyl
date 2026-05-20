@@ -7,11 +7,13 @@ import LoginButton from './LoginButton';
 import { submitReview, deleteReview } from '../actions/review';
 import Link from 'next/link';
 import VinylRatingInput from './VinylRatingInput';
-import { Share2, MessageCircle, Heart, MoreHorizontal, Download } from 'lucide-react';
+import { Share2, MessageCircle, Heart, MoreHorizontal, Download, Plus } from 'lucide-react';
 import SpinylCard from './SpinylCard';
 import ReviewModal from './ReviewModal';
 import InstagramStoryCard from './InstagramStoryCard';
 import html2canvas from 'html2canvas';
+import { formatFriendlyDate, formatFriendlyTime } from '../../src/lib/date-utils';
+
 
 
 
@@ -67,9 +69,8 @@ const ReviewItem = ({
     const profile = review.profiles || { username: 'Unknown User', avatar_url: null };
 
     // Format Date & Time
-    const dateObj = new Date(review.created_at);
-    const dateStr = dateObj.toLocaleDateString();
-    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const dateStr = formatFriendlyDate(review.created_at);
+    const timeStr = formatFriendlyTime(review.created_at);
 
     // Truncation Logic
     const CHAR_THRESHOLD = 150;
@@ -77,11 +78,7 @@ const ReviewItem = ({
     const quotedText = `"${review.review_text}"`;
 
     return (
-        <div style={{
-            borderBottom: '1px solid rgba(255,255,255,0.05)',
-            padding: '24px 0',
-            position: 'relative'
-        }}>
+        <div className="review-item-container">
             <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
 
                 {/* LEFT: Sleeve + Vinyl */}
@@ -93,7 +90,7 @@ const ReviewItem = ({
                         width: '56px',
                         height: '56px',
                         zIndex: 5,
-                        animation: 'spin 10s linear infinite',
+                        animation: 'spin-slow 10s linear infinite',
                         filter: 'brightness(0.9)'
                     }}>
                         <VinylRatingInput value={review.rating} onChange={() => { }} readonly />
@@ -104,12 +101,13 @@ const ReviewItem = ({
                             position: 'relative',
                             width: '60px',
                             height: '60px',
-                            borderRadius: '2px',
+                            borderRadius: 'var(--md-shape-corner-medium)',
                             overflow: 'hidden',
                             zIndex: 10,
-                            boxShadow: '3px 0 8px rgba(0,0,0,0.6)',
+                            boxShadow: '0 8px 20px rgba(0,0,0,0.5)',
                             background: '#222',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            transition: 'var(--transition)'
                         }}>
                             {profile.avatar_url ? (
                                 <img
@@ -120,15 +118,15 @@ const ReviewItem = ({
                             ) : (
                                 <div style={{
                                     width: '100%', height: '100%',
-                                    background: 'linear-gradient(135deg, #444, #222)',
-                                    color: '#fff',
+                                    background: 'linear-gradient(135deg, var(--md-sys-color-surface-container-highest), var(--md-sys-color-surface-container-low))',
+                                    color: 'var(--md-sys-color-on-surface)',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     fontSize: '1.2rem', fontWeight: 800
                                 }}>
                                     {getInitials(profile.username)}
                                 </div>
                             )}
-                            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(120deg, rgba(255,255,255,0.1) 0%, transparent 40%)' }} />
+                            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(120deg, rgba(255,255,255,0.08) 0%, transparent 40%)' }} />
                         </div>
                     </Link>
                 </div>
@@ -136,12 +134,12 @@ const ReviewItem = ({
                 {/* MIDDLE: Content */}
                 <div style={{ flex: 1, paddingLeft: '34px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <div style={{ lineHeight: '1.2' }}>
-                        <Link href={`/profile/${review.user_id}`} style={{ textDecoration: 'none', color: '#fff' }}>
-                            <div style={{ fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.02em' }}>
+                        <Link href={`/profile/${review.user_id}`} style={{ textDecoration: 'none', color: 'var(--md-sys-color-on-surface)' }}>
+                            <div className="font-display" style={{ fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.01em' }}>
                                 {profile.username}
                             </div>
                         </Link>
-                        <div style={{ fontSize: '0.7rem', color: '#666', fontWeight: 600, marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600, marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                             {dateStr} <span style={{ opacity: 0.5, margin: '0 4px' }}>•</span> {timeStr}
                         </div>
                     </div>
@@ -149,8 +147,8 @@ const ReviewItem = ({
                     <div>
                         <p style={{
                             margin: 0,
-                            lineHeight: '1.5',
-                            color: '#ddd',
+                            lineHeight: '1.6',
+                            color: 'var(--md-sys-color-on-surface-variant)',
                             fontSize: '0.95rem',
                             whiteSpace: 'pre-line',
                             display: isExpanded ? 'block' : '-webkit-box',
@@ -166,11 +164,11 @@ const ReviewItem = ({
                                 style={{
                                     background: 'transparent',
                                     border: 'none',
-                                    color: '#888',
+                                    color: 'var(--md-sys-color-primary)',
                                     fontWeight: 600,
                                     fontSize: '0.8rem',
                                     cursor: 'pointer',
-                                    marginTop: '2px',
+                                    marginTop: '4px',
                                     padding: 0,
                                     textDecoration: 'underline'
                                 }}
@@ -181,13 +179,13 @@ const ReviewItem = ({
                     </div>
 
                     {/* ACTION BAR */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '8px', color: '#888' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '12px', color: 'var(--text-secondary)' }}>
                         <button
                             onClick={() => setIsLiked(!isLiked)}
-                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: isLiked ? '#E91E63' : 'inherit', transition: 'color 0.2s' }}
+                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: isLiked ? 'var(--md-sys-color-tertiary)' : 'inherit', transition: 'color 0.2s' }}
                         >
-                            <Heart size={18} fill={isLiked ? "#E91E63" : "none"} />
-                            <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{isLiked ? '1' : ''}</span>
+                            <Heart size={18} fill={isLiked ? "var(--md-sys-color-tertiary)" : "none"} style={{ transition: 'transform 0.2s' }} />
+                            <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{isLiked ? '1' : ''}</span>
                         </button>
 
                         <button
@@ -195,10 +193,8 @@ const ReviewItem = ({
                             style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: 'inherit', transition: 'color 0.2s' }}
                         >
                             <MessageCircle size={18} />
-                            {/* Comments Count could be passed here if we had it */}
                         </button>
 
-                        {/* Share Button (Story) */}
                         {/* Share Button (Story) */}
                         <button
                             onClick={() => handleShareToStory(review)}
@@ -224,27 +220,26 @@ const ReviewItem = ({
                 </div>
 
                 {/* RIGHT: Rating */}
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', minWidth: '60px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', minWidth: '65px' }}>
                     <div style={{
-                        background: review.rating >= 8 ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.08)',
-                        border: review.rating >= 8 ? '1px solid rgba(255,215,0,0.4)' : '1px solid #444',
-                        padding: '2px 0',
-                        width: '42px',
-                        borderRadius: '4px',
+                        background: review.rating >= 8 ? 'var(--md-sys-color-tertiary-container)' : 'var(--md-sys-color-surface-container-highest)',
+                        border: review.rating >= 8 ? '1px solid var(--md-sys-color-tertiary)' : '1px solid var(--md-sys-color-outline-variant)',
+                        padding: '4px 8px',
+                        borderRadius: 'var(--md-shape-corner-medium)',
                         textAlign: 'center',
-                        flexShrink: 0
+                        flexShrink: 0,
+                        boxShadow: review.rating >= 8 ? '0 0 12px rgba(243, 120, 211, 0.2)' : 'none'
                     }}>
-                        <span style={{
+                        <span className="font-display" style={{
                             fontWeight: 800,
                             fontSize: '0.85rem',
-                            color: review.rating >= 8 ? '#FFD700' : '#fff',
-                            letterSpacing: '-0.05em'
+                            color: review.rating >= 8 ? 'var(--md-sys-color-on-tertiary-container)' : 'var(--md-sys-color-on-surface)',
+                            letterSpacing: '-0.02em'
                         }}>
                             {review.rating}/10
                         </span>
                     </div>
                 </div>
-
             </div>
         </div>
     );
@@ -254,10 +249,12 @@ export default function ReviewSection({
     initialReviews,
     albumData,
     currentUser,
+    isMobileActive = false
 }: {
     initialReviews: Review[];
     albumData: AlbumData;
     currentUser?: any;
+    isMobileActive?: boolean;
 }) {
     const [supabase] = useState(() => createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -265,6 +262,7 @@ export default function ReviewSection({
     ));
     const searchParams = useSearchParams();
     const [user, setUser] = useState<any>(currentUser || null);
+    const [userProfile, setUserProfile] = useState<{ username: string; avatar_url: string | null } | null>(null);
     const [rating, setRating] = useState(1); // Default to 1 (Scale 1-10)
     const [reviewText, setReviewText] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -377,20 +375,47 @@ export default function ReviewSection({
     };
 
     useEffect(() => {
+        const fetchUserProfile = async (userId: string) => {
+            try {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('username, avatar_url')
+                    .eq('id', userId)
+                    .single();
+                if (profile) {
+                    setUserProfile(profile);
+                }
+            } catch (err) {
+                console.error('Error fetching user profile:', err);
+            }
+        };
+
         // If we didn't get a user from server props, try fetching client-side
         if (!currentUser) {
             const getUser = async () => {
-                const { data: { user } } = await supabase.auth.getUser();
-                setUser(user);
+                const { data: { user: authUser } } = await supabase.auth.getUser();
+                setUser(authUser);
+                if (authUser) {
+                    fetchUserProfile(authUser.id);
+                }
             };
             getUser();
         } else {
             setUser(currentUser);
+            if (currentUser) {
+                fetchUserProfile(currentUser.id);
+            }
         }
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            (_event, session) => {
-                setUser(session?.user ?? null);
+            async (_event, session) => {
+                const authUser = session?.user ?? null;
+                setUser(authUser);
+                if (authUser) {
+                    fetchUserProfile(authUser.id);
+                } else {
+                    setUserProfile(null);
+                }
             }
         );
 
@@ -420,8 +445,8 @@ export default function ReviewSection({
                 const newReview: Review = {
                     ...result.review,
                     profiles: {
-                        username: user.user_metadata?.username || user.email?.split('@')[0] || 'User',
-                        avatar_url: user.user_metadata?.avatar_url || null
+                        username: userProfile?.username || user.user_metadata?.username || user.email?.split('@')[0] || 'User',
+                        avatar_url: userProfile?.avatar_url || user.user_metadata?.avatar_url || null
                     }
                 };
 
@@ -451,7 +476,7 @@ export default function ReviewSection({
     };
 
     return (
-        <div style={{ background: '#181818', borderRadius: '12px', padding: '24px' }}>
+        <div style={{ background: 'transparent', padding: 0 }}>
             {/* HIDDEN STORY CARD FOR GENERATION */}
             {storyData && (
                 <div style={{ position: 'fixed', top: '-10000px', left: '-10000px', zIndex: -1 }}>
@@ -467,6 +492,7 @@ export default function ReviewSection({
                     review={activeReview}
                     spotifyId={albumData.spotify_id}
                     currentUser={user}
+                    userProfile={userProfile}
                 />
             )}
 
@@ -562,7 +588,7 @@ export default function ReviewSection({
             )}
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '1.5rem', margin: 0 }}>Reviews</h2>
+                <h2 className="font-display" style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: 'var(--md-sys-color-on-surface)' }}>Reviews</h2>
                 {user && !showForm && (
                     <button
                         onClick={() => {
@@ -576,106 +602,93 @@ export default function ReviewSection({
                             }
                             setShowForm(true);
                         }}
-                        style={{
-                            padding: '8px 16px',
-                            borderRadius: '20px',
-                            border: 'none',
-                            background: 'var(--primary)',
-                            color: '#000',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                        }}
+                        className="m3-btn-primary desktop-only"
                     >
                         {reviews.some(r => r.user_id === user.id) ? 'Edit Review' : 'Write a Review'}
                     </button>
                 )}
             </div>
 
+            {/* Mobile Android-style Floating Action Button (FAB) */}
+            {user && isMobileActive && !showForm && (
+                <button
+                    onClick={() => {
+                        const existingReview = reviews.find(r => r.user_id === user.id);
+                        if (existingReview) {
+                            setRating(existingReview.rating);
+                            setReviewText(existingReview.review_text);
+                        } else {
+                            setRating(8);
+                            setReviewText('');
+                        }
+                        setShowForm(true);
+                    }}
+                    className="m3-fab"
+                    title={reviews.some(r => r.user_id === user.id) ? "Edit Review" : "Write a Review"}
+                >
+                    <Plus size={24} />
+                </button>
+            )}
+
             {!user ? (
-                <div style={{ textAlign: 'center', padding: '32px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
-                    <p style={{ marginBottom: '10px' }}>Log in to rate and review this album.</p>
+                <div style={{ textAlign: 'center', padding: '32px', background: 'var(--md-sys-color-surface-container-low)', border: '1px solid var(--md-sys-color-outline-variant)', borderRadius: 'var(--md-shape-corner-large)' }}>
+                    <p style={{ marginBottom: '10px', color: 'var(--md-sys-color-on-surface-variant)' }}>Log in to rate and review this album.</p>
                 </div>
             ) : showForm && (
-                <form onSubmit={handleSubmit} style={{ marginBottom: '32px', background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '8px' }}>
-                    {/* NEW VINYL RATING */}
-                    <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'center' }}>
-                        <VinylRatingInput value={rating} onChange={setRating} />
-                    </div>
+                <div className="m3-review-form-container">
+                    <form onSubmit={handleSubmit} className="m3-review-form-inner">
+                        {/* Drag Handle for mobile Bottom Sheet */}
+                        <div className="m3-bottom-sheet-handle" />
 
-                    <div style={{ marginBottom: '16px' }}>
-                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem' }}>Review</label>
-                        <textarea
-                            value={reviewText}
-                            onChange={(e) => setReviewText(e.target.value)}
-                            rows={4}
-                            style={{
-                                width: '100%',
-                                background: '#222',
-                                border: '1px solid #333',
-                                borderRadius: '4px',
-                                color: '#fff',
-                                padding: '12px',
-                                fontSize: '1rem',
-                                fontFamily: 'inherit',
-                                resize: 'vertical',
-                            }}
-                            placeholder="Share your thoughts... (Why is this a masterpiece or trash?)"
-                        />
-                    </div>
+                        <h3 className="font-display" style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '20px', color: 'var(--md-sys-color-on-surface)' }}>
+                            {reviews.some(r => r.user_id === user?.id) ? 'Edit Your Verdict' : 'Write a Verdict'}
+                        </h3>
 
-                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', alignItems: 'center' }}>
-                        {reviews.some(r => r.user_id === user?.id) && (
+                        {/* NEW VINYL RATING */}
+                        <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'center' }}>
+                            <VinylRatingInput value={rating} onChange={setRating} />
+                        </div>
+
+                        <div className="m3-text-field-container" style={{ marginBottom: '24px' }}>
+                            <span className="m3-text-field-label">Verdict Review</span>
+                            <textarea
+                                value={reviewText}
+                                onChange={(e) => setReviewText(e.target.value)}
+                                rows={4}
+                                className="m3-text-field"
+                                placeholder="Share your thoughts... (Why is this a masterpiece or trash?)"
+                            />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                            {reviews.some(r => r.user_id === user?.id) && (
+                                <button
+                                    type="button"
+                                    onClick={handleDeleteClick}
+                                    disabled={isDeleting}
+                                    className="m3-btn-danger"
+                                    style={{ marginRight: 'auto' }}
+                                >
+                                    {isDeleting ? 'Deleting...' : 'Delete'}
+                                </button>
+                            )}
                             <button
                                 type="button"
-                                onClick={handleDeleteClick}
-                                disabled={isDeleting}
-                                style={{
-                                    marginRight: 'auto',
-                                    padding: '8px 16px',
-                                    background: 'rgba(255, 59, 48, 0.1)',
-                                    border: '1px solid rgba(255, 59, 48, 0.3)',
-                                    color: '#ff3b30',
-                                    borderRadius: '20px',
-                                    cursor: isDeleting ? 'not-allowed' : 'pointer',
-                                    fontSize: '0.85rem',
-                                    fontWeight: 600
-                                }}
+                                onClick={() => setShowForm(false)}
+                                className="m3-btn-secondary"
                             >
-                                {isDeleting ? 'Deleting...' : 'Delete'}
+                                Cancel
                             </button>
-                        )}
-                        <button
-                            type="button"
-                            onClick={() => setShowForm(false)}
-                            style={{
-                                padding: '8px 16px',
-                                background: 'transparent',
-                                border: '1px solid #444',
-                                color: '#fff',
-                                borderRadius: '20px',
-                                cursor: 'pointer',
-                            }}
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            style={{
-                                padding: '8px 24px',
-                                background: 'var(--primary)',
-                                color: '#000',
-                                border: 'none',
-                                borderRadius: '20px',
-                                fontWeight: 600,
-                                cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                                opacity: isSubmitting ? 0.5 : 1,
-                            }}
-                        >
-                            {isSubmitting ? 'Posting...' : 'Post Verdict'}
-                        </button>
-                    </div>
-                </form>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="m3-btn-primary"
+                            >
+                                {isSubmitting ? 'Posting...' : 'Post Verdict'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             )}
 
             {/* Reviews List */}

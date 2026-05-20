@@ -167,20 +167,20 @@ export default function FeedList({ initialPosts }: FeedListProps) {
                         column-gap: 16px; 
                     }
                     .feed-list-container {
-                        padding: 12px;
+                        padding: 16px;
                     }
                 }
 
-                @media (max-width: 500px) {
+                @media (max-width: 600px) {
                     .masonry-grid {
-                        column-count: 2; 
-                        column-gap: 10px;
+                        column-count: 1; 
+                        column-gap: 0;
                     }
                     .masonry-item {
-                        margin-bottom: 12px;
+                        margin-bottom: 20px;
                     }
                     .feed-list-container {
-                        padding: 8px;
+                        padding: 12px;
                     }
                 }
 
@@ -194,13 +194,15 @@ export default function FeedList({ initialPosts }: FeedListProps) {
                 }
 
                 .loader {
-                    color: #1DB954; /* Spotify Green for loading */
+                    color: var(--md-sys-color-primary); /* Material 3 Orange for loading */
                 }
 
                 .end-msg {
-                    color: #666;
-                    font-size: 0.9rem;
+                    color: var(--md-sys-color-on-surface-variant);
+                    font-size: 0.95rem;
                     opacity: 0.7;
+                    font-weight: 500;
+                    letter-spacing: 0.5px;
                 }
             `}</style>
         </div>

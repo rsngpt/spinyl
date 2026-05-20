@@ -132,20 +132,20 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
             <div className={`feed-post glass-panel ${variant}`}>
                 {/* Header (Always Top) */}
                 <div className="post-header">
-                    <Link href={`/profile/${post.user_id}`} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', textDecoration: 'none', color: 'white' }}>
-                        <div style={{ width: '42px', height: '42px', flexShrink: 0, padding: '2px', background: 'linear-gradient(45deg, #1DB954, #1ed760)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', background: '#121212', border: '2px solid #121212' }}>
+                    <Link href={`/profile/${post.user_id}`} className="post-author-link">
+                        <div className="avatar-ring">
+                            <div className="avatar-inner">
                                 {profiles?.avatar_url ? (
-                                    <img src={profiles.avatar_url} alt={profiles.username || 'User'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <img src={profiles.avatar_url} alt={profiles.username || 'User'} className="avatar-img" />
                                 ) : (
-                                    <div style={{ width: '100%', height: '100%', background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{(profiles?.username?.[0] || 'U').toUpperCase()}</div>
+                                    <div className="avatar-placeholder">{(profiles?.username?.[0] || 'U').toUpperCase()}</div>
                                 )}
                             </div>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ fontWeight: '700', fontSize: '0.95rem', margin: 0, lineHeight: 1 }}>{profiles?.username || 'Unknown'}</span>
-                            <span style={{ color: '#777', fontSize: '0.8rem', lineHeight: 1 }}>&bull;</span>
-                            <span style={{ fontSize: '0.85rem', color: '#888', fontWeight: '400' }}>{timeAgo(created_at)}</span>
+                        <div className="author-meta">
+                            <span className="author-name">{profiles?.username || 'Unknown'}</span>
+                            <span className="bullet">&bull;</span>
+                            <span className="post-date">{timeAgo(created_at)}</span>
                         </div>
                     </Link>
                     <button className="more-btn">
@@ -248,7 +248,7 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
             <style jsx>{`
                 .feed-post-wrapper {
                     position: relative;
-                    border-radius: 16px;
+                    border-radius: 24px;
                     width: 100%;
                     break-inside: avoid;
                     overflow: hidden;
@@ -262,37 +262,117 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                 .feed-post {
                     position: relative;
                     z-index: 1;
-                    background: #181818;
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    border-radius: 16px;
+                    background: var(--md-sys-color-surface-container-low);
+                    border: 1px solid var(--md-sys-color-outline-variant);
+                    border-radius: 24px;
                     overflow: hidden;
-                    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+                    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
                     display: flex;
                     flex-direction: column;
                 }
                 
                 .feed-post:hover {
-                    transform: translateY(-4px);
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-                    border-color: rgba(255, 255, 255, 0.2);
+                    transform: translateY(-6px) scale(1.015);
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 24px rgba(255, 159, 104, 0.15);
+                    border-color: var(--md-sys-color-primary);
                 }
 
                 /* ========================
                    HEADER
                    ======================== */
                 .post-header {
-                    padding: 12px 16px;
+                    padding: 16px 20px;
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
                     flex-shrink: 0;
                 }
 
+                .post-author-link {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    gap: 12px;
+                    text-decoration: none;
+                    color: var(--md-sys-color-on-surface);
+                    transition: opacity 0.2s ease;
+                }
+
+                .post-author-link:hover {
+                    opacity: 0.9;
+                }
+
+                .avatar-ring {
+                    width: 42px;
+                    height: 42px;
+                    flex-shrink: 0;
+                    padding: 2px;
+                    background: linear-gradient(45deg, var(--md-sys-color-primary), var(--md-sys-color-secondary));
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .avatar-inner {
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    background: var(--md-sys-color-surface-container);
+                    border: 2px solid var(--md-sys-color-surface-container);
+                }
+
+                .avatar-img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                .avatar-placeholder {
+                    width: 100%;
+                    height: 100%;
+                    background: var(--md-sys-color-surface-container-highest);
+                    color: var(--md-sys-color-on-surface);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: 700;
+                }
+
+                .author-meta {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    gap: 6px;
+                }
+
+                .author-name {
+                    font-weight: 700;
+                    font-size: 0.95rem;
+                    margin: 0;
+                    line-height: 1;
+                    color: var(--md-sys-color-on-surface);
+                    font-family: var(--font-display);
+                }
+
+                .bullet {
+                    color: var(--md-sys-color-outline);
+                    font-size: 0.8rem;
+                    line-height: 1;
+                }
+
+                .post-date {
+                    font-size: 0.85rem;
+                    color: var(--md-sys-color-on-surface-variant);
+                    font-weight: 400;
+                }
+
                 /* ========================
                    BODY LAYOUTS
                    ======================== */
                 .post-body {
-                    padding: 0 16px 16px 16px;
+                    padding: 0 20px 20px 20px;
                     display: flex;
                     flex-direction: column;
                     gap: 16px;
@@ -413,14 +493,14 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     padding: 4px 8px;
                     border-radius: 12px;
                     letter-spacing: 0.5px;
-                    background: rgba(0,0,0,0.8) !important;
-                    backdrop-filter: blur(4px);
-                    border: 1px solid rgba(255,255,255,0.2) !important;
-                    color: white;
+                    background: rgba(27, 20, 19, 0.85) !important;
+                    backdrop-filter: blur(8px);
+                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    color: var(--md-sys-color-on-surface);
                 }
-                .rating-pill span.gold { color: #FFD700; border-color: #FFD700 !important; }
-                .rating-pill span.silver { color: #e2e8f0; }
-                .rating-pill span.bronze { color: #cd7f32; }
+                .rating-pill span.gold { color: var(--md-sys-color-primary); border-color: var(--md-sys-color-primary) !important; }
+                .rating-pill span.silver { color: var(--md-sys-color-tertiary); border-color: var(--md-sys-color-tertiary) !important; }
+                .rating-pill span.bronze { color: var(--md-sys-color-outline); border-color: var(--md-sys-color-outline) !important; }
 
                 /* Typography */
                 .album-meta {
@@ -432,7 +512,7 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
 
                 .album-title-link {
                     text-decoration: none;
-                    color: white;
+                    color: var(--md-sys-color-on-surface);
                     display: block;
                     width: 100%;
                 }
@@ -443,6 +523,7 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     font-weight: 700;
                     line-height: 1.25;
                     word-wrap: break-word;
+                    font-family: var(--font-display);
                 }
                 
                 .feed-post.horizontal .album-title {
@@ -451,7 +532,7 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
 
                 .artist-name {
                     font-size: 0.9rem;
-                    color: #aaa;
+                    color: var(--md-sys-color-on-surface-variant);
                     font-weight: 500;
                 }
 
@@ -459,12 +540,22 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     position: relative;
                     margin-top: 4px;
                     width: 100%;
+                    background: rgba(255, 255, 255, 0.02);
+                    padding: 12px 16px;
+                    border-radius: 16px;
+                    border-left: 3px solid var(--md-sys-color-primary);
+                }
+
+                .quote-icon {
+                    color: rgba(255, 159, 104, 0.25);
+                    margin-bottom: 4px;
+                    display: inline-block;
                 }
 
                 .review-text {
                     font-size: 0.95rem;
                     line-height: 1.6;
-                    color: #ddd;
+                    color: var(--md-sys-color-on-surface);
                     overflow: visible;
                     padding: 0;
                     border: none;
@@ -474,8 +565,8 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
 
                 /* Footer */
                 .post-footer {
-                    padding: 12px 16px;
-                    border-top: 1px solid rgba(255,255,255,0.05);
+                    padding: 12px 20px;
+                    border-top: 1px solid var(--md-sys-color-outline-variant);
                     background: transparent;
                     display: flex;
                     align-items: center;
@@ -503,32 +594,38 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     border: none;
                     display: flex;
                     align-items: center;
-                    gap: 4px;
-                    color: #888;
+                    gap: 6px;
+                    color: var(--md-sys-color-on-surface-variant);
                     cursor: pointer;
-                    padding: 4px 8px;
-                    border-radius: 6px;
-                    transition: all 0.2s;
+                    padding: 6px 12px;
+                    border-radius: 20px;
+                    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
                     text-decoration: none;
-                    font-size: 0.8rem;
+                    font-size: 0.85rem;
                     font-weight: 600;
                     line-height: 1;
                 }
 
                 .action-btn:hover {
-                    background: rgba(255, 255, 255, 0.1);
-                    color: white;
+                    background: var(--md-sys-color-primary-container);
+                    color: var(--md-sys-color-primary);
                 }
 
                 .more-btn {
                     background: none;
                     border: none;
-                    color: #555;
+                    color: var(--md-sys-color-on-surface-variant);
                     cursor: pointer;
-                    padding: 4px;
+                    padding: 8px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.2s;
                 }
                 .more-btn:hover {
-                    color: #fff;
+                    background: rgba(255, 255, 255, 0.05);
+                    color: var(--md-sys-color-on-surface);
                 }
 
                 /* Mobile Queries - Catching up to 900px for safety */
@@ -540,10 +637,12 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     }
 
                     .post-header {
-                        padding: 8px 12px;
+                        padding: 12px 16px;
                     }
-                    .post-header span {
-                        font-size: 0.75rem !important;
+                    
+                    .avatar-ring {
+                        width: 36px;
+                        height: 36px;
                     }
 
                     /* NO TRANSFORMS, JUST PURE SIZING */
@@ -600,14 +699,14 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
 
                     /* Typography Reductions */
                     .album-title, .feed-post.horizontal .album-title {
-                        font-size: 0.9rem !important; 
+                        font-size: 0.95rem !important; 
                         line-height: 1.2;
                     }
                     .artist-name {
-                        font-size: 0.75rem;
+                        font-size: 0.8rem;
                     }
                     .review-text {
-                        font-size: 0.8rem;
+                        font-size: 0.85rem;
                         line-height: 1.4;
                     }
 

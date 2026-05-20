@@ -23,7 +23,7 @@ export default function FeaturesSection() {
                 <div className="glass-panel feature-card span-2 large-card">
                     <div style={{ position: 'relative', zIndex: 2 }}>
                         <div style={{ marginBottom: '16px' }}>
-                            <Disc size={40} color="#1DB954" />
+                            <Disc size={40} color="#ff9f68" />
                         </div>
                         <h3 className="card-title">Track Your Collection</h3>
                         <p className="card-desc">

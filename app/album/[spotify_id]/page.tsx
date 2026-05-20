@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 
-import ReviewSection from '../../components/ReviewSection';
-import TrackPreview from '../../components/TrackPreview';
+import ResponsiveContentGrid from '../../components/ResponsiveContentGrid';
 import { spotifyFetch } from '@/src/lib/spotify';
 import { getSupabaseServerClient } from '@/src/lib/supabase-server';
 
@@ -92,11 +91,11 @@ export default async function AlbumPage(props: PageProps) {
   };
 
   return (
-    <main style={{ minHeight: '100vh', paddingBottom: '80px', background: '#121212', color: '#fff' }}>
+    <main style={{ minHeight: '100vh', paddingBottom: '80px', background: 'var(--md-sys-color-background)', color: 'var(--md-sys-color-on-background)', fontFamily: 'var(--font-body)' }}>
 
 
-      {/* Hero / Header Section */}
-      <div style={{ position: 'relative', overflow: 'hidden' }}>
+      {/* Hero / Header Section (Desktop Only) */}
+      <div className="desktop-only" style={{ position: 'relative', overflow: 'hidden' }}>
         {/* Blurry Background */}
         <div
           style={{
@@ -108,9 +107,9 @@ export default async function AlbumPage(props: PageProps) {
             backgroundImage: `url(${album.images?.[0]?.url})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            filter: 'blur(60px) brightness(0.4)',
+            filter: 'blur(80px) brightness(0.3)',
             zIndex: 0,
-            transform: 'scale(1.1)'
+            transform: 'scale(1.15)'
           }}
         />
 
@@ -122,34 +121,35 @@ export default async function AlbumPage(props: PageProps) {
           />
 
           <div style={{ flex: 1, minWidth: '300px' }}>
-            <h1 style={{
+            <h1 className="font-display" style={{
               fontSize: 'clamp(2.5rem, 5vw, 4rem)',
               fontWeight: 800,
               margin: '0 0 16px',
               lineHeight: 1.1,
-              textShadow: '0 4px 12px rgba(0,0,0,0.5)'
+              letterSpacing: '-0.03em',
+              textShadow: '0 4px 20px rgba(0,0,0,0.6)'
             }}>
               {album.name}
             </h1>
-            <p style={{ fontSize: '1.5rem', fontWeight: 600, margin: '0 0 8px', color: 'rgba(255,255,255,0.9)' }}>
+            <p className="font-display" style={{ fontSize: '1.5rem', fontWeight: 600, margin: '0 0 8px', color: 'rgba(255,255,255,0.95)' }}>
               {artistNames}
             </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '0.95rem', color: 'rgba(255,255,255,0.8)', fontWeight: 500, marginTop: '16px' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '24px' }}>
+              <span className="m3-badge">
                 📅 {releaseYear}
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span className="m3-badge">
                 🎵 {genreList}
               </span>
               {reviews.length > 0 && (
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#FFD700', fontWeight: 'bold' }}>
+                <span className="m3-badge-accent">
                   ⭐ {(reviews.reduce((acc: number, r: any) => acc + (r.rating || 0), 0) / reviews.length).toFixed(1)}/10
                 </span>
               )}
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span className="m3-badge">
                 💬 {reviews.length} Reviews
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span className="m3-badge">
                 💿 {album.total_tracks} tracks
               </span>
             </div>
@@ -157,50 +157,15 @@ export default async function AlbumPage(props: PageProps) {
         </div>
       </div>
 
-      {/* Content Split: Tracklist vs Reviews */}
-      <div className="content-grid">
-        {/* Left Column: Tracklist */}
-        <section>
-          <h3 style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '16px', marginBottom: '16px', fontSize: '1.1rem', letterSpacing: '1px', textTransform: 'uppercase' }}>
-            Tracklist
-          </h3>
-          <div>
-            {album.tracks.items.map((track: any, index: number) => (
-              <div
-                key={track.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '12px 8px',
-                  borderBottom: '1px solid rgba(255,255,255,0.05)',
-                  fontSize: '0.95rem',
-                }}
-              >
-                <span style={{ width: '32px', color: 'var(--text-secondary)', textAlign: 'right', marginRight: '16px' }}>
-                  {index + 1}
-                </span>
-
-                <TrackPreview
-                  previewUrl={track.preview_url}
-                  spotifyUrl={track.external_urls?.spotify || '#'}
-                />
-
-                <div style={{ flex: 1 }}>
-                  <span style={{ display: 'block', color: '#fff' }}>{track.name}</span>
-                </div>
-                <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                  {msToTime(track.duration_ms)}
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Right Column: Review Section */}
-        <section>
-          <ReviewSection initialReviews={reviews} albumData={albumData} currentUser={user} />
-        </section>
-      </div>
+      <ResponsiveContentGrid
+        tracks={album.tracks.items}
+        reviews={reviews}
+        albumData={albumData}
+        currentUser={user}
+        genreList={genreList}
+        releaseYear={releaseYear}
+        totalTracks={album.total_tracks}
+      />
     </main>
   );
 }

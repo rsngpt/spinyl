@@ -1,17 +1,20 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { Play, Pause, Music, Volume2 } from 'lucide-react';
 
 type TrackPreviewProps = {
     previewUrl: string | null;
     spotifyUrl: string;
+    onPlayEmbed?: () => void;
+    isActive?: boolean;
 };
 
 // Global state to ensure only one track plays at a time
 // This is a simple event bus implementation
 const previewEvents = new EventTarget();
 
-export default function TrackPreview({ previewUrl, spotifyUrl }: TrackPreviewProps) {
+export default function TrackPreview({ previewUrl, spotifyUrl, onPlayEmbed, isActive }: TrackPreviewProps) {
     const [isPlaying, setIsPlaying] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -33,6 +36,46 @@ export default function TrackPreview({ previewUrl, spotifyUrl }: TrackPreviewPro
         };
     }, []);
 
+    // If an embedded play action is registered, bypass the HTML5 audio preview logic
+    if (onPlayEmbed) {
+        return (
+            <button
+                onClick={onPlayEmbed}
+                title={isActive ? "Playing in Spotify Player" : "Play in Spotify Player"}
+                style={{
+                    marginRight: '12px',
+                    width: '36px',
+                    height: '36px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: isActive ? 'var(--md-sys-color-primary-container)' : 'rgba(255, 255, 255, 0.04)',
+                    border: isActive ? '1px solid var(--md-sys-color-primary)' : '1px solid var(--md-sys-color-outline-variant)',
+                    borderRadius: 'var(--md-shape-corner-full)',
+                    color: isActive ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-on-surface)',
+                    cursor: 'pointer',
+                    transition: 'var(--transition)',
+                }}
+                onMouseOver={(e) => {
+                    if (!isActive) {
+                        e.currentTarget.style.background = 'var(--md-sys-color-surface-container-high)';
+                        e.currentTarget.style.borderColor = 'var(--md-sys-color-outline)';
+                    }
+                    e.currentTarget.style.transform = 'scale(1.08)';
+                }}
+                onMouseOut={(e) => {
+                    if (!isActive) {
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                        e.currentTarget.style.borderColor = 'var(--md-sys-color-outline-variant)';
+                    }
+                    e.currentTarget.style.transform = 'none';
+                }}
+            >
+                {isActive ? <Volume2 size={16} className="animate-pulse" /> : <Play size={14} />}
+            </button>
+        );
+    }
+
     if (!previewUrl) {
         return (
             <a
@@ -42,22 +85,29 @@ export default function TrackPreview({ previewUrl, spotifyUrl }: TrackPreviewPro
                 title="Open in Spotify"
                 style={{
                     marginRight: '12px',
-                    width: '32px',
-                    height: '32px',
+                    width: '36px',
+                    height: '36px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    background: 'rgba(255,255,255,0.1)',
-                    borderRadius: '50%',
-                    textDecoration: 'none',
-                    color: '#1DB954', // Spotify Green
-                    fontSize: '1.2rem',
-                    transition: 'all 0.2s'
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid var(--md-sys-color-outline-variant)',
+                    borderRadius: 'var(--md-shape-corner-full)',
+                    color: 'var(--md-sys-color-secondary)',
+                    transition: 'var(--transition)',
                 }}
-                onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-                onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                onMouseOver={(e) => {
+                    e.currentTarget.style.background = 'var(--md-sys-color-secondary-container)';
+                    e.currentTarget.style.borderColor = 'var(--md-sys-color-secondary)';
+                    e.currentTarget.style.transform = 'scale(1.08)';
+                }}
+                onMouseOut={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                    e.currentTarget.style.borderColor = 'var(--md-sys-color-outline-variant)';
+                    e.currentTarget.style.transform = 'none';
+                }}
             >
-                <span>🎧</span>
+                <Music size={14} />
             </a>
         );
     }
@@ -87,22 +137,34 @@ export default function TrackPreview({ previewUrl, spotifyUrl }: TrackPreviewPro
             <button
                 onClick={togglePlay}
                 style={{
-                    background: 'transparent',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '50%',
-                    width: '32px',
-                    height: '32px',
+                    background: isPlaying ? 'var(--md-sys-color-primary-container)' : 'rgba(255, 255, 255, 0.04)',
+                    border: isPlaying ? '1px solid var(--md-sys-color-primary)' : '1px solid var(--md-sys-color-outline-variant)',
+                    borderRadius: 'var(--md-shape-corner-full)',
+                    width: '36px',
+                    height: '36px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    color: isPlaying ? 'var(--primary)' : '#fff',
-                    transition: 'all 0.2s',
+                    color: isPlaying ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-on-surface)',
+                    transition: 'var(--transition)',
                 }}
-                onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
-                onMouseOut={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'}
+                onMouseOver={(e) => {
+                    if (!isPlaying) {
+                        e.currentTarget.style.background = 'var(--md-sys-color-surface-container-high)';
+                        e.currentTarget.style.borderColor = 'var(--md-sys-color-outline)';
+                    }
+                    e.currentTarget.style.transform = 'scale(1.08)';
+                }}
+                onMouseOut={(e) => {
+                    if (!isPlaying) {
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                        e.currentTarget.style.borderColor = 'var(--md-sys-color-outline-variant)';
+                    }
+                    e.currentTarget.style.transform = 'none';
+                }}
             >
-                {isPlaying ? '⏸' : '▶'}
+                {isPlaying ? <Pause size={14} /> : <Play size={14} />}
             </button>
         </div>
     );

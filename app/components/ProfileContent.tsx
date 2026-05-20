@@ -5,6 +5,8 @@ import Link from 'next/link';
 import LikeButton from './LikeButton';
 import FollowButton from './FollowButton';
 import VinylRecordDisplay from './VinylRecordDisplay';
+import { formatLongDate } from '../../src/lib/date-utils';
+
 
 interface ProfileContentProps {
     reviews: any[];
@@ -44,8 +46,8 @@ export default function ProfileContent({
             {activeTab === id && (
                 <div style={{
                     position: 'absolute', bottom: 0, left: 0, right: 0, height: '3px',
-                    background: '#1ed760',
-                    boxShadow: '0 -2px 10px rgba(30,215,96,0.5)',
+                    background: 'var(--md-sys-color-primary)',
+                    boxShadow: '0 -2px 10px rgba(255, 159, 104, 0.5)',
                     borderRadius: '3px 3px 0 0'
                 }} />
             )}
@@ -133,7 +135,7 @@ export default function ProfileContent({
                                             initialLikeCount={review.likes_count}
                                         />
                                         <span style={{ fontStyle: 'italic', color: '#555' }}>
-                                            {new Date(review.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            {formatLongDate(review.created_at)}
                                         </span>
                                     </div>
                                 </Link>

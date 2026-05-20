@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { postHotTakeComment } from '../../actions/hot_takes';
 import { Send } from 'lucide-react';
 import Link from 'next/link';
+import { formatFriendlyDate } from '../../../src/lib/date-utils';
+
 
 interface Comment {
     id: string;
@@ -36,8 +38,9 @@ const timeAgo = (dateStr: string) => {
     if (hours < 24) return `${hours}h`;
     const days = Math.floor(hours / 24);
     if (days < 7) return `${days}d`;
-    return date.toLocaleDateString();
+    return formatFriendlyDate(date);
 };
+
 
 export default function HotTakeComments({ hotTakeId, initialComments, user, userProfile }: HotTakeCommentsProps) {
     const [comments, setComments] = useState<Comment[]>(initialComments);

@@ -142,7 +142,7 @@ const InstagramStoryCard = forwardRef<HTMLDivElement, InstagramStoryCardProps>((
                         width: '580px',
                         height: '580px',
                         zIndex: 1,
-                        animation: 'spin 10s linear infinite',
+                        animation: 'spin-slow 10s linear infinite',
                         filter: 'drop-shadow(10px 0 20px rgba(0,0,0,0.6))'
                     }}>
                         <VinylRatingInput value={rating} onChange={() => { }} readonly />

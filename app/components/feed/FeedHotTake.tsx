@@ -109,21 +109,22 @@ export default function FeedHotTake({ item, isDetailView = false }: FeedHotTakeP
 
             <style jsx>{`
                 .hot-take-card {
-                    background: linear-gradient(135deg, #1e1e1e 0%, #121212 100%);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 16px;
+                    background: var(--md-sys-color-surface-container-low);
+                    border: 1px solid var(--md-sys-color-outline-variant);
+                    border-radius: 24px;
                     padding: 24px;
                     display: flex;
                     flex-direction: column;
                     gap: 16px;
                     position: relative;
                     overflow: hidden;
-                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
                 }
 
                 .hot-take-card:hover {
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-                    border-color: rgba(255, 25, 25, 0.3);
+                    transform: translateY(-6px) scale(1.015);
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 24px rgba(255, 159, 104, 0.15);
+                    border-color: var(--md-sys-color-primary);
                 }
 
                 .hot-take-header {
@@ -132,12 +133,12 @@ export default function FeedHotTake({ item, isDetailView = false }: FeedHotTakeP
                 }
 
                 .hot-take-badge {
-                    background: #E50914;
-                    color: white;
-                    font-size: 0.65rem;
-                    font-weight: 900;
-                    padding: 4px 8px;
-                    border-radius: 4px;
+                    background: var(--md-sys-color-primary-container);
+                    color: var(--md-sys-color-primary);
+                    font-size: 0.7rem;
+                    font-weight: 800;
+                    padding: 4px 10px;
+                    border-radius: 8px;
                     letter-spacing: 1px;
                 }
 
@@ -149,25 +150,26 @@ export default function FeedHotTake({ item, isDetailView = false }: FeedHotTakeP
                 }
 
                 .quote-icon {
-                    color: rgba(229, 9, 20, 0.3);
+                    color: rgba(255, 159, 104, 0.15);
                     position: absolute;
                     top: -10px;
                     left: -10px;
                 }
 
                 .hot-take-content {
-                    font-size: 1.1rem;
+                    font-size: 1.15rem;
                     font-weight: 600;
                     line-height: 1.5;
-                    color: #fff;
+                    color: var(--md-sys-color-on-surface);
                     margin: 0;
                     z-index: 1;
+                    font-family: var(--font-display);
                 }
 
                 .hot-take-footer {
                     margin-top: 8px;
                     padding-top: 16px;
-                    border-top: 1px solid rgba(255, 255, 255, 0.05);
+                    border-top: 1px solid var(--md-sys-color-outline-variant);
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
@@ -183,17 +185,18 @@ export default function FeedHotTake({ item, isDetailView = false }: FeedHotTakeP
                 }
 
                 .mini-avatar {
-                    width: 24px;
-                    height: 24px;
+                    width: 28px;
+                    height: 28px;
                     border-radius: 50%;
                     overflow: hidden;
-                    background: #333;
+                    background: var(--md-sys-color-surface-container-highest);
+                    border: 1px solid var(--md-sys-color-outline-variant);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 0.7rem;
+                    font-size: 0.75rem;
                     font-weight: bold;
-                    color: #fff;
+                    color: var(--md-sys-color-on-surface);
                 }
 
                 .mini-avatar img {
@@ -204,7 +207,13 @@ export default function FeedHotTake({ item, isDetailView = false }: FeedHotTakeP
 
                 .username {
                     font-size: 0.85rem;
-                    color: #888;
+                    color: var(--md-sys-color-on-surface-variant);
+                    font-weight: 500;
+                    transition: color 0.2s;
+                }
+
+                .hot-take-user:hover .username {
+                    color: var(--md-sys-color-primary);
                 }
 
                 .hot-take-actions {
@@ -236,8 +245,9 @@ export default function FeedHotTake({ item, isDetailView = false }: FeedHotTakeP
                 .vote-pill {
                     display: flex;
                     align-items: center;
-                    background: rgba(255, 255, 255, 0.05);
-                    border-radius: 20px;
+                    background: var(--md-sys-color-surface-container-high);
+                    border: 1px solid var(--md-sys-color-outline-variant);
+                    border-radius: 24px;
                     padding: 4px;
                     gap: 4px;
                 }
@@ -245,55 +255,60 @@ export default function FeedHotTake({ item, isDetailView = false }: FeedHotTakeP
                 .vote-btn {
                     background: transparent;
                     border: none;
-                    color: #888;
+                    color: var(--md-sys-color-on-surface-variant);
                     cursor: pointer;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    padding: 4px;
+                    padding: 6px;
                     border-radius: 50%;
                     transition: all 0.2s;
                 }
 
                 .vote-btn:hover {
-                    background: rgba(255, 255, 255, 0.1);
-                    color: #fff;
+                    background: rgba(255, 255, 255, 0.05);
+                    color: var(--md-sys-color-on-surface);
                 }
 
                 .vote-btn.up.active {
-                    color: #4CAF50;
+                    color: var(--md-sys-color-primary);
+                    background: var(--md-sys-color-primary-container);
                 }
                 
                 .vote-btn.down.active {
-                    color: #E50914;
+                    color: var(--md-sys-color-error);
+                    background: rgba(255, 180, 171, 0.15);
                 }
 
                 .score {
-                    font-size: 0.9rem;
-                    font-weight: 700;
-                    min-width: 20px;
+                    font-size: 0.95rem;
+                    font-weight: 800;
+                    min-width: 24px;
                     text-align: center;
-                    color: #fff;
+                    color: var(--md-sys-color-on-surface);
                 }
                 
                 .score.voted {
-                    /* color: #E50914; */ /* Optional: color score when voted */
+                    /* Optional styling when voted */
                 }
 
                 .comment-btn {
                     background: transparent;
                     border: none;
-                    color: #888;
+                    color: var(--md-sys-color-on-surface-variant);
                     cursor: pointer;
                     display: flex;
                     align-items: center;
                     gap: 6px;
-                    transition: color 0.2s;
+                    transition: all 0.2s;
                     font-size: 0.9rem;
+                    padding: 6px 12px;
+                    border-radius: 20px;
                 }
 
                 .comment-btn:hover {
-                    color: #fff;
+                    background: var(--md-sys-color-surface-container-high);
+                    color: var(--md-sys-color-primary);
                 }
 
                 .hot-take-card::before {
@@ -301,9 +316,9 @@ export default function FeedHotTake({ item, isDetailView = false }: FeedHotTakeP
                     position: absolute;
                     top: 0;
                     right: 0;
-                    width: 100px;
-                    height: 100px;
-                    background: radial-gradient(circle at top right, rgba(229, 9, 20, 0.1), transparent 70%);
+                    width: 120px;
+                    height: 120px;
+                    background: radial-gradient(circle at top right, rgba(255, 159, 104, 0.15), transparent 70%);
                     pointer-events: none;
                 }
                 
