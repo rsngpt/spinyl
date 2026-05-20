@@ -8,7 +8,7 @@ export default function FeaturesSection() {
         <section className="features-section">
             {/* Section Header */}
             <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-                <h2 className="text-gradient section-title">
+                <h2 className="section-title">
                     Beyond The Needle
                 </h2>
                 <p className="section-subtitle">
@@ -20,13 +20,13 @@ export default function FeaturesSection() {
             <div className="features-grid">
 
                 {/* Feature 1: Catalog (Large) */}
-                <div className="glass-panel feature-card span-2 large-card">
+                <div className="feature-card span-2 large-card">
                     <div style={{ position: 'relative', zIndex: 2 }}>
                         <div style={{ marginBottom: '16px' }}>
-                            <Disc size={40} color="#ff9f68" />
+                            <Disc size={40} color="var(--md-sys-color-primary)" />
                         </div>
-                        <h3 className="card-title">Track Your Collection</h3>
-                        <p className="card-desc">
+                        <h3 className="card-title" style={{ fontSize: '1.8rem', fontWeight: 800 }}>Track Your Collection</h3>
+                        <p className="card-desc" style={{ fontSize: '1rem', maxWidth: '80%' }}>
                             Build your digital library. Rate albums, write reviews, and keep track of your spinning history.
                         </p>
                     </div>
@@ -35,9 +35,9 @@ export default function FeaturesSection() {
                 </div>
 
                 {/* Feature 2: Community */}
-                <div className="glass-panel feature-card">
+                <div className="feature-card">
                     <div className="icon-box">
-                        <MessageCircle size={24} color="#fff" />
+                        <MessageCircle size={24} color="var(--md-sys-color-primary)" />
                     </div>
                     <div>
                         <h3 className="card-title">Join the Talk</h3>
@@ -48,9 +48,9 @@ export default function FeaturesSection() {
                 </div>
 
                 {/* Feature 3: Discovery */}
-                <div className="glass-panel feature-card">
+                <div className="feature-card">
                     <div className="icon-box discovery-icon">
-                        <Search size={24} color="#fff" />
+                        <Search size={24} color="var(--md-sys-color-on-primary)" />
                     </div>
                     <div>
                         <h3 className="card-title">Discover Gems</h3>
@@ -61,7 +61,7 @@ export default function FeaturesSection() {
                 </div>
 
                 {/* Feature 4: Profile (Wide) */}
-                <div className="glass-panel feature-card span-2 profile-card">
+                <div className="feature-card span-2 profile-card">
                     <div style={{ maxWidth: '60%' }}>
                         <h3 className="card-title">Show off your taste</h3>
                         <p className="card-desc">
@@ -70,7 +70,7 @@ export default function FeaturesSection() {
                     </div>
                     {/* Mini Profile Mockup */}
                     <div className="mini-profile">
-                        <User size={32} color="#fff" />
+                        <User size={32} color="var(--md-sys-color-primary)" />
                     </div>
                 </div>
 
@@ -85,15 +85,19 @@ export default function FeaturesSection() {
                     z-index: 2;
                 }
                 .section-title {
-                    fontSize: 3rem;
-                    fontWeight: 800;
-                    letterSpacing: -0.02em;
-                    marginBottom: 16px;
+                    font-family: var(--font-display);
+                    font-size: 3rem;
+                    font-weight: 800;
+                    letter-spacing: -0.03em;
+                    margin-bottom: 16px;
+                    background: linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-tertiary) 100%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
                 }
                 .section-subtitle {
-                    color: rgba(255,255,255,0.6);
-                    fontSize: 1.2rem;
-                    maxWidth: 600px;
+                    color: var(--md-sys-color-on-surface-variant);
+                    font-size: 1.2rem;
+                    max-width: 600px;
                     margin: 0 auto;
                 }
 
@@ -109,50 +113,42 @@ export default function FeaturesSection() {
                     display: flex;
                     flex-direction: column;
                     justify-content: space-between;
-                    background: rgba(255,255,255,0.03);
-                    border: 1px solid rgba(255,255,255,0.08);
-                    border-radius: 24px;
+                    background: var(--md-sys-color-surface-container-low);
+                    border: 1px solid var(--md-sys-color-outline-variant);
+                    border-radius: var(--md-shape-corner-extra-large);
                     min-height: 300px;
                     position: relative;
                     overflow: hidden;
-                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                    transition: var(--transition-spring);
                 }
                 .feature-card:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.2);
+                    transform: scale(1.03) translateY(-4px);
+                    background: var(--md-sys-color-surface-container);
+                    box-shadow: 0 12px 30px rgba(0,0,0,0.3), 0 0 20px rgba(255, 159, 104, 0.15);
                 }
 
                 .large-card {
                     justify-content: flex-end;
-                    background: linear-gradient(135deg, rgba(29, 185, 84, 0.1), rgba(255,255,255,0.05));
+                    background: linear-gradient(135deg, var(--md-sys-color-primary-container) 0%, var(--md-sys-color-surface-container-low) 100%);
                 }
                 .profile-card {
                     flex-direction: row;
                     align-items: center;
                     min-height: 200px;
-                    background: linear-gradient(to right, rgba(255,255,255,0.02), rgba(255,255,255,0.05));
+                    background: linear-gradient(to right, var(--md-sys-color-surface-container-low), var(--md-sys-color-surface-container-highest));
                 }
 
                 .card-title {
-                    color: #fff;
-                    fontSize: 1.5rem; /* Reduced slightly */
-                    fontWeight: 600;
-                    marginBottom: 8px;
-                }
-                .large-card .card-title {
-                    fontSize: 1.8rem;
-                    fontWeight: 700;
-                    marginBottom: 12px;
+                    color: var(--md-sys-color-on-surface);
+                    font-family: var(--font-display);
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    margin-bottom: 8px;
                 }
 
                 .card-desc {
-                    color: rgba(255,255,255,0.6);
-                    fontSize: 0.95rem;
-                }
-                .large-card .card-desc {
-                    color: rgba(255,255,255,0.7);
-                    fontSize: 1rem;
-                    maxWidth: 80%;
+                    color: var(--md-sys-color-on-surface-variant);
+                    font-size: 0.95rem;
                 }
 
                 .card-decor {
@@ -161,35 +157,39 @@ export default function FeaturesSection() {
                     right: -10%;
                     width: 300px;
                     height: 300px;
-                    background: radial-gradient(circle, rgba(29,185,84,0.4) 0%, rgba(0,0,0,0) 70%);
+                    background: radial-gradient(circle, var(--md-sys-color-primary-container) 0%, rgba(0,0,0,0) 70%);
                     filter: blur(60px);
                     z-index: 1;
+                    opacity: 0.6;
                 }
 
                 .icon-box {
                     width: 50px;
                     height: 50px;
-                    border-radius: 12px;
-                    background: rgba(255,255,255,0.1);
+                    border-radius: var(--md-shape-corner-medium);
+                    background: var(--md-sys-color-surface-container-high);
+                    border: 1px solid var(--md-sys-color-outline-variant);
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     margin-bottom: 20px;
                 }
                 .discovery-icon {
-                    border-radius: 50%;
-                    background: linear-gradient(45deg, #ff3366, #ff6b6b);
-                    box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);
+                    border-radius: var(--md-shape-corner-full);
+                    background: linear-gradient(45deg, var(--md-sys-color-primary), var(--md-sys-color-tertiary));
+                    box-shadow: 0 4px 15px rgba(255, 159, 104, 0.3);
+                    border: none;
                 }
                 .mini-profile {
                     width: 80px;
                     height: 80px;
-                    border-radius: 50%;
-                    background: #333;
-                    border: 4px solid rgba(255,255,255,0.1);
+                    border-radius: var(--md-shape-corner-full);
+                    background: var(--md-sys-color-surface-container-highest);
+                    border: 4px solid var(--md-sys-color-outline-variant);
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
                 }
 
                 /* Desktop specific */
@@ -202,26 +202,26 @@ export default function FeaturesSection() {
                 /* MOBILE OPTIMIZATIONS */
                 @media (max-width: 899px) {
                     .features-section {
-                        padding: 40px 16px; /* Reduced padding */
+                        padding: 40px 16px;
                     }
                     .section-title {
-                        font-size: 2rem; /* Smaller header */
+                        font-size: 2.2rem;
                     }
                     .features-grid {
-                        grid-template-columns: 1fr; /* Single column */
-                        gap: 16px; /* Smaller gap */
+                        grid-template-columns: 1fr;
+                        gap: 16px;
                         grid-auto-rows: auto;
                     }
                     .span-2 {
-                        grid-column: auto; /* Stack everything */
+                        grid-column: auto;
                     }
                     
                     .feature-card {
-                        min-height: auto; /* Allow auto height */
+                        min-height: auto;
                         padding: 24px;
                     }
                     .large-card {
-                        min-height: 250px; /* Keep some height for the big one */
+                        min-height: 250px;
                     }
                     .profile-card {
                         min-height: auto;
@@ -234,15 +234,7 @@ export default function FeaturesSection() {
                         max-width: 100%;
                     }
                     .mini-profile {
-                        align-self: flex-start; /* Left align profile icon on mobile */
-                    }
-                    
-                    /* Adjust font sizes */
-                    .large-card .card-title {
-                        font-size: 1.5rem;
-                    }
-                    .card-title {
-                        font-size: 1.25rem;
+                        align-self: flex-start;
                     }
                 }
             `}</style>

@@ -71,7 +71,7 @@ export default async function NotificationsPage() {
 
         const [actorsRes, commentsRes] = await Promise.all([
             actorIds.length > 0 ? supabase.from('profiles').select('id, username, avatar_url').in('id', actorIds) : { data: [] },
-            commentIds.length > 0 ? supabase.from('comments').select('id, review_id').in('id', commentIds) : { data: [] }
+            commentIds.length > 0 ? supabase.from('comments').select('id, review_id, reviews(id, albums(spotify_id))').in('id', commentIds) : { data: [] }
         ]);
 
         const actorMap = new Map(actorsRes.data?.map((a: any) => [a.id, a] as [any, any]) || []);
@@ -109,6 +109,7 @@ export default async function NotificationsPage() {
         resource_id: n.resource_id,
         actor: n.actor,
         comment_id: n.comment_id,
+        comments: n.comments,
         review_id: n.comments?.review_id
     }));
 

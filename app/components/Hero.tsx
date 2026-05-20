@@ -19,13 +19,25 @@ export default function Hero() {
                 position: 'absolute',
                 top: '20%',
                 left: '20%',
-                width: '400px',
-                height: '400px',
-                background: 'rgba(29, 185, 84, 0.15)',
+                width: '450px',
+                height: '450px',
+                background: 'radial-gradient(circle, rgba(255, 159, 104, 0.15) 0%, rgba(0,0,0,0) 70%)',
                 filter: 'blur(100px)',
                 borderRadius: '50%',
                 zIndex: 0,
-                animation: 'pulse 5s ease-in-out infinite'
+                animation: 'pulse 6s ease-in-out infinite'
+            }} />
+            <div style={{
+                position: 'absolute',
+                bottom: '10%',
+                right: '15%',
+                width: '350px',
+                height: '350px',
+                background: 'radial-gradient(circle, rgba(255, 209, 102, 0.08) 0%, rgba(0,0,0,0) 70%)',
+                filter: 'blur(80px)',
+                borderRadius: '50%',
+                zIndex: 0,
+                animation: 'pulse 8s ease-in-out infinite'
             }} />
 
             <div style={{
@@ -42,70 +54,78 @@ export default function Hero() {
                 <div style={{ textAlign: 'left' }}>
                     <div style={{
                         display: 'inline-block',
-                        padding: '8px 16px',
-                        background: 'rgba(255, 159, 104, 0.1)',
-                        border: '1px solid rgba(255, 159, 104, 0.3)',
-                        borderRadius: '50px',
-                        color: '#ffb488',
-                        fontSize: '0.9rem',
-                        fontWeight: 600,
+                        padding: '8px 20px',
+                        background: 'var(--md-sys-color-primary-container)',
+                        border: '1px solid var(--md-sys-color-outline-variant)',
+                        borderRadius: 'var(--md-shape-corner-full)',
+                        color: 'var(--md-sys-color-primary)',
+                        fontSize: '0.85rem',
+                        fontWeight: 700,
                         marginBottom: '24px',
-                        letterSpacing: '1px',
-                        textTransform: 'uppercase'
+                        letterSpacing: '1.5px',
+                        textTransform: 'uppercase',
+                        boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
                     }} className="animate-fade-in-up">
-                        Welcome to Spinyl
+                        ✨ Welcome to Spinyl
                     </div>
 
                     <h1 className="animate-fade-in-up" style={{
-                        fontSize: 'clamp(3rem, 5vw, 4.5rem)', // Responsive font size
+                        fontSize: 'clamp(3rem, 5vw, 4.5rem)',
                         lineHeight: '1.1',
                         fontWeight: 800,
+                        fontFamily: 'var(--font-display)',
                         marginBottom: '24px',
-                        color: '#fff',
-                        animationDelay: '0.1s'
+                        color: 'var(--md-sys-color-on-background)',
+                        animationDelay: '0.1s',
+                        letterSpacing: '-0.02em'
                     }}>
                         Discover Your <br />
-                        <span className="text-gradient">Next Favorite Album</span>
+                        <span style={{
+                            background: 'linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-tertiary) 100%)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent'
+                        }}>Next Favorite Album</span>
                     </h1>
 
                     <p className="animate-fade-in-up" style={{
-                        fontSize: '1.2rem',
-                        color: '#B3B3B3',
+                        fontSize: '1.15rem',
+                        color: 'var(--md-sys-color-on-surface-variant)',
                         lineHeight: '1.6',
                         marginBottom: '40px',
                         maxWidth: '500px',
                         animationDelay: '0.2s'
                     }}>
-                        Join a community of music lovers. connect with your favorite tunes, share reviews, and uncover hidden gems.
+                        Join a community of music lovers. Connect with your favorite tunes, share reviews, and uncover hidden gems.
                     </p>
 
                     <div className="animate-fade-in-up" style={{ display: 'flex', gap: '20px', animationDelay: '0.3s' }}>
                         <Link
                             href="/explore"
                             style={{
-                                padding: '16px 32px',
-                                background: '#ff9f68',
-                                color: '#4e260f',
-                                borderRadius: '500px',
+                                padding: '16px 36px',
+                                background: 'var(--md-sys-color-primary)',
+                                color: 'var(--md-sys-color-on-primary)',
+                                borderRadius: 'var(--md-shape-corner-full)',
                                 fontWeight: 700,
-                                fontSize: '1.1rem',
+                                fontSize: '1.05rem',
                                 border: 'none',
                                 cursor: 'pointer',
-                                transition: 'transform 0.2s, box-shadow 0.2s',
+                                transition: 'var(--transition-spring)',
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: '8px',
+                                gap: '10px',
                                 position: 'relative',
                                 zIndex: 10,
-                                textDecoration: 'none'
+                                textDecoration: 'none',
+                                boxShadow: '0 4px 15px rgba(255, 159, 104, 0.2)'
                             }}
                             onMouseOver={(e) => {
-                                e.currentTarget.style.transform = 'scale(1.05)';
-                                e.currentTarget.style.boxShadow = '0 0 30px rgba(255, 159, 104, 0.4)';
+                                e.currentTarget.style.transform = 'scale(1.05) translateY(-2px)';
+                                e.currentTarget.style.boxShadow = '0 8px 25px rgba(255, 159, 104, 0.4)';
                             }}
                             onMouseOut={(e) => {
-                                e.currentTarget.style.transform = 'scale(1)';
-                                e.currentTarget.style.boxShadow = 'none';
+                                e.currentTarget.style.transform = 'scale(1) translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 159, 104, 0.2)';
                             }}
                         >
                             Start Exploring
@@ -113,7 +133,7 @@ export default function Hero() {
                     </div>
                 </div>
 
-                {/* Right: Floating Visual (Hidden on mobile via CSS usually, or just stacked) */}
+                {/* Right: Floating Visual */}
                 <div style={{
                     display: 'flex',
                     justifyContent: 'center',
@@ -128,13 +148,13 @@ export default function Hero() {
                         justifyContent: 'center',
                         cursor: 'pointer'
                     }}>
-                        {/* Decorative Circle (Simulating a record or abstract sound wave) */}
-                        {/* New Larger Rings */}
+                        {/* Orbit Rings */}
                         <div style={{
                             position: 'absolute',
                             width: '130%',
                             height: '130%',
-                            border: '1px solid rgba(255,255,255,0.08)',
+                            border: '1px solid var(--md-sys-color-outline-variant)',
+                            opacity: 0.3,
                             borderRadius: '50%',
                             left: '50%',
                             top: '50%',
@@ -145,7 +165,8 @@ export default function Hero() {
                             position: 'absolute',
                             width: '160%',
                             height: '160%',
-                            border: '1px solid rgba(255,255,255,0.06)',
+                            border: '1px solid var(--md-sys-color-outline-variant)',
+                            opacity: 0.2,
                             borderRadius: '50%',
                             left: '50%',
                             top: '50%',
@@ -156,7 +177,8 @@ export default function Hero() {
                             position: 'absolute',
                             width: '190%',
                             height: '190%',
-                            border: '1px solid rgba(255,255,255,0.04)',
+                            border: '1px solid var(--md-sys-color-outline-variant)',
+                            opacity: 0.1,
                             borderRadius: '50%',
                             left: '50%',
                             top: '50%',
@@ -168,18 +190,19 @@ export default function Hero() {
                             position: 'absolute',
                             width: '100%',
                             height: '100%',
-                            border: '1px solid rgba(255,255,255,0.1)',
+                            border: '1px solid var(--md-sys-color-outline-variant)',
+                            opacity: 0.4,
                             borderRadius: '50%',
                         }} />
                         <div style={{
                             position: 'absolute',
                             width: '80%',
                             height: '80%',
-                            border: '1px solid rgba(255,255,255,0.1)',
+                            border: '1px solid var(--md-sys-color-outline-variant)',
+                            opacity: 0.2,
                             borderRadius: '50%',
                         }} />
 
-                        {/* The Record */}
                         {/* The Record */}
                         <div className="animate-spin-slow" style={{
                             width: '320px',
@@ -191,19 +214,19 @@ export default function Hero() {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            border: '2px solid #333',
-                            animationDuration: '4s' // Faster rotation for realism
+                            border: '2px solid var(--md-sys-color-outline-variant)',
+                            animationDuration: '4s'
                         }}>
                             {/* Record Label */}
                             <div style={{
                                 width: '80px',
                                 height: '80px',
                                 borderRadius: '50%',
-                                background: '#ff9f68',
+                                background: 'linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-tertiary) 100%)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                boxShadow: 'inset 0 0 20px rgba(0,0,0,0.2)',
+                                boxShadow: 'inset 0 0 20px rgba(0,0,0,0.3)',
                                 position: 'relative'
                             }}>
                                 {/* Decorative Ring */}
@@ -211,16 +234,16 @@ export default function Hero() {
                                     position: 'absolute',
                                     width: '85%',
                                     height: '85%',
-                                    border: '1px solid rgba(255,255,255,0.3)',
+                                    border: '1.5px dashed rgba(255,255,255,0.4)',
                                     borderRadius: '50%'
                                 }} />
 
                                 <span style={{
                                     fontSize: '3rem',
-                                    fontWeight: '800',
+                                    fontWeight: '900',
                                     color: '#fff',
-                                    fontFamily: 'var(--font-family)',
-                                    textShadow: '2px 2px 0px rgba(0,0,0,0.2)',
+                                    fontFamily: 'var(--font-display)',
+                                    textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
                                     marginBottom: '2px'
                                 }}>S</span>
                             </div>
@@ -234,7 +257,6 @@ export default function Hero() {
                             width: '120px',
                             height: '180px',
                             pointerEvents: 'none',
-                            // Transform handled by CSS class .tone-arm
                             filter: 'drop-shadow(5px 5px 10px rgba(0,0,0,0.5))'
                         }}>
                             {/* Pivot Base */}
@@ -276,16 +298,17 @@ export default function Hero() {
                         {/* Floating Review 1 - Top Left (High) */}
                         <div style={{
                             position: 'absolute',
-                            top: '-20px',
+                            top: '-25px',
                             left: '0px',
-                            background: 'rgba(255,255,255,0.18)', // Level 1
-                            padding: '8px 16px',
-                            borderRadius: '20px',
-                            color: 'rgba(255,255,255,0.95)',
+                            background: 'rgba(51, 42, 38, 0.85)',
+                            padding: '10px 20px',
+                            borderRadius: 'var(--md-shape-corner-large)',
+                            color: 'var(--md-sys-color-on-surface)',
                             fontSize: '0.85rem',
-                            backdropFilter: 'blur(12px)',
-                            border: '1px solid rgba(255,255,255,0.2)',
-                            boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
+                            fontWeight: 500,
+                            backdropFilter: 'blur(16px)',
+                            border: '1px solid var(--md-sys-color-outline-variant)',
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.3), 0 0 15px rgba(255, 159, 104, 0.1)',
                             animation: 'float 5s ease-in-out infinite',
                             animationDelay: '0s',
                             zIndex: 2,
@@ -294,19 +317,20 @@ export default function Hero() {
                             ⭐⭐⭐⭐⭐ "Masterpiece"
                         </div>
 
-                        {/* Floating Review 2 - Far Right (Below Tone Arm) */}
+                        {/* Floating Review 2 - Far Right */}
                         <div style={{
                             position: 'absolute',
                             top: '50%',
-                            right: '-90px',
-                            background: 'rgba(255,255,255,0.14)', // Level 2
-                            padding: '8px 16px',
-                            borderRadius: '20px',
-                            color: 'rgba(255,255,255,0.85)',
+                            right: '-95px',
+                            background: 'rgba(34, 27, 25, 0.8)',
+                            padding: '10px 20px',
+                            borderRadius: 'var(--md-shape-corner-large)',
+                            color: 'var(--md-sys-color-on-surface-variant)',
                             fontSize: '0.8rem',
-                            backdropFilter: 'blur(10px)',
-                            border: '1px solid rgba(255,255,255,0.15)',
-                            boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+                            fontWeight: 500,
+                            backdropFilter: 'blur(12px)',
+                            border: '1px solid var(--md-sys-color-outline-variant)',
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.25), 0 0 15px rgba(255, 159, 104, 0.05)',
                             animation: 'float 7s ease-in-out infinite reverse',
                             animationDelay: '1s',
                             zIndex: 1,
@@ -319,15 +343,15 @@ export default function Hero() {
                         <div style={{
                             position: 'absolute',
                             bottom: '10px',
-                            left: '-30px',
-                            background: 'rgba(255,255,255,0.10)', // Level 3
-                            padding: '6px 14px',
-                            borderRadius: '20px',
-                            color: 'rgba(255,255,255,0.7)',
-                            fontSize: '0.75rem',
-                            backdropFilter: 'blur(8px)',
-                            border: '1px solid rgba(255,255,255,0.12)',
-                            boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+                            left: '-35px',
+                            background: 'rgba(34, 27, 25, 0.75)',
+                            padding: '8px 18px',
+                            borderRadius: 'var(--md-shape-corner-large)',
+                            color: 'var(--md-sys-color-on-surface-variant)',
+                            fontSize: '0.8rem',
+                            backdropFilter: 'blur(10px)',
+                            border: '1px solid var(--md-sys-color-outline-variant)',
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
                             animation: 'float 6s ease-in-out infinite',
                             animationDelay: '2s',
                             zIndex: 1,
@@ -340,15 +364,15 @@ export default function Hero() {
                         <div style={{
                             position: 'absolute',
                             bottom: '20px',
-                            right: '-50px',
-                            background: 'rgba(255,255,255,0.07)', // Level 4
-                            padding: '8px 16px',
-                            borderRadius: '20px',
-                            color: 'rgba(255,255,255,0.6)',
+                            right: '-55px',
+                            background: 'rgba(34, 27, 25, 0.7)',
+                            padding: '10px 20px',
+                            borderRadius: 'var(--md-shape-corner-large)',
+                            color: 'var(--md-sys-color-on-surface-variant)',
                             fontSize: '0.8rem',
-                            backdropFilter: 'blur(6px)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+                            backdropFilter: 'blur(8px)',
+                            border: '1px solid var(--md-sys-color-outline-variant)',
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
                             animation: 'float 8s ease-in-out infinite reverse',
                             animationDelay: '1.5s',
                             zIndex: 0,
@@ -357,19 +381,19 @@ export default function Hero() {
                             "On repeat 🔁"
                         </div>
 
-                        {/* Floating Review 5 - Far Left (Mid) */}
+                        {/* Floating Review 5 - Far Left */}
                         <div style={{
                             position: 'absolute',
                             top: '40%',
-                            left: '-90px',
-                            background: 'rgba(255,255,255,0.05)', // Level 5
-                            padding: '6px 12px',
-                            borderRadius: '20px',
-                            color: 'rgba(255,255,255,0.5)',
-                            fontSize: '0.7rem',
-                            backdropFilter: 'blur(4px)',
-                            border: '1px solid rgba(255,255,255,0.08)',
-                            boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+                            left: '-95px',
+                            background: 'rgba(34, 27, 25, 0.65)',
+                            padding: '8px 16px',
+                            borderRadius: 'var(--md-shape-corner-large)',
+                            color: 'var(--md-sys-color-on-surface-variant)',
+                            fontSize: '0.75rem',
+                            backdropFilter: 'blur(6px)',
+                            border: '1px solid var(--md-sys-color-outline-variant)',
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
                             animation: 'float 9s ease-in-out infinite',
                             animationDelay: '3s',
                             zIndex: 0,
@@ -378,20 +402,20 @@ export default function Hero() {
                             "Underrated gem."
                         </div>
 
-                        {/* Floating Review 6 - Bottom Center (Deep) */}
+                        {/* Floating Review 6 - Bottom Center */}
                         <div style={{
                             position: 'absolute',
-                            bottom: '-60px',
+                            bottom: '-65px',
                             left: '50%',
                             transform: 'translateX(-50%)',
-                            background: 'rgba(255,255,255,0.03)', // Level 6
-                            padding: '8px 14px',
-                            borderRadius: '20px',
-                            color: 'rgba(255,255,255,0.4)',
+                            background: 'rgba(34, 27, 25, 0.55)',
+                            padding: '10px 18px',
+                            borderRadius: 'var(--md-shape-corner-large)',
+                            color: 'var(--md-sys-color-on-surface-variant)',
                             fontSize: '0.75rem',
-                            backdropFilter: 'blur(3px)',
-                            border: '1px solid rgba(255,255,255,0.05)',
-                            boxShadow: '0 4px 10px rgba(0,0,0,0.02)',
+                            backdropFilter: 'blur(4px)',
+                            border: '1px solid var(--md-sys-color-outline-variant)',
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
                             animation: 'float 7.5s ease-in-out infinite',
                             animationDelay: '4s',
                             zIndex: -1,
@@ -400,17 +424,17 @@ export default function Hero() {
                             "Soundtrack of my life 🎵"
                         </div>
 
-                        {/* Floating elements */}
+                        {/* Glow orb */}
                         <div style={{
                             position: 'absolute',
                             top: '10%',
                             right: '10%',
-                            background: '#ff9f68',
+                            background: 'var(--md-sys-color-primary)',
                             width: '60px',
                             height: '60px',
                             borderRadius: '50%',
                             filter: 'blur(30px)',
-                            opacity: 0.6,
+                            opacity: 0.4,
                             animation: 'float 4s ease-in-out infinite reverse'
                         }} />
                     </div>
@@ -422,7 +446,7 @@ export default function Hero() {
                     div[style*="grid-template-columns"] {
                         grid-template-columns: 1fr !important;
                         text-align: center;
-                         gap: 40px !important;
+                        gap: 40px !important;
                     }
                     div[style*="text-align: left"] {
                         text-align: center !important;
@@ -431,12 +455,11 @@ export default function Hero() {
                         flex-direction: column;
                         margin: 0 auto;
                     }
-                    /* HIDE VINYL ON MOBILE */
                     .vinyl-group, .tone-arm {
                         display: none !important;
                     }
                     div[style*="justify-content: center"] {
-                         display: none !important; /* Hide the wrapper too to remove spacing */
+                         display: none !important;
                     }
                 }
             `}</style>

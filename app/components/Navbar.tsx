@@ -47,7 +47,6 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
     const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false); // [NEW] Mobile Search State
     const [hasUnread, setHasUnread] = useState(false);
     const [profile, setProfile] = useState(initialProfile);
-
     useEffect(() => {
         setIsSpooky(false);
     }, [pathname]);
@@ -122,8 +121,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
 
                     await Promise.race([setSessionPromise, timeoutPromise]);
                 } catch (e) {
-                    // Silent catch or minimal warn
-                    // console.warn('Navbar: setSession warning:', e);
+                    // Silent catch
                 }
             }
             setIsAuthReady(true);
@@ -131,37 +129,8 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
         hydrate();
     }, [initialSession, supabase]);
 
-    // Memo removed - we need dynamic token for long sessions
-
-    // Helper to get authenticated client dynamically
-    const getDynamicClient = async () => {
-        // 1. Try to get fresh session from browser client
-        const { data: { session } } = await supabase.auth.getSession();
-
-        // 2. Fallback to initialSession if browser session is missing (rare race condition)
-        const token = session?.access_token || initialSession?.access_token;
-
-        if (token) {
-            return createClient(
-                process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-                {
-                    global: {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    },
-                    auth: {
-                        persistSession: false // Purely in-memory
-                    }
-                }
-            );
-        }
-        return supabase;
-    };
-
     const fetchNotifications = async () => {
-        if (!isAuthReady || !user) return;
+        if (!user) return;
 
         // Only set loading if we have NO data at all
         if (!hasDataRef.current) {
@@ -172,10 +141,6 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
             setLoadingNotifications(false);
         }, 5000);
 
-        // Uses the memoized client via dynamic fetch
-        const fetchClient = await getDynamicClient();
-
-
         const systemNotifications = [{
             type: 'system',
             id: 'system-launch-v1',
@@ -184,123 +149,13 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
         }];
 
         try {
-            // 1. Get who I follow
-            const { data: follows, error: followError } = await fetchClient
-                .from('follows')
-                .select('following_id')
-                .eq('follower_id', user.id);
-
-            if (followError) {
-                console.error("Follow fetch error:", followError);
-                throw followError;
+            const res = await fetch('/api/notifications');
+            if (!res.ok) {
+                throw new Error(`API returned status ${res.status}`);
             }
-
-            const followingIds = follows?.map((f: any) => f.following_id) || [];
-
-            // 2. Reviews from followed users
-            const reviewsPromise = followingIds.length > 0 ? fetchClient
-                .from('reviews')
-                .select(`
-                    id,
-                    created_at,
-                    profiles!user_id (username, avatar_url),
-                    albums (id, spotify_id, name, cover_image)
-                `)
-                .in('user_id', followingIds)
-                .order('created_at', { ascending: false })
-                .limit(10)
-                : Promise.resolve({ data: [], error: null });
-
-            // 3. New Followers
-            const followersPromise = fetchClient
-                .from('follows')
-                .select(`
-                    follower_id,
-                    created_at,
-                    follower:profiles!follows_follower_id_fkey (username, avatar_url)
-                `)
-                .eq('following_id', user.id)
-                .order('created_at', { ascending: false })
-                .limit(10);
-
-            // 4. Real Notifications (Comments, Mentions)
-            const realNotificationsPromise = fetchClient
-                .from('notifications')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false })
-                .limit(10);
-
-            const [reviewsRes, followersRes, realNotifsRes] = await Promise.all([reviewsPromise, followersPromise, realNotificationsPromise]);
-
-            if (realNotifsRes.error) {
-                console.error('Real Notifs fetch error:', realNotifsRes.error);
-            }
-            // Removed debug log: console.log('DEBUG: Real Notifs Raw:', realNotifsRes.data);
-
-            // Fetch profiles & Comment details manually
-            let realNotifsWithDetails: any[] = [];
-            if (realNotifsRes.data && realNotifsRes.data.length > 0) {
-                // 1. Get Actor Profiles
-                const actorIds = [...new Set(realNotifsRes.data.map((n: any) => n.actor_id).filter(Boolean))];
-                let actorMap = new Map();
-
-                if (actorIds.length > 0) {
-                    const { data: actors } = await fetchClient
-                        .from('profiles')
-                        .select('id, username, avatar_url')
-                        .in('id', actorIds);
-                    actorMap = new Map(actors?.map((a: any) => [a.id, a]) || []);
-                }
-
-                // 2. Get Comment Details (for review_id)
-                const commentIds = [...new Set(realNotifsRes.data.map((n: any) => n.comment_id).filter(Boolean))];
-                let commentMap = new Map();
-
-                if (commentIds.length > 0) {
-                    const { data: comments } = await fetchClient
-                        .from('comments')
-                        .select('id, review_id, reviews(id, albums(spotify_id))')
-                        .in('id', commentIds);
-                    commentMap = new Map(comments?.map((c: any) => [c.id, c]) || []);
-                }
-
-                realNotifsWithDetails = realNotifsRes.data.map((n: any) => ({
-                    ...n,
-                    actor: n.actor_id ? actorMap.get(n.actor_id) : null,
-                    comments: n.comment_id ? commentMap.get(n.comment_id) : null
-                }));
-            }
-
-            const reviewItems = (reviewsRes.data || []).map((r: any) => ({
-                type: 'review',
-                id: r.id,
-                created_at: r.created_at,
-                profiles: r.profiles,
-                albums: r.albums
-            }));
-
-            const followerItems = (followersRes.data || []).map((f: any) => ({
-                type: 'follow',
-                id: `follow-${f.follower_id}-${f.created_at}`,
-                created_at: f.created_at,
-                follower: f.follower,
-                follower_user_id: f.follower_id
-            }));
-
-            const realNotifItems = realNotifsWithDetails.map((n: any) => ({
-                type: n.type || 'system',
-                id: n.id,
-                created_at: n.created_at,
-                message: n.message,
-                resource_id: n.resource_id,
-                actor: n.actor,
-                comment_id: n.comment_id,
-                comments: n.comments,
-                review_id: n.comments?.review_id
-            }));
-
-            const combined: any[] = [...reviewItems, ...followerItems, ...realNotifItems, ...systemNotifications];
+            const data = await res.json();
+            
+            const combined: any[] = [...(data.notifications || []), ...systemNotifications];
 
             combined.sort(
                 (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -320,8 +175,8 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     setHasUnread(true);
                 }
             }
-        } catch (error) {
-            console.error('Error fetching notifications (Detailed):', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+        } catch (error: any) {
+            console.error('Error fetching notifications (Detailed):', error);
             if (!hasDataRef.current) {
                 setNotifications(prev => prev.length === 0 ? systemNotifications : prev);
                 hasDataRef.current = true;

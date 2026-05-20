@@ -100,15 +100,19 @@ export default function RecentReviews() {
                 zIndex: 2
             }}>
                 <div style={{ textAlign: 'center', marginBottom: '50px' }}>
-                    <h3 className="text-gradient" style={{
+                    <h3 style={{
+                        fontFamily: 'var(--font-display)',
                         fontSize: '3rem',
                         fontWeight: '800',
                         letterSpacing: '-0.03em',
-                        marginBottom: '10px'
+                        marginBottom: '10px',
+                        background: 'linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-tertiary) 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent'
                     }}>
                         On The Record
                     </h3>
-                    <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem' }}>
+                    <p style={{ color: 'var(--md-sys-color-on-surface-variant)', fontSize: '1.1rem' }}>
                         Join the conversation. See what the Spinyl community is listening to right now.
                     </p>
                 </div>
@@ -131,19 +135,24 @@ export default function RecentReviews() {
                             if (!album?.spotify_id) return null;
 
                             return (
-                                <Link href={`/album/${album.spotify_id}`} key={`${review.id}-${index}`} className="glass-panel review-card-glow review-card-responsive" style={{
-                                    padding: '20px',
-                                    borderRadius: '16px',
-                                    flexShrink: 0,
-                                    background: 'rgba(255,255,255,0.03)',
-                                    border: '1px solid rgba(255,255,255,0.08)',
-                                    display: 'flex',
-                                    gap: '16px',
-                                    alignItems: 'center', // Center vertically
-                                    transition: 'all 0.3s ease',
-                                    textDecoration: 'none',
-                                    cursor: 'pointer'
-                                }}>
+                                <Link 
+                                    href={`/album/${album.spotify_id}`} 
+                                    key={`${review.id}-${index}`} 
+                                    className="review-card-responsive review-m3-card" 
+                                    style={{
+                                        padding: '20px',
+                                        borderRadius: 'var(--md-shape-corner-large)',
+                                        flexShrink: 0,
+                                        background: 'var(--md-sys-color-surface-container)',
+                                        border: '1px solid var(--md-sys-color-outline-variant)',
+                                        display: 'flex',
+                                        gap: '16px',
+                                        alignItems: 'center',
+                                        transition: 'var(--transition-spring)',
+                                        textDecoration: 'none',
+                                        cursor: 'pointer'
+                                    }}
+                                >
                                     {/* Vinyl Sleeve + Record Display */}
                                     <div style={{ marginRight: '30px' /* Space for peeking vinyl */ }}>
                                         <VinylRecordDisplay
@@ -158,32 +167,36 @@ export default function RecentReviews() {
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                 <div style={{
-                                                    width: '20px',
-                                                    height: '20px',
-                                                    borderRadius: '50%',
-                                                    background: '#333',
-                                                    overflow: 'hidden'
+                                                    width: '24px',
+                                                    height: '24px',
+                                                    borderRadius: 'var(--md-shape-corner-full)',
+                                                    background: 'var(--md-sys-color-surface-container-highest)',
+                                                    border: '1px solid var(--md-sys-color-outline-variant)',
+                                                    overflow: 'hidden',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center'
                                                 }}>
                                                     {profile?.avatar_url ? (
                                                         <img src={profile.avatar_url} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                                     ) : (
-                                                        <User size={12} color="#fff" />
+                                                        <User size={12} color="var(--md-sys-color-primary)" />
                                                     )}
                                                 </div>
-                                                <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'rgba(255,255,255,0.8)' }}>@{profile?.username || 'Unknown'}</span>
+                                                <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--md-sys-color-on-surface)' }}>@{profile?.username || 'Unknown'}</span>
                                             </div>
 
                                             {/* Rating Text Badge */}
                                             <div style={{
-                                                background: review.rating >= 8 ? 'rgba(255,215,0,0.1)' : 'rgba(255,255,255,0.1)',
-                                                border: review.rating >= 8 ? '1px solid rgba(255,215,0,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                                                background: 'var(--md-sys-color-tertiary-container)',
+                                                border: '1px solid var(--md-sys-color-outline-variant)',
                                                 padding: '2px 8px',
-                                                borderRadius: '12px',
+                                                borderRadius: 'var(--md-shape-corner-medium)',
                                             }}>
                                                 <span style={{
                                                     fontSize: '0.75rem',
                                                     fontWeight: 800,
-                                                    color: review.rating >= 8 ? '#FFD700' : review.rating >= 5 ? '#e2e8f0' : '#fff'
+                                                    color: 'var(--md-sys-color-on-tertiary-container)'
                                                 }}>
                                                     {review.rating}/10
                                                 </span>
@@ -192,7 +205,7 @@ export default function RecentReviews() {
 
                                         {/* Content */}
                                         <p style={{
-                                            color: 'rgba(255,255,255,0.7)',
+                                            color: 'var(--md-sys-color-on-surface-variant)',
                                             fontSize: '0.85rem',
                                             lineHeight: '1.4',
                                             display: '-webkit-box',
@@ -209,7 +222,7 @@ export default function RecentReviews() {
                         })}
                     </div>
                 ) : (
-                    <div style={{ textAlign: 'center', color: '#B3B3B3', padding: '40px' }}>
+                    <div style={{ textAlign: 'center', color: 'var(--md-sys-color-on-surface-variant)', padding: '40px' }}>
                         <p>No reviews yet. Be the first to share your thoughts!</p>
                     </div>
                 )}
@@ -218,9 +231,15 @@ export default function RecentReviews() {
                .review-card-responsive {
                    width: 380px;
                }
+               .review-m3-card:hover {
+                   transform: scale(1.04) translateY(-3px);
+                   background: var(--md-sys-color-surface-container-high) !important;
+                   border-color: var(--md-sys-color-primary) !important;
+                   box-shadow: 0 10px 25px rgba(0,0,0,0.3), 0 0 15px rgba(255, 159, 104, 0.1);
+               }
                @media (max-width: 768px) {
                    .review-card-responsive {
-                       width: 300px !important; /* Smaller on mobile */
+                       width: 300px !important;
                    }
                }
             `}</style>

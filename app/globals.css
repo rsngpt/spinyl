@@ -143,9 +143,46 @@ h6 {
   width: 100%;
   height: 100%;
   z-index: -1;
-  background: linear-gradient(-45deg, #051c0e, #121212, #0e3019, #000000);
-  background-size: 400% 400%;
-  animation: gradientAnimation 15s ease infinite;
+  background-color: var(--md-sys-color-background);
+  overflow: hidden;
+}
+
+.live-gradient-bg::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: 
+    radial-gradient(circle at 30% 30%, rgba(255, 159, 104, 0.14) 0%, rgba(0,0,0,0) 45%),
+    radial-gradient(circle at 70% 60%, rgba(255, 209, 102, 0.09) 0%, rgba(0,0,0,0) 45%);
+  animation: rotateAmbient 25s linear infinite;
+  filter: blur(100px);
+}
+
+.live-gradient-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(circle, rgba(255, 159, 104, 0.04) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+
+@keyframes rotateAmbient {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.15);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
 }
 
 /* Album Detail Page */

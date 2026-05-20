@@ -57,7 +57,6 @@ export default function RecentlyPlayedSlideshow() {
             const res = await fetch('/api/user/recently-played');
             if (res.ok) {
                 const data = await res.json();
-                // Filter out duplicates based on track ID if desired, or keep raw history
                 setItems(data.items || []);
             }
         } catch (error) {
@@ -72,12 +71,14 @@ export default function RecentlyPlayedSlideshow() {
     }
 
     return (
-        <section style={{ padding: '2rem 24px', maxWidth: '1400px', margin: '0 auto' }}>
+        <section style={{ padding: '3rem 24px', maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
             <h2 style={{
-                fontSize: '1.5rem',
+                fontFamily: 'var(--font-display)',
+                fontSize: '1.8rem',
                 fontWeight: 700,
+                letterSpacing: '-0.02em',
                 marginBottom: '1.5rem',
-                color: 'var(--text-primary)'
+                color: 'var(--md-sys-color-on-background)'
             }}>
                 Recently Played
             </h2>
@@ -139,20 +140,21 @@ function SlideItem({ item }: { item: PlayHistoryItem }) {
                 color: 'inherit',
                 minWidth: '160px',
                 maxWidth: '160px',
-                transition: 'transform 0.2s ease',
+                transition: 'var(--transition-spring)',
+                display: 'block'
             }}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-            onMouseOut={(e) => e.currentTarget.style.transform = 'none'}
+            className="recently-played-slide-item"
         >
             <div style={{
                 position: 'relative',
                 aspectRatio: '1/1',
-                borderRadius: '8px',
+                borderRadius: 'var(--md-shape-corner-medium)',
                 overflow: 'hidden',
                 marginBottom: '12px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                border: '1px solid rgba(255,255,255,0.1)'
-            }}>
+                boxShadow: '0 4px 15px rgba(0,0,0,0.4)',
+                border: '1px solid var(--md-sys-color-outline-variant)',
+                transition: 'var(--transition-spring)'
+            }} className="slide-image-box">
                 <img
                     src={item.track.album.images[0]?.url}
                     alt={item.track.name}
@@ -167,6 +169,7 @@ function SlideItem({ item }: { item: PlayHistoryItem }) {
             <h3 style={{
                 fontSize: '0.95rem',
                 fontWeight: 600,
+                color: 'var(--md-sys-color-on-surface)',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -177,13 +180,23 @@ function SlideItem({ item }: { item: PlayHistoryItem }) {
 
             <p style={{
                 fontSize: '0.85rem',
-                color: '#aaa',
+                color: 'var(--md-sys-color-on-surface-variant)',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis'
             }}>
                 {item.track.artists.map(a => a.name).join(', ')}
             </p>
+
+            <style jsx global>{`
+                .recently-played-slide-item:hover {
+                    transform: scale(1.08);
+                }
+                .recently-played-slide-item:hover .slide-image-box {
+                    box-shadow: 0 8px 25px rgba(255, 159, 104, 0.3);
+                    border-color: var(--md-sys-color-primary);
+                }
+            `}</style>
         </Link>
     );
 }
