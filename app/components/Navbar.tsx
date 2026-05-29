@@ -23,13 +23,97 @@ import { createBrowserClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js'; // DIRECT CLIENT IMPORT
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-// ... existing imports ...
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import SpookyTransition from './SpookyTransition';
 import NotificationDropdown from './NotificationDropdown';
 import MobileSearch from './MobileSearch';
 import SearchBar from './SearchBar';
-import { Home, Ghost, Bell, User, Search, Disc, Plus } from 'lucide-react';
+import { Home, Ghost, Bell, User, Search, Disc, Plus, Compass, LogOut } from 'lucide-react';
+
+interface MobileNavItemProps {
+    href?: string;
+    onClick?: () => void;
+    icon: React.ReactNode;
+    title: string;
+    isActive: boolean;
+}
+
+const MobileNavItem = ({ href, onClick, icon, title, isActive }: MobileNavItemProps) => {
+    const itemContent = (
+        <motion.div
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                gap: '4px',
+                width: '64px'
+            }}
+            whileTap={{ scale: 0.92 }}
+        >
+            <div
+                style={{
+                    position: 'relative',
+                    width: '56px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '16px',
+                    color: isActive 
+                        ? 'var(--md-sys-color-on-secondary-container)' 
+                        : 'var(--md-sys-color-on-surface-variant)',
+                    transition: 'color 0.2s ease'
+                }}
+            >
+                {isActive && (
+                    <motion.div
+                        layoutId="mobileNavActiveIndicator"
+                        transition={{ type: "spring", stiffness: 380, damping: 25 }}
+                        style={{
+                            position: 'absolute',
+                            inset: 0,
+                            backgroundColor: 'var(--md-sys-color-secondary-container)',
+                            borderRadius: '16px',
+                            zIndex: -1
+                        }}
+                    />
+                )}
+                {icon}
+            </div>
+            <span
+                style={{
+                    fontSize: '11px',
+                    fontWeight: isActive ? 600 : 500,
+                    letterSpacing: '0.2px',
+                    color: isActive 
+                        ? 'var(--md-sys-color-on-surface)' 
+                        : 'var(--md-sys-color-on-surface-variant)',
+                    transition: 'color 0.2s ease',
+                    whiteSpace: 'nowrap'
+                }}
+            >
+                {title}
+            </span>
+        </motion.div>
+    );
+
+    if (href) {
+        return (
+            <Link href={href} style={{ textDecoration: 'none', display: 'flex' }}>
+                {itemContent}
+            </Link>
+        );
+    }
+
+    return (
+        <div onClick={onClick} style={{ display: 'flex' }}>
+            {itemContent}
+        </div>
+    );
+};
 
 interface NavbarProps {
     initialUser: any;
@@ -50,6 +134,17 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
     useEffect(() => {
         setIsSpooky(false);
     }, [pathname]);
+
+    useEffect(() => {
+        const handleOpenSearch = () => {
+            if (window.matchMedia('(max-width: 768px)').matches) {
+                setIsMobileSearchOpen(true);
+            }
+        };
+
+        window.addEventListener('spinyl:open-search', handleOpenSearch);
+        return () => window.removeEventListener('spinyl:open-search', handleOpenSearch);
+    }, []);
 
     // SAFETY: Sanitize LocalStorage to prevent "Cannot create property 'user' on string" error
     useEffect(() => {
@@ -286,18 +381,19 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     top: 0,
                     left: 0,
                     right: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                    backdropFilter: 'blur(12px)',
+                    backgroundColor: 'rgba(19, 15, 13, 0.92)', // Match the body warm background
+                    backdropFilter: 'blur(16px) saturate(140%)',
+                    WebkitBackdropFilter: 'blur(16px) saturate(140%)',
                     zIndex: 1000,
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                    padding: '0 16px',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                    padding: '0 32px',
                     height: '70px',
                     display: 'flex',
                     alignItems: 'center',
-                    // justifyContent handled by flex logic + globals override on mobile
                     justifyContent: 'space-between'
                 }}
             >
+                {/* Mobile Left Home Navigation (hidden on desktop) */}
                 <div className="mobile-nav-home">
                     <Link
                         href="/"
@@ -313,7 +409,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     </Link>
                 </div>
 
-                {/* Mobile Centered Logo */}
+                {/* Mobile Centered Logo (hidden on desktop) */}
                 <div className="mobile-nav-logo">
                     <Link
                         href="/"
@@ -329,104 +425,54 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                             src="/spinyl-logo-white.png"
                             alt="Spinyl"
                             style={{
-                                height: '30px',
+                                height: '26px',
                                 objectFit: 'contain'
                             }}
                         />
                     </Link>
                 </div>
 
-                {/* Desktop Left Group: Logo + Links */}
-                <div className="nav-left-group desktop-logo-group" style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+                {/* Desktop Left Group: Logo + Styled Text Navigation Links */}
+                <div className="nav-left-section">
                     <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
                         <img
                             src="/spinyl-logo-white.png"
                             alt="Spinyl"
-                            className="logo-hover"
+                            className="logo-img logo-hover"
                             style={{
-                                height: '30px',
+                                height: '28px',
                                 objectFit: 'contain',
                                 cursor: 'pointer'
                             }}
                         />
                     </Link>
 
-                    <div className="desktop-only-links" style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-                        <NavLink href="/#hero" icon={<Home size={20} />} label="Home" />
-                        <NavLink href="/feed" icon={<Disc size={20} />} label="Feed" />
-
-                        <Link
-                            href="/special-theme"
-                            className="nav-icon-link st-nav-link"
-                            title="Stranger Things Special"
-                            style={{ textDecoration: 'none' }}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                setIsSpooky(true);
-                            }}
-                        >
-                            <span style={{
-                                fontSize: '24px',
-                                fontWeight: '900',
-                                color: '#E50914',
-                                textShadow: '0 0 10px rgba(229, 9, 20, 0.8)',
-                                lineHeight: '1',
-                                paddingBottom: '2px'
-                            }}>
-                                5
-                            </span>
-                        </Link>
+                    <div className="desktop-only-links">
+                        <NavLink href="/#hero" icon={<Home size={18} />} label="Home" />
+                        <NavLink href="/feed" icon={<Disc size={18} />} label="Feed" />
+                        <NavLink href="/explore" icon={<Compass size={18} />} label="Explore" />
+                        {user && <NavLink href="/compose" icon={<Plus size={18} />} label="Create" />}
                     </div>
                 </div>
 
-                {/* Desktop Right Group: Search + Profile */}
-                <div className="desktop-search-profile" style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-                    <div className="nav-search-container">
-                        <SearchBar user={user} />
-                    </div>
+                {/* Desktop Right Group: Search + Actions + Profile */}
+                <div className="nav-right-section">
+                    <SearchBar user={user} />
 
-                    <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div className="desktop-action-links">
                         {user ? (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                                <Link
-                                    href="/compose"
-                                    className="nav-icon-link"
-                                    title="Add Hot Take"
-                                    style={{
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center'
-                                    }}
-                                >
-                                    <Plus size={20} />
-                                </Link>
-                                <button
-                                    className="nav-icon-link"
-                                    style={{
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        position: 'relative'
-                                    }}
-                                    title="Notifications"
-                                    onClick={handleOpenNotifications}
-                                >
-                                    <Bell size={20} />
-                                    {hasUnread && (
-                                        <span style={{
-                                            position: 'absolute',
-                                            top: '8px',
-                                            right: '8px',
-                                            width: '8px',
-                                            height: '8px',
-                                            backgroundColor: '#E50914',
-                                            borderRadius: '50%',
-                                            border: '1px solid black',
-                                            boxShadow: '0 0 4px rgba(229, 9, 20, 0.8)'
-                                        }} />
-                                    )}
-                                </button>
-                                <div style={{ position: 'absolute', top: '100%', right: '80px' }}>
+                            <>
+                                {/* Notifications Bell */}
+                                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                    <button
+                                        className="nav-action-btn"
+                                        title="Notifications"
+                                        onClick={handleOpenNotifications}
+                                    >
+                                        <Bell size={18} />
+                                        {hasUnread && <span className="bell-badge" />}
+                                    </button>
+
                                     <NotificationDropdown
                                         userId={user.id}
                                         isOpen={showNotifications}
@@ -437,26 +483,27 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                                         onRefresh={fetchNotifications}
                                     />
                                 </div>
-                                <Link href={`/profile/${user.id}`} className="profile-hover" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none', color: 'inherit' }}>
-                                    <span className="hide-on-mobile" style={{ fontWeight: 600, fontSize: '0.95rem', transition: 'color 0.3s ease' }}>
-                                        {profile?.username || profile?.full_name || user.email?.split('@')[0]}
-                                    </span>
-                                    <div className="profile-avatar-container" style={{
-                                        width: '36px', height: '36px', borderRadius: '50%',
-                                        background: 'var(--primary)', overflow: 'hidden',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        border: '2px solid rgba(255,255,255,0.1)',
-                                        transition: 'all 0.3s ease'
-                                    }}>
+
+                                {/* User Profile Badge */}
+                                <Link 
+                                    href={`/profile/${user.id}`} 
+                                    className={`nav-profile-link ${pathname.startsWith('/profile') ? 'active' : ''}`}
+                                >
+                                    <div className="nav-avatar-container">
                                         {profile?.avatar_url ? (
-                                            <img src={profile.avatar_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            <img src={profile.avatar_url} alt="Profile" className="nav-avatar-img" />
                                         ) : (
-                                            <span style={{ color: '#000', fontWeight: 700 }}>
+                                            <span>
                                                 {(profile?.username || user.email || 'U')[0].toUpperCase()}
                                             </span>
                                         )}
                                     </div>
+                                    <span className="nav-username hide-on-mobile">
+                                        {profile?.username || profile?.full_name || user.email?.split('@')[0]}
+                                    </span>
                                 </Link>
+
+                                {/* Log Out Icon Button */}
                                 <button
                                     onClick={async () => {
                                         setUser(null);
@@ -464,24 +511,17 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                                         await supabase.auth.signOut();
                                         window.location.href = '/';
                                     }}
-                                    className="nav-btn"
-                                    style={{
-                                        fontSize: '0.8rem',
-                                        padding: '8px 16px',
-                                        whiteSpace: 'nowrap'
-                                    }}
+                                    className="nav-action-btn logout-btn"
+                                    title="Log Out"
                                 >
-                                    Log Out
+                                    <LogOut size={18} />
                                 </button>
-                            </div>
+                            </>
                         ) : (
-                            <Link href="/login" className="nav-btn">
-                                Log In
-                            </Link>
+                            <NavLink href="/login" icon={<User size={18} />} label="Log In" />
                         )}
                     </div>
                 </div>
-
 
                 {/* Mobile Top Notification Bell */}
                 {user && (
@@ -490,7 +530,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                         onClick={() => {
                             setHasUnread(false);
                             if (user?.id) {
-                                localStorage.setItem(`lastReadTime_${user.id}`, Date.now().toString());
+                                  localStorage.setItem(`lastReadTime_${user.id}`, Date.now().toString());
                             }
                             router.push('/notifications');
                         }}
@@ -503,65 +543,67 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 )}
             </nav>
 
-            {/* Mobile Bottom Control Panel - MOVED OUTSIDE NAV to ensure fixed bottom positioning */}
+            {/* Mobile Bottom Control Panel */}
             <div className="mobile-bottom-nav">
-                <Link href="/feed" className="nav-icon-link" title="Feed">
-                    <Home size={26} strokeWidth={1.5} />
-                </Link>
+                <MobileNavItem
+                    href="/feed"
+                    title="Feed"
+                    icon={<Home size={22} strokeWidth={pathname === '/feed' ? 2 : 1.5} />}
+                    isActive={pathname === '/feed'}
+                />
 
-                {/* Mobile Search Trigger */}
-                <div
-                    className="nav-icon-link"
-                    title="Search"
+                <MobileNavItem
                     onClick={() => setIsMobileSearchOpen(true)}
-                    style={{ cursor: 'pointer' }}
-                >
-                    <Search size={26} strokeWidth={1.5} />
-                </div>
+                    title="Search"
+                    icon={<Search size={22} strokeWidth={isMobileSearchOpen || pathname === '/search' ? 2 : 1.5} />}
+                    isActive={isMobileSearchOpen || pathname === '/search'}
+                />
 
-                {/* Center Action Button */}
-                <Link
+                <MobileNavItem
                     href="/compose"
-                    className="nav-icon-link"
-                    title="Add Hot Take"
-                    style={{
-                        cursor: 'pointer'
-                    }}
-                >
-                    <Plus size={26} strokeWidth={1.5} />
-                </Link>
+                    title="Compose"
+                    icon={<Plus size={22} strokeWidth={pathname === '/compose' ? 2 : 1.5} />}
+                    isActive={pathname === '/compose'}
+                />
 
-                <div
-                    className="nav-icon-link st-nav-link"
-                    title="Special Theme"
+                <MobileNavItem
                     onClick={() => setIsSpooky(true)}
-                    style={{ cursor: 'pointer' }}
-                >
-                    <Ghost size={26} strokeWidth={1.5} color="#E50914" />
-                </div>
-
-
+                    title="Spooky"
+                    icon={<Ghost size={22} strokeWidth={isSpooky || pathname === '/special-theme' ? 2 : 1.5} color={isSpooky || pathname === '/special-theme' ? "#E50914" : undefined} />}
+                    isActive={isSpooky || pathname === '/special-theme'}
+                />
 
                 {user ? (
-                    <Link href={`/profile/${user.id}`} className="nav-icon-link" title="Profile">
-                        <div style={{
-                            width: '26px', height: '26px', borderRadius: '50%',
-                            background: 'var(--primary)', overflow: 'hidden',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center'
-                        }}>
-                            {profile?.avatar_url ? (
-                                <img src={profile.avatar_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            ) : (
-                                <span style={{ color: '#000', fontWeight: 700, fontSize: '0.8rem' }}>
-                                    {(profile?.username || user.email || 'U')[0].toUpperCase()}
-                                </span>
-                            )}
-                        </div>
-                    </Link>
+                    <MobileNavItem
+                        href={`/profile/${user.id}`}
+                        title="Profile"
+                        icon={
+                            <div style={{
+                                width: '22px', height: '22px', borderRadius: '50%',
+                                background: pathname.startsWith('/profile') ? 'var(--md-sys-color-primary)' : 'rgba(255, 255, 255, 0.2)', 
+                                overflow: 'hidden',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                border: pathname.startsWith('/profile') ? '2px solid var(--md-sys-color-primary)' : '1px solid rgba(255,255,255,0.25)',
+                                transition: 'all 0.25s ease'
+                            }}>
+                                {profile?.avatar_url ? (
+                                    <img src={profile.avatar_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                    <span style={{ color: pathname.startsWith('/profile') ? '#000' : '#fff', fontWeight: 700, fontSize: '0.7rem' }}>
+                                        {(profile?.username || user.email || 'U')[0].toUpperCase()}
+                                    </span>
+                                )}
+                            </div>
+                        }
+                        isActive={pathname.startsWith('/profile')}
+                    />
                 ) : (
-                    <Link href="/login" className="nav-icon-link" title="Login">
-                        <User size={26} strokeWidth={1.5} />
-                    </Link>
+                    <MobileNavItem
+                        href="/login"
+                        title="Login"
+                        icon={<User size={22} strokeWidth={pathname === '/login' ? 2 : 1.5} />}
+                        isActive={pathname === '/login'}
+                    />
                 )}
             </div>
 
@@ -572,23 +614,6 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 user={user}
             />
 
-            {/* Reuse Notification Dropdown for Mobile (may need style tweak or just use same absolute position adjusted by CSS) */}
-            {/* Logic: The desktop dropdown is absolutely positioned relative to the bell. 
-                For mobile, we might want it fixed/centered or fullscreen. 
-                Current NotificationDropdown is likely designed for desktop dropdown.
-                Let's inspect NotificationDropdown later if it looks broken on mobile. 
-                For now, let's keep the single instance logic but maybe we need a separate mobile instance or style override?
-                Actually, the Desktop Bell renders independent of Mobile Bell. 
-                The Desktop one has the Dropdown as a sibling in the DOM. 
-                We need to render the Dropdown for mobile too.
-            */}
-            {/* Mobile Notification Dropdown Overlay? or Reuse? 
-               Let's render a global NotificationDropdown if showNotifications is true AND isMobile.
-               Or just render it here in the mobile block?
-               The current NotificationDropdown is absolutely positioned.
-               We probably want a Fixed Position Modal for mobile notifications.
-               Let's add a condition or wrapper.
-            */}
             {user && showNotifications && (
                 <div className="mobile-notification-wrapper">
                     <NotificationDropdown
@@ -604,12 +629,208 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
             )}
 
             <SpookyTransition isActive={isSpooky} onComplete={handleSpookyTransition} />
+
             <style jsx>{`
-                /* Desktop Default */
-                .navbar-container {
-                    /* justifyContent handled by flex logic + globals override on mobile */
-                    justify-content: space-between;
+                .nav-left-section {
+                    display: flex;
+                    align-items: center;
+                    gap: 20px;
                 }
+
+                .desktop-only-links {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                }
+
+                .nav-right-section {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    flex: 1;
+                    justify-content: flex-end;
+                }
+
+                .desktop-action-links {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                }
+
+                /* Action Icon Buttons Styling */
+                .nav-action-btn {
+                    width: 38px;
+                    height: 38px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.03);
+                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    color: rgba(255, 255, 255, 0.7);
+                    cursor: pointer;
+                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                }
+
+                .nav-action-btn:hover {
+                    background: rgba(255, 255, 255, 0.08);
+                    color: #fff;
+                    border-color: rgba(255, 255, 255, 0.15);
+                    transform: translateY(-1px);
+                }
+
+                .nav-action-btn:active {
+                    transform: translateY(0);
+                }
+
+                .bell-badge {
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    width: 8px;
+                    height: 8px;
+                    background-color: #E50914;
+                    border-radius: 50%;
+                    border: 1.5px solid #130f0d;
+                    box-shadow: 0 0 6px rgba(229, 9, 20, 0.8);
+                }
+
+                /* User Profile Pill */
+                :global(.nav-profile-link) {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 4px 14px 4px 5px;
+                    border-radius: 100px;
+                    background: rgba(255, 255, 255, 0.03);
+                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    text-decoration: none;
+                    color: rgba(255, 255, 255, 0.8);
+                    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+
+                :global(.nav-profile-link:hover) {
+                    background: rgba(255, 255, 255, 0.08);
+                    border-color: rgba(255, 255, 255, 0.15);
+                    color: #fff;
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                }
+
+                :global(.nav-profile-link.active) {
+                    color: var(--md-sys-color-primary);
+                    background: rgba(255, 159, 104, 0.1);
+                    border-color: rgba(255, 159, 104, 0.2);
+                    box-shadow: 0 4px 12px rgba(255, 159, 104, 0.05);
+                }
+
+                :global(.nav-profile-link.active) .nav-avatar-container {
+                    border-color: var(--md-sys-color-primary);
+                    box-shadow: 0 0 10px rgba(255, 159, 104, 0.35);
+                }
+
+                .nav-avatar-container {
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 50%;
+                    background: var(--md-sys-color-primary-container);
+                    color: var(--md-sys-color-on-primary-container);
+                    overflow: hidden;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 1px solid rgba(255,255,255,0.1);
+                    font-weight: 700;
+                    font-size: 0.8rem;
+                }
+
+                .nav-avatar-img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                .nav-username {
+                    font-weight: 600;
+                    font-size: 0.88rem;
+                }
+
+                /* Premium Spooky ghost */
+                .spooky-ghost-icon {
+                    color: rgba(255, 255, 255, 0.7);
+                    transition: all 0.25s ease;
+                }
+
+                .spooky-theme-btn:hover .spooky-ghost-icon {
+                    color: #E50914 !important;
+                    filter: drop-shadow(0 0 8px rgba(229, 9, 20, 0.85));
+                    animation: jitter-ghost 0.3s infinite;
+                }
+
+                @keyframes jitter-ghost {
+                    0% { transform: translate(0, 0) scale(1.05); }
+                    20% { transform: translate(-1px, 1px) scale(1.05); }
+                    40% { transform: translate(1px, -1px) scale(1.05); }
+                    60% { transform: translate(-1px, -1px) scale(1.05); }
+                    80% { transform: translate(1.5px, 1px) scale(1.05); }
+                    100% { transform: translate(0, 0) scale(1.05); }
+                }
+
+                /* Navigation links styling */
+                :global(.nav-link) {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    color: rgba(255, 255, 255, 0.65) !important;
+                    text-decoration: none;
+                    font-size: 0.92rem;
+                    font-weight: 600;
+                    transition: all 0.2s ease;
+                    padding: 8px 16px;
+                    border-radius: 20px;
+                    border: 1px solid transparent;
+                }
+
+                :global(.nav-link:hover) {
+                    color: #fff !important;
+                    background: rgba(255, 255, 255, 0.05);
+                }
+
+                :global(.nav-link.active) {
+                    color: var(--md-sys-color-primary) !important;
+                    background: rgba(255, 159, 104, 0.1) !important;
+                    border-color: rgba(255, 159, 104, 0.15) !important;
+                }
+
+                /* Premium Login Button */
+                .login-btn-premium {
+                    background: #fff;
+                    color: #000;
+                    border: none;
+                    padding: 10px 22px;
+                    border-radius: 30px;
+                    font-weight: 700;
+                    font-size: 0.9rem;
+                    text-decoration: none;
+                    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    cursor: pointer;
+                }
+
+                .login-btn-premium:hover {
+                    transform: scale(1.05);
+                    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+                }
+
+                .logo-hover {
+                    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                }
+
+                .logo-hover:hover {
+                    transform: scale(1.03);
+                }
+
+                /* Mobile/Bottom Navigation Styles */
                 .mobile-bottom-nav {
                     display: none;
                 }
@@ -639,16 +860,16 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 }
 
                 @media (max-width: 768px) {
-                    /* Hide Desktop Logo Group on Mobile */
-                    .desktop-logo-group {
+                    /* Hide Desktop Sections on Mobile */
+                    .nav-left-section,
+                    .nav-right-section {
                         display: none !important;
                     }
 
-                    /* Keep Logo Centered */
                     :global(.navbar-container) {
-                        /* justify-content is irrelevant now as we use absolute positioning */
                         justify-content: center !important; 
                         position: relative; 
+                        padding: 0 16px !important;
                     }
 
                     .mobile-nav-logo {
@@ -678,39 +899,22 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                         left: 16px;
                     }
 
-                    .desktop-search-profile {
-                        display: none !important;
-                    }
-
                     .mobile-bottom-nav {
                         display: flex;
                         position: fixed;
-                        bottom: 15px; /* Lifted from bottom */
-                        left: 50%;
-                        transform: translateX(-50%); /* Centered */
-                        width: auto;
-                        min-width: 360px; /* Made wider */
-                        max-width: 95%;
-                        
-                        background: rgba(20, 20, 20, 0.5); /* Semi-transparent dark base */
-                        backdrop-filter: blur(30px) saturate(180%);
-                        -webkit-backdrop-filter: blur(30px) saturate(180%);
-                        
-                        height: 70px; /* Comfortable height */
-                        padding: 0 30px; /* Increased side padding */
-                        border-radius: 40px; /* Pill shape */
-                        
-                        justify-content: space-between; /* Push icons apart */
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                        width: 100%;
+                        height: 80px;
+                        background: var(--md-sys-color-surface-container);
+                        border-top: 1px solid var(--md-sys-color-outline-variant);
                         align-items: center;
+                        justify-content: space-evenly;
+                        padding: 0 16px;
+                        padding-bottom: env(safe-area-inset-bottom);
                         z-index: 1000;
-                        
-                        border: 1px solid rgba(255, 255, 255, 0.1);
-                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-                    }
-
-                    .nav-icon-link {
-                         padding: 10px;
-                         color: rgba(255,255,255,0.7);
+                        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.25);
                     }
 
                     .mobile-notification-wrapper {
@@ -718,84 +922,17 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                         top: 70px;
                         right: 0;
                         left: 0;
-                        bottom: 60px;
+                        bottom: 80px;
                         z-index: 999;
                         background: rgba(0,0,0,0.5);
                     }
 
-                    /* Ensure dropdown takes full width on mobile if needed or just fix center */
                     :global(.notification-dropdown) {
                         width: 90vw !important;
                         right: 5vw !important;
                         left: 5vw !important;
                         max-height: 70vh !important;
                     }
-                }
-
-                .nav-icon-link {
-                    color: rgba(255, 255, 255, 0.7);
-                    display: flex;
-                    align-items: center;
-                    transition: all 0.2s ease;
-                }
-
-                .nav-icon-link:hover {
-                    color: #fff;
-                    transform: translateY(-2px);
-                }
-
-                .nav-link {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    color: rgba(255, 255, 255, 0.7);
-                    text-decoration: none;
-                    font-size: 0.9rem;
-                    font-weight: 500;
-                    transition: all 0.2s ease;
-                    padding: 8px 12px;
-                    border-radius: 8px;
-                }
-
-                .nav-link:hover {
-                    color: #fff;
-                    background: rgba(255, 255, 255, 0.05);
-                }
-
-                .nav-link span {
-                    display: inline-block;
-                }
-
-                .nav-btn {
-                    background: #fff;
-                    color: #000;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 30px;
-                    font-weight: 700;
-                    text-decoration: none;
-                    transition: all 0.2s ease;
-                    cursor: pointer;
-                }
-
-                .nav-btn:hover {
-                    transform: scale(1.05);
-                    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-                }
-
-                .logo-hover {
-                    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                }
-
-                /* Logo hover animation removed as per user request */
-
-                .profile-hover:hover .profile-avatar-container {
-                     border-color: #fff !important;
-                     box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-                }
-
-                .profile-hover:hover span {
-                    color: #fff !important;
                 }
             `}</style>
         </>
@@ -804,18 +941,17 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
 
 function NavLink({ href, icon, label }: { href: string, icon: React.ReactNode, label: string }) {
     const pathname = usePathname();
-    const isActive = pathname === href;
+    const isActive = href.startsWith('/#') 
+        ? pathname === '/' 
+        : pathname === href || (href !== '/' && pathname.startsWith(href));
 
     return (
         <Link
             href={href}
             className={`nav-link ${isActive ? 'active' : ''}`}
-            style={{
-                color: isActive ? '#fff' : 'rgba(255, 255, 255, 0.7)',
-                background: isActive ? 'rgba(255, 255, 255, 0.1)' : 'transparent'
-            }}
         >
             {icon}
+            <span style={{ fontSize: '0.88rem', fontWeight: 600 }}>{label}</span>
         </Link>
     );
 }

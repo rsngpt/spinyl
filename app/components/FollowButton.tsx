@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { motion } from 'framer-motion';
 import { followUser, unfollowUser } from '../actions/follow';
 import { useRouter } from 'next/navigation';
 
@@ -36,31 +37,40 @@ export default function FollowButton({ targetUserId, initialIsFollowing }: Follo
     };
 
     return (
-        <button
+        <motion.button
             onClick={handleToggleFollow}
             disabled={isPending}
+            whileHover={{ 
+                scale: 1.05,
+                boxShadow: isFollowing 
+                    ? '0 0 15px rgba(255, 159, 104, 0.15)' 
+                    : '0 8px 24px rgba(255, 159, 104, 0.35)',
+                background: isFollowing 
+                    ? 'rgba(255, 159, 104, 0.08)' 
+                    : 'var(--md-sys-color-primary)',
+                borderColor: isFollowing 
+                    ? 'var(--md-sys-color-primary)' 
+                    : 'transparent'
+            }}
+            whileTap={{ scale: 0.96 }}
+            transition={{ type: "spring", stiffness: 350, damping: 15 }}
             style={{
                 padding: '8px 24px',
                 borderRadius: '500px',
-                border: isFollowing ? '1px solid #555' : 'none',
-                background: isFollowing ? 'transparent' : 'var(--primary)',
-                color: isFollowing ? '#fff' : '#000',
+                border: isFollowing ? '1px solid var(--md-sys-color-outline-variant)' : '1px solid transparent',
+                background: isFollowing ? 'transparent' : 'var(--md-sys-color-primary)',
+                color: isFollowing ? '#fff' : 'var(--md-sys-color-on-primary)',
                 fontWeight: 700,
-                fontSize: '0.9rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
+                fontSize: '0.88rem',
+                cursor: isPending ? 'not-allowed' : 'pointer',
                 opacity: isPending ? 0.7 : 1,
-            }}
-            onMouseOver={(e) => {
-                if (!isFollowing) e.currentTarget.style.transform = 'scale(1.05)';
-                if (isFollowing) e.currentTarget.style.borderColor = '#fff';
-            }}
-            onMouseOut={(e) => {
-                if (!isFollowing) e.currentTarget.style.transform = 'scale(1)';
-                if (isFollowing) e.currentTarget.style.borderColor = '#555';
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                outline: 'none',
             }}
         >
             {isFollowing ? 'Following' : 'Follow'}
-        </button>
+        </motion.button>
     );
 }

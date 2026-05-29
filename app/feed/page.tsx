@@ -17,8 +17,16 @@ export default async function FeedPage() {
                 .feed-page {
                     min-height: 100vh;
                     padding-top: 100px; /* Navbar offset */
+                    padding-bottom: 60px;
                     background: var(--md-sys-color-background);
                     color: var(--md-sys-color-on-background);
+                }
+
+                @media (max-width: 768px) {
+                    .feed-page {
+                        padding-top: 80px;
+                        padding-bottom: calc(80px + env(safe-area-inset-bottom) + 24px);
+                    }
                 }
             `}</style>
         </main>

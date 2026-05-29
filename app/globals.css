@@ -202,7 +202,7 @@ h6 {
   width: 280px;
   height: 280px;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
-  border-radius: var(--md-shape-corner-extra-large);
+  border-radius: 0;
   object-fit: cover;
   transition: var(--transition-spring);
 }
@@ -272,7 +272,15 @@ h6 {
   }
 }
 
-/* Profile Page Layout Defaults (Desktop) */
+/* Profile Page Layout Defaults */
+.profile-page-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #121212 0%, #000000 100%);
+  color: #fff;
+  padding-top: 80px;
+  padding-bottom: 120px;
+}
+
 .profile-page-container {
   max-width: 1400px;
   margin: 0 auto;
@@ -288,8 +296,57 @@ h6 {
   flex-shrink: 0;
   position: sticky;
   top: 100px;
-  /* Adjusted to clear navbar */
   height: fit-content;
+}
+
+/* Desktop Scroll Layout overrides */
+@media (min-width: 769px) {
+  .profile-page-wrapper {
+    height: 100vh;
+    min-height: 0 !important;
+    overflow: hidden;
+    padding-bottom: 0 !important;
+  }
+
+  .profile-page-container {
+    height: calc(100vh - 80px);
+    overflow: hidden;
+    padding-bottom: 20px;
+  }
+
+  .profile-sidebar {
+    height: 100%;
+    position: relative !important;
+    top: 0 !important;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .profile-sidebar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .profile-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+
+  .profile-page-container main {
+    height: 100%;
+    overflow-y: auto;
+    padding-bottom: 60px;
+    padding-right: 8px;
+  }
+
+  .profile-page-container main::-webkit-scrollbar {
+    width: 6px;
+  }
+  .profile-page-container main::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+  }
+  .profile-page-container main::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 /* Responsive Utilities */
@@ -339,15 +396,17 @@ h6 {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 70px;
-    background: rgba(18, 18, 18, 0.95);
-    backdrop-filter: blur(16px);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    height: 80px;
+    background: var(--md-sys-color-surface-container) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-top: 1px solid var(--md-sys-color-outline-variant) !important;
     align-items: center;
     justify-content: space-evenly;
-    padding: 0 16px;
+    padding: 0 8px;
     z-index: 1000;
     padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.25);
   }
 
   .mobile-search-wrapper {
@@ -375,7 +434,7 @@ h6 {
     top: 0;
     left: 0;
     right: 0;
-    bottom: 70px;
+    bottom: 80px;
     /* Stop above nav */
     z-index: 999;
     display: flex;
@@ -1259,7 +1318,7 @@ h6 {
 .m3-spotify-player-art {
   width: 48px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: 0;
   object-fit: cover;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }

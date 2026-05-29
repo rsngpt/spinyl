@@ -136,27 +136,27 @@ export default function ProfileEditModal({ profile, onUpdate }: Props) {
                 Edit Profile
                 <style jsx>{`
                 .edit-profile-btn {
-                    padding: 12px 0;
+                    padding: 8px 0;
                     width: 100%;
-                    min-width: 140px;
+                    min-width: 120px;
                     background: rgba(255, 255, 255, 0.05);
                     border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 16px;
+                    border-radius: 12px;
                     color: #fff;
                     font-weight: 700;
-                    font-size: 0.95rem;
+                    font-size: 0.85rem;
                     cursor: pointer;
                     backdrop-filter: blur(10px);
                     transition: all 0.2s ease;
                     text-transform: uppercase;
-                    letter-spacing: 1px;
+                    letter-spacing: 0.5px;
                 }
                 .edit-profile-btn:hover {
                     background: rgba(255, 255, 255, 0.1);
                     border-color: var(--md-sys-color-primary);
                     color: var(--md-sys-color-primary);
                     transform: translateY(-2px);
-                    box-shadow: 0 5px 20px rgba(255, 159, 104, 0.15);
+                    box-shadow: 0 4px 15px rgba(255, 159, 104, 0.15);
                 }
                 `}</style>
             </button>
@@ -239,27 +239,27 @@ export default function ProfileEditModal({ profile, onUpdate }: Props) {
 
             <style jsx>{`
                 .edit-profile-btn {
-                    padding: 12px 0;
+                    padding: 8px 0;
                     width: 100%;
-                    min-width: 140px;
+                    min-width: 120px;
                     background: rgba(255, 255, 255, 0.05);
                     border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 16px;
+                    border-radius: 12px;
                     color: #fff;
                     font-weight: 700;
-                    font-size: 0.95rem;
+                    font-size: 0.85rem;
                     cursor: pointer;
                     backdrop-filter: blur(10px);
                     transition: all 0.2s ease;
                     text-transform: uppercase;
-                    letter-spacing: 1px;
+                    letter-spacing: 0.5px;
                 }
                 .edit-profile-btn:hover {
                     background: rgba(255, 255, 255, 0.1);
                     border-color: var(--md-sys-color-primary);
                     color: var(--md-sys-color-primary);
                     transform: translateY(-2px);
-                    box-shadow: 0 5px 20px rgba(255, 159, 104, 0.15);
+                    box-shadow: 0 4px 15px rgba(255, 159, 104, 0.15);
                 }
 
                 .modal-overlay {
@@ -314,7 +314,7 @@ export default function ProfileEditModal({ profile, onUpdate }: Props) {
                     margin: 0; flex-shrink: 0;
                 }
                 .avatar-preview {
-                    width: 70px; height: 70px; border-radius: 50%;
+                    width: 70px; height: 70px; border-radius: 0;
                     overflow: hidden; position: relative; cursor: pointer;
                     border: 2px solid #333;
                     transition: all 0.3s;

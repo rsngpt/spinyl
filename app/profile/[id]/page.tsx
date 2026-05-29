@@ -4,7 +4,6 @@ import ProfileContent from '@/app/components/ProfileContent';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import ProfileHeader from '@/app/components/ProfileHeader';
-import RoastFloatingButton from '@/app/components/RoastFloatingButton';
 import LogoutButton from '@/app/components/LogoutButton';
 
 // Generate Metadata
@@ -144,13 +143,7 @@ export default async function ProfilePage({ params }: { params: { id: string } }
     const isVerified = profile.is_verified;
 
     return (
-        <div style={{
-            minHeight: '100vh',
-            background: 'linear-gradient(to bottom, #121212 0%, #000000 100%)',
-            color: '#fff',
-            paddingTop: '80px',
-            paddingBottom: '120px'
-        }}>
+        <div className="profile-page-wrapper">
             <div className="profile-page-container">
                 {/* Left Column: Profile Info */}
                 <aside className="profile-sidebar">
@@ -181,13 +174,8 @@ export default async function ProfilePage({ params }: { params: { id: string } }
                 </main>
             </div>
 
-            {/* Roast Button (Fixed Position Root Level) */}
-            {isOwnProfile && (
-                <>
-                    <LogoutButton />
-                    <RoastFloatingButton reviewsCount={reviewsCount} userId={profile.username || 'User'} />
-                </>
-            )}
+            {/* Logout Button (Fixed Position Root Level) */}
+            {isOwnProfile && <LogoutButton />}
         </div>
     );
 }

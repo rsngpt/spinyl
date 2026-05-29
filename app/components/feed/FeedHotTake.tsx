@@ -61,7 +61,7 @@ export default function FeedHotTake({ item, isDetailView = false }: FeedHotTakeP
     // Or just the usual parts. Let's make the comment button navigate.
 
     return (
-        <div className="hot-take-card glass-panel">
+        <div className="hot-take-card">
             <div className="hot-take-header">
                 <span className="hot-take-badge">HOT TAKE</span>
             </div>
@@ -119,6 +119,7 @@ export default function FeedHotTake({ item, isDetailView = false }: FeedHotTakeP
                     position: relative;
                     overflow: hidden;
                     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+                    height: 100%;
                 }
 
                 .hot-take-card:hover {
@@ -147,6 +148,7 @@ export default function FeedHotTake({ item, isDetailView = false }: FeedHotTakeP
                     flex-direction: column;
                     gap: 12px;
                     position: relative;
+                    flex: 1;
                 }
 
                 .quote-icon {

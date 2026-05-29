@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 
 export default function Hero() {
     return (
@@ -99,8 +98,11 @@ export default function Hero() {
                     </p>
 
                     <div className="animate-fade-in-up" style={{ display: 'flex', gap: '20px', animationDelay: '0.3s' }}>
-                        <Link
-                            href="/explore"
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                window.dispatchEvent(new CustomEvent('spinyl:open-search'));
+                            }}
                             style={{
                                 padding: '16px 36px',
                                 background: 'var(--md-sys-color-primary)',
@@ -129,7 +131,7 @@ export default function Hero() {
                             }}
                         >
                             Start Exploring
-                        </Link>
+                        </button>
                     </div>
                 </div>
 

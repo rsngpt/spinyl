@@ -209,7 +209,7 @@ export default function CommentDrawer({ isOpen, onClose, reviewId, spotifyId, cu
 function CommentItem({ comment, onReply, currentUserId, onDelete }: { comment: Comment, onReply: () => void, currentUserId?: string, onDelete: () => void }) {
     return (
         <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
-            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#333', overflow: 'hidden', flexShrink: 0 }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '0', background: '#333', overflow: 'hidden', flexShrink: 0 }}>
                 {comment.profiles.avatar_url ? (
                     <img src={comment.profiles.avatar_url} alt={comment.profiles.username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (

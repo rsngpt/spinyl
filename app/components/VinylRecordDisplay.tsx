@@ -11,11 +11,9 @@ interface VinylRecordDisplayProps {
 }
 
 export default function VinylRecordDisplay({ coverUrl, rating, size = 80, className = '' }: VinylRecordDisplayProps) {
-    // Responsive Sizing: Use percentages so external CSS width overrides work
-
     return (
         <div
-            className={className}
+            className={`vinyl-group ${className}`}
             style={{
                 position: 'relative',
                 width: size,
@@ -23,16 +21,19 @@ export default function VinylRecordDisplay({ coverUrl, rating, size = 80, classN
                 flexShrink: 0
             }}>
             {/* The Vinyl Record (Peeking Out) */}
-            <div style={{
-                position: 'absolute',
-                top: '2.5%', // (100% - 95%) / 2
-                left: '50%', // Peeking out half-way
-                width: '95%',
-                height: '95%',
-                zIndex: 5,
-                animation: 'spin 10s linear infinite',
-                filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.5))'
-            }}>
+            <div 
+                className="vinyl-record-disc"
+                style={{
+                    position: 'absolute',
+                    top: '2.5%', // (100% - 95%) / 2
+                    left: '32%', // Peeking out slightly less initially
+                    width: '95%',
+                    height: '95%',
+                    zIndex: 5,
+                    animation: 'spin 12s linear infinite',
+                    filter: 'drop-shadow(2px 3px 6px rgba(0,0,0,0.45))',
+                    transition: 'left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.5s ease'
+                }}>
                 <VinylRatingInput value={rating} onChange={() => { }} readonly />
             </div>
 
@@ -41,11 +42,12 @@ export default function VinylRecordDisplay({ coverUrl, rating, size = 80, classN
                 position: 'relative',
                 width: '100%',
                 height: '100%',
-                borderRadius: '2px',
+                borderRadius: '0',
                 overflow: 'hidden',
                 zIndex: 10,
-                boxShadow: '4px 0 10px rgba(0,0,0,0.6)',
-                background: '#222'
+                boxShadow: '8px 0 20px rgba(0,0,0,0.5)',
+                background: '#221b19',
+                border: '1px solid rgba(255, 255, 255, 0.08)'
             }}>
                 {coverUrl ? (
                     <img
@@ -56,7 +58,7 @@ export default function VinylRecordDisplay({ coverUrl, rating, size = 80, classN
                 ) : (
                     <div style={{
                         width: '100%', height: '100%',
-                        background: 'linear-gradient(135deg, #444, #222)',
+                        background: 'linear-gradient(135deg, #332a26, #1c1614)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center'
                     }}>
                         <div style={{ width: '40%', height: '40%', borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
@@ -67,7 +69,7 @@ export default function VinylRecordDisplay({ coverUrl, rating, size = 80, classN
                 <div style={{
                     position: 'absolute',
                     inset: 0,
-                    background: 'linear-gradient(120deg, rgba(255,255,255,0.1) 0%, transparent 40%)',
+                    background: 'linear-gradient(120deg, rgba(255,255,255,0.15) 0%, transparent 45%)',
                     pointerEvents: 'none'
                 }} />
             </div>
@@ -77,7 +79,14 @@ export default function VinylRecordDisplay({ coverUrl, rating, size = 80, classN
                     from { transform: rotate(0deg); }
                     to { transform: rotate(360deg); }
                 }
+                
+                /* Hover expansion rules for the disc */
+                .vinyl-group:hover .vinyl-record-disc {
+                    left: 62% !important;
+                    filter: drop-shadow(4px 8px 16px rgba(0,0,0,0.6)) !important;
+                }
             `}</style>
         </div>
     );
 }
+

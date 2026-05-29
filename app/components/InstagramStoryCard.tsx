@@ -154,7 +154,7 @@ const InstagramStoryCard = forwardRef<HTMLDivElement, InstagramStoryCardProps>((
                         width: '600px',
                         height: '600px',
                         zIndex: 10,
-                        borderRadius: '12px',
+                        borderRadius: '0',
                         boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
                         background: '#222',
                         overflow: 'hidden'
@@ -187,7 +187,7 @@ const InstagramStoryCard = forwardRef<HTMLDivElement, InstagramStoryCardProps>((
                     <div style={{
                         width: '140px',
                         height: '140px',
-                        borderRadius: '50%',
+                        borderRadius: '0',
                         overflow: 'hidden',
                         border: '4px solid rgba(255,255,255,0.2)',
                         boxShadow: '0 8px 24px rgba(0,0,0,0.4)',

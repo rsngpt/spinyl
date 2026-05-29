@@ -263,7 +263,7 @@
 .artist-avatar {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 0;
     object-fit: cover;
     background: #444;
 }
@@ -306,7 +306,7 @@
     position: relative;
     margin-bottom: 16px;
     aspect-ratio: 1;
-    border-radius: 4px;
+    border-radius: 0;
     overflow: hidden;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
 }

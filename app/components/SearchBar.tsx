@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import SearchOverlay from './SearchOverlay';
+import { Search } from 'lucide-react';
 
 export default function SearchBar({ user }: { user: any }) {
     const router = useRouter();
@@ -40,7 +41,7 @@ export default function SearchBar({ user }: { user: any }) {
 
     return (
         <div
-            className="search-wrapper"
+            className={`search-wrapper ${isExpanded || query ? 'expanded' : ''}`}
             onMouseEnter={() => {
                 // Desktop: Expand on Hover
                 if (window.matchMedia('(min-width: 768px)').matches) {
@@ -53,20 +54,18 @@ export default function SearchBar({ user }: { user: any }) {
                     setIsExpanded(false);
                 }
             }}
-            style={{ position: 'relative', display: 'flex', justifyContent: 'center', width: '100%' }}
+            style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end' }}
         >
             <form
                 onSubmit={handleSearch}
                 className={`search-bar-container ${isExpanded || query ? 'expanded' : ''}`}
-                // We use a CSS class for responsive width now instead of inline styles for width.
                 style={{
                     position: 'relative',
-                    height: '44px',
+                    height: '38px',
                     transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                    borderRadius: '22px',
+                    borderRadius: '19px',
                     display: 'flex',
                     alignItems: 'center',
-                    // Background and Border managed by CSS to handle override
                     overflow: 'hidden'
                 }}
             >
@@ -74,10 +73,8 @@ export default function SearchBar({ user }: { user: any }) {
                     className="search-icon-wrapper"
                     onClick={handleIconClick}
                 >
-                    <svg className="search-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
+                    <Search size={18} />
+                    <span className="search-label">Search</span>
                 </div>
 
                 <input
@@ -109,20 +106,45 @@ export default function SearchBar({ user }: { user: any }) {
             />
 
             <style jsx>{`
-                /* Default State (Mobile & Desktop): Collapsed */
+                .search-wrapper {
+                    position: relative;
+                    display: flex;
+                    justify-content: flex-end;
+                    width: 110px;
+                    max-width: 110px;
+                    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                }
+
+                .search-wrapper.expanded {
+                    flex: 1;
+                    width: 100%;
+                    max-width: 600px;
+                }
+
+                /* Default State (Mobile & Desktop): Collapsed and Styled like Action/Nav link */
                 .search-bar-container {
-                    width: 44px;
-                    background: transparent;
-                    border: none;
-                    max-width: 44px;
+                    width: 100%;
+                    background: rgba(255, 255, 255, 0.03);
+                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    color: rgba(255, 255, 255, 0.7);
+                    max-width: 100%;
+                    cursor: pointer;
+                }
+
+                .search-bar-container:hover {
+                    background: rgba(255, 255, 255, 0.08);
+                    color: #fff;
+                    border-color: rgba(255, 255, 255, 0.15);
                 }
 
                 /* Expanded State (Triggered by React State via Hover/Click) */
                 .search-bar-container.expanded {
                     width: 100%;
-                    max-width: 500px; /* Max width for desktop aesthetics */
-                    background: #242424;
-                    border: 1px solid #333;
+                    max-width: 100%; /* Grow to fill parent */
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.15);
+                    color: #fff;
+                    cursor: default;
                 }
 
                 .search-icon-wrapper {
@@ -130,22 +152,39 @@ export default function SearchBar({ user }: { user: any }) {
                     left: 0;
                     top: 0;
                     bottom: 0;
-                    width: 44px;
+                    padding-left: 16px;
                     display: flex;
                     align-items: center;
-                    justify-content: center;
+                    gap: 8px;
                     z-index: 2;
                     cursor: pointer;
+                    height: 100%;
+                }
+
+                .search-label {
+                    font-size: 0.92rem;
+                    font-weight: 600;
+                    opacity: 1;
+                    transition: opacity 0.2s ease, width 0.2s ease;
+                    white-space: nowrap;
+                }
+
+                .search-bar-container.expanded .search-label {
+                    opacity: 0;
+                    width: 0;
+                    pointer-events: none;
+                    margin: 0;
+                    overflow: hidden;
                 }
 
                 .search-input {
                     width: 100%;
                     height: 100%;
-                    padding: 0 16px 0 48px;
+                    padding: 0 16px 0 44px; /* Space for search icon on left */
                     background: transparent;
                     border: none;
                     color: #fff;
-                    font-size: 1rem;
+                    font-size: 0.92rem;
                     outline: none;
                     opacity: 0;
                     pointer-events: none;
@@ -160,12 +199,12 @@ export default function SearchBar({ user }: { user: any }) {
                 /* Desktop Hover Polish */
                 @media (min-width: 768px) {
                     .search-bar-container.expanded:hover {
-                        background: #2a2a2a;
-                        border-color: #444;
+                        background: rgba(255, 255, 255, 0.08);
+                        border-color: rgba(255, 255, 255, 0.25);
                     }
                     .search-bar-container.expanded:focus-within {
-                         background: #2a2a2a;
-                         border-color: #fff;
+                         background: rgba(255, 255, 255, 0.08);
+                         border-color: var(--md-sys-color-primary);
                     }
                 }
             `}</style>

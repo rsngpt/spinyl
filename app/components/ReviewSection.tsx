@@ -78,17 +78,17 @@ const ReviewItem = ({
     const quotedText = `"${review.review_text}"`;
 
     return (
-        <div className="review-item-container">
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-
+        <div className="review-item-container" style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingBottom: '20px', borderBottom: '1px solid var(--md-sys-color-outline-variant)' }}>
+            {/* Header: Avatar, Username, Time-ago, and Rating */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 {/* LEFT: Sleeve + Vinyl */}
-                <div style={{ position: 'relative', width: '60px', flexShrink: 0 }}>
+                <div style={{ position: 'relative', width: '42px', flexShrink: 0 }}>
                     <div style={{
                         position: 'absolute',
                         top: '1px',
-                        left: '28px',
-                        width: '56px',
-                        height: '56px',
+                        left: '20px',
+                        width: '38px',
+                        height: '38px',
                         zIndex: 5,
                         animation: 'spin-slow 10s linear infinite',
                         filter: 'brightness(0.9)'
@@ -99,12 +99,12 @@ const ReviewItem = ({
                     <Link href={`/profile/${review.user_id}`}>
                         <div style={{
                             position: 'relative',
-                            width: '60px',
-                            height: '60px',
-                            borderRadius: 'var(--md-shape-corner-medium)',
+                            width: '42px',
+                            height: '42px',
+                            borderRadius: '0',
                             overflow: 'hidden',
                             zIndex: 10,
-                            boxShadow: '0 8px 20px rgba(0,0,0,0.5)',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
                             background: '#222',
                             cursor: 'pointer',
                             transition: 'var(--transition)'
@@ -121,7 +121,7 @@ const ReviewItem = ({
                                     background: 'linear-gradient(135deg, var(--md-sys-color-surface-container-highest), var(--md-sys-color-surface-container-low))',
                                     color: 'var(--md-sys-color-on-surface)',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    fontSize: '1.2rem', fontWeight: 800
+                                    fontSize: '1rem', fontWeight: 800
                                 }}>
                                     {getInitials(profile.username)}
                                 </div>
@@ -131,103 +131,27 @@ const ReviewItem = ({
                     </Link>
                 </div>
 
-                {/* MIDDLE: Content */}
-                <div style={{ flex: 1, paddingLeft: '34px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ lineHeight: '1.2' }}>
-                        <Link href={`/profile/${review.user_id}`} style={{ textDecoration: 'none', color: 'var(--md-sys-color-on-surface)' }}>
-                            <div className="font-display" style={{ fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.01em' }}>
-                                {profile.username}
-                            </div>
-                        </Link>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600, marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            {dateStr} <span style={{ opacity: 0.5, margin: '0 4px' }}>•</span> {timeStr}
-                        </div>
-                    </div>
-
-                    <div>
-                        <p style={{
-                            margin: 0,
-                            lineHeight: '1.6',
-                            color: 'var(--md-sys-color-on-surface-variant)',
-                            fontSize: '0.95rem',
-                            whiteSpace: 'pre-line',
-                            display: isExpanded ? 'block' : '-webkit-box',
-                            WebkitLineClamp: isExpanded ? 'unset' : 3,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                        }}>
-                            {quotedText}
-                        </p>
-                        {isLongReview && (
-                            <button
-                                onClick={() => setIsExpanded(!isExpanded)}
-                                style={{
-                                    background: 'transparent',
-                                    border: 'none',
-                                    color: 'var(--md-sys-color-primary)',
-                                    fontWeight: 600,
-                                    fontSize: '0.8rem',
-                                    cursor: 'pointer',
-                                    marginTop: '4px',
-                                    padding: 0,
-                                    textDecoration: 'underline'
-                                }}
-                            >
-                                {isExpanded ? 'Show less' : 'Read more'}
-                            </button>
-                        )}
-                    </div>
-
-                    {/* ACTION BAR */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '12px', color: 'var(--text-secondary)' }}>
-                        <button
-                            onClick={() => setIsLiked(!isLiked)}
-                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: isLiked ? 'var(--md-sys-color-tertiary)' : 'inherit', transition: 'color 0.2s' }}
-                        >
-                            <Heart size={18} fill={isLiked ? "var(--md-sys-color-tertiary)" : "none"} style={{ transition: 'transform 0.2s' }} />
-                            <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{isLiked ? '1' : ''}</span>
-                        </button>
-
-                        <button
-                            onClick={onOpenComments}
-                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: 'inherit', transition: 'color 0.2s' }}
-                        >
-                            <MessageCircle size={18} />
-                        </button>
-
-                        {/* Share Button (Story) */}
-                        <button
-                            onClick={() => handleShareToStory(review)}
-                            disabled={isGeneratingStory}
-                            title="Share as Instagram Story"
-                            style={{
-                                background: 'none',
-                                border: 'none',
-                                padding: 0,
-                                cursor: isGeneratingStory ? 'wait' : 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                color: 'inherit',
-                                transition: 'color 0.2s',
-                                marginLeft: 'auto',
-                                opacity: isGeneratingStory ? 0.5 : 1
-                            }}
-                        >
-                            <Share2 size={18} />
-                        </button>
-                    </div>
+                {/* Username & Time inline (just like feed post) */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '20px', flexWrap: 'nowrap', minWidth: 0 }}>
+                    <Link href={`/profile/${review.user_id}`} style={{ textDecoration: 'none', color: 'var(--md-sys-color-on-surface)' }}>
+                        <span className="font-display" style={{ fontWeight: 800, fontSize: '0.95rem', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
+                            {profile.username}
+                        </span>
+                    </Link>
+                    <span style={{ color: 'var(--md-sys-color-outline)', fontSize: '0.8rem', flexShrink: 0 }}>&bull;</span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                        {dateStr} {timeStr}
+                    </span>
                 </div>
 
-                {/* RIGHT: Rating */}
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', minWidth: '65px' }}>
+                {/* Rating Badge on Right */}
+                <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
                     <div style={{
                         background: review.rating >= 8 ? 'var(--md-sys-color-tertiary-container)' : 'var(--md-sys-color-surface-container-highest)',
                         border: review.rating >= 8 ? '1px solid var(--md-sys-color-tertiary)' : '1px solid var(--md-sys-color-outline-variant)',
                         padding: '4px 8px',
                         borderRadius: 'var(--md-shape-corner-medium)',
                         textAlign: 'center',
-                        flexShrink: 0,
                         boxShadow: review.rating >= 8 ? '0 0 12px rgba(243, 120, 211, 0.2)' : 'none'
                     }}>
                         <span className="font-display" style={{
@@ -241,6 +165,95 @@ const ReviewItem = ({
                     </div>
                 </div>
             </div>
+
+            {/* Review content & actions below */}
+            <div className="review-item-body">
+                <div>
+                    <p style={{
+                        margin: 0,
+                        lineHeight: '1.6',
+                        color: 'var(--md-sys-color-on-surface-variant)',
+                        fontSize: '0.95rem',
+                        whiteSpace: 'pre-line',
+                        display: isExpanded ? 'block' : '-webkit-box',
+                        WebkitLineClamp: isExpanded ? 'unset' : 3,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                    }}>
+                        {quotedText}
+                    </p>
+                    {isLongReview && (
+                        <button
+                            onClick={() => setIsExpanded(!isExpanded)}
+                            style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: 'var(--md-sys-color-primary)',
+                                fontWeight: 600,
+                                fontSize: '0.8rem',
+                                cursor: 'pointer',
+                                marginTop: '4px',
+                                padding: 0,
+                                textDecoration: 'underline'
+                            }}
+                        >
+                            {isExpanded ? 'Show less' : 'Read more'}
+                        </button>
+                    )}
+                </div>
+
+                {/* ACTION BAR */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '12px', color: 'var(--text-secondary)' }}>
+                    <button
+                        onClick={() => setIsLiked(!isLiked)}
+                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: isLiked ? 'var(--md-sys-color-tertiary)' : 'inherit', transition: 'color 0.2s' }}
+                    >
+                        <Heart size={18} fill={isLiked ? "var(--md-sys-color-tertiary)" : "none"} style={{ transition: 'transform 0.2s' }} />
+                        <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{isLiked ? '1' : ''}</span>
+                    </button>
+
+                    <button
+                        onClick={onOpenComments}
+                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: 'inherit', transition: 'color 0.2s' }}
+                    >
+                        <MessageCircle size={18} />
+                    </button>
+
+                    {/* Share Button (Story) */}
+                    <button
+                        onClick={() => handleShareToStory(review)}
+                        disabled={isGeneratingStory}
+                        title="Share as Instagram Story"
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            padding: 0,
+                            cursor: isGeneratingStory ? 'wait' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            color: 'inherit',
+                            transition: 'color 0.2s',
+                            marginLeft: 'auto',
+                            opacity: isGeneratingStory ? 0.5 : 1
+                        }}
+                    >
+                        <Share2 size={18} />
+                    </button>
+                </div>
+            </div>
+
+            <style jsx>{`
+                .review-item-body {
+                    padding-left: 74px;
+                }
+                @media (max-width: 600px) {
+                    .review-item-body {
+                        padding-left: 0;
+                        margin-top: 4px;
+                    }
+                }
+            `}</style>
         </div>
     );
 };

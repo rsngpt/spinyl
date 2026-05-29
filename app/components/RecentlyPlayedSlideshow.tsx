@@ -148,7 +148,7 @@ function SlideItem({ item }: { item: PlayHistoryItem }) {
             <div style={{
                 position: 'relative',
                 aspectRatio: '1/1',
-                borderRadius: 'var(--md-shape-corner-medium)',
+                borderRadius: '0',
                 overflow: 'hidden',
                 marginBottom: '12px',
                 boxShadow: '0 4px 15px rgba(0,0,0,0.4)',

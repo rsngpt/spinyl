@@ -129,7 +129,7 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                 </div>
             )}
 
-            <div className={`feed-post glass-panel ${variant}`}>
+            <div className={`feed-post ${variant}`}>
                 {/* Header (Always Top) */}
                 <div className="post-header">
                     <Link href={`/profile/${post.user_id}`} className="post-author-link">
@@ -142,11 +142,9 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                                 )}
                             </div>
                         </div>
-                        <div className="author-meta">
-                            <span className="author-name">{profiles?.username || 'Unknown'}</span>
-                            <span className="bullet">&bull;</span>
-                            <span className="post-date">{timeAgo(created_at)}</span>
-                        </div>
+                        <span className="author-name">{profiles?.username || 'Unknown'}</span>
+                        <span className="bullet">&bull;</span>
+                        <span className="post-date">{timeAgo(created_at)}</span>
                     </Link>
                     <button className="more-btn">
                         <MoreHorizontal size={20} />
@@ -161,7 +159,7 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                             <VinylRecordDisplay
                                 coverUrl={albums?.cover_image}
                                 rating={rating}
-                                size={variant === 'horizontal' ? 200 : 140}
+                                size={variant === 'horizontal' ? 200 : 120}
                                 className="feed-posts-vinyl"
                             />
                         </Link>
@@ -253,6 +251,9 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     break-inside: avoid;
                     overflow: hidden;
                     box-sizing: border-box;
+                    display: flex;
+                    flex-direction: column;
+                    height: 100%;
                 }
 
                 .ambient-bg {
@@ -269,12 +270,18 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
                     display: flex;
                     flex-direction: column;
+                    height: 360px;
                 }
                 
                 .feed-post:hover {
                     transform: translateY(-6px) scale(1.015);
                     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 24px rgba(255, 159, 104, 0.15);
                     border-color: var(--md-sys-color-primary);
+                }
+
+                .feed-post:hover :global(.vinyl-record-disc) {
+                    left: 62% !important;
+                    filter: drop-shadow(4px 8px 16px rgba(0,0,0,0.6)) !important;
                 }
 
                 /* ========================
@@ -288,17 +295,19 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     flex-shrink: 0;
                 }
 
-                .post-author-link {
+                .post-header :global(.post-author-link) {
                     display: flex;
                     flex-direction: row;
                     align-items: center;
-                    gap: 12px;
+                    gap: 6px;
                     text-decoration: none;
                     color: var(--md-sys-color-on-surface);
                     transition: opacity 0.2s ease;
+                    flex-wrap: nowrap;
+                    min-width: 0;
                 }
 
-                .post-author-link:hover {
+                .post-header :global(.post-author-link:hover) {
                     opacity: 0.9;
                 }
 
@@ -312,6 +321,7 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    margin-right: 4px;
                 }
 
                 .avatar-inner {
@@ -340,32 +350,35 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     font-weight: 700;
                 }
 
-                .author-meta {
-                    display: flex;
-                    flex-direction: row;
-                    align-items: center;
-                    gap: 6px;
-                }
-
                 .author-name {
                     font-weight: 700;
                     font-size: 0.95rem;
                     margin: 0;
-                    line-height: 1;
+                    line-height: 1.2;
                     color: var(--md-sys-color-on-surface);
                     font-family: var(--font-display);
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    max-width: 140px;
+                    transform: translateY(-1.5px);
                 }
 
                 .bullet {
                     color: var(--md-sys-color-outline);
                     font-size: 0.8rem;
-                    line-height: 1;
+                    line-height: 1.2;
+                    flex-shrink: 0;
+                    transform: translateY(-1.5px);
                 }
 
                 .post-date {
                     font-size: 0.85rem;
                     color: var(--md-sys-color-on-surface-variant);
                     font-weight: 400;
+                    white-space: nowrap;
+                    flex-shrink: 0;
+                    transform: translateY(-1.5px);
                 }
 
                 /* ========================
@@ -407,6 +420,7 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     gap: 10px;
                     align-items: center; /* Center Content */
                     text-align: center; /* Center Text */
+                    flex: 1;
                 }
 
                 .feed-post:not(.horizontal) .album-meta {
@@ -510,7 +524,7 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     width: 100%;
                 }
 
-                .album-title-link {
+                .album-meta :global(.album-title-link) {
                     text-decoration: none;
                     color: var(--md-sys-color-on-surface);
                     display: block;
@@ -524,6 +538,10 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     line-height: 1.25;
                     word-wrap: break-word;
                     font-family: var(--font-display);
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    width: 100%;
                 }
                 
                 .feed-post.horizontal .album-title {
@@ -541,26 +559,29 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     margin-top: 4px;
                     width: 100%;
                     background: rgba(255, 255, 255, 0.02);
-                    padding: 12px 16px;
-                    border-radius: 16px;
+                    padding: 8px 12px;
+                    border-radius: 12px;
                     border-left: 3px solid var(--md-sys-color-primary);
+                    overflow: hidden;
                 }
 
                 .quote-icon {
                     color: rgba(255, 159, 104, 0.25);
-                    margin-bottom: 4px;
+                    margin-bottom: 2px;
                     display: inline-block;
                 }
 
                 .review-text {
-                    font-size: 0.95rem;
-                    line-height: 1.6;
+                    font-size: 0.85rem;
+                    line-height: 1.4;
                     color: var(--md-sys-color-on-surface);
-                    overflow: visible;
-                    padding: 0;
-                    border: none;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
                     margin: 0;
-                    white-space: pre-wrap; /* Preserve line breaks */
+                    white-space: normal;
                 }
 
                 /* Footer */
@@ -589,7 +610,7 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     align-items: center;
                 }
 
-                .action-btn {
+                .post-footer :global(.action-btn) {
                     background: none;
                     border: none;
                     display: flex;
@@ -606,7 +627,7 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     line-height: 1;
                 }
 
-                .action-btn:hover {
+                .post-footer :global(.action-btn:hover) {
                     background: var(--md-sys-color-primary-container);
                     color: var(--md-sys-color-primary);
                 }
@@ -643,6 +664,10 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     .avatar-ring {
                         width: 36px;
                         height: 36px;
+                    }
+
+                    .author-name {
+                        max-width: 90px;
                     }
 
                     /* NO TRANSFORMS, JUST PURE SIZING */

@@ -172,7 +172,7 @@ export default function ReviewModal({ isOpen, onClose, review, currentUser, user
                         }}>
                             {/* User Headers */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                                <div style={{ width: '48px', height: '48px', borderRadius: 'var(--md-shape-corner-medium)', background: 'var(--md-sys-color-surface-container-highest)', overflow: 'hidden' }}>
+                                <div style={{ width: '48px', height: '48px', borderRadius: '0', background: 'var(--md-sys-color-surface-container-highest)', overflow: 'hidden' }}>
                                     {profile.avatar_url ? (
                                         <img src={profile.avatar_url} alt={profile.username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     ) : (
@@ -283,7 +283,7 @@ export default function ReviewModal({ isOpen, onClose, review, currentUser, user
                                     </div>
                                 )}
                                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                    <div style={{ width: '32px', height: '32px', borderRadius: 'var(--md-shape-corner-medium)', background: 'var(--md-sys-color-surface-container-highest)', overflow: 'hidden', flexShrink: 0 }}>
+                                    <div style={{ width: '32px', height: '32px', borderRadius: '0', background: 'var(--md-sys-color-surface-container-highest)', overflow: 'hidden', flexShrink: 0 }}>
                                         {/* Your Avatar */}
                                         {userProfile?.avatar_url || currentUser?.user_metadata?.avatar_url ? (
                                             <img src={userProfile?.avatar_url || currentUser.user_metadata.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -337,7 +337,7 @@ export default function ReviewModal({ isOpen, onClose, review, currentUser, user
 function CommentItem({ comment, currentUser, onReply, onDelete, isReply = false }: { comment: Comment, currentUser: any, onReply: () => void, onDelete: () => void, isReply?: boolean }) {
     return (
         <div style={{ display: 'flex', gap: '12px' }}>
-            <div style={{ width: isReply ? '24px' : '32px', height: isReply ? '24px' : '32px', borderRadius: 'var(--md-shape-corner-medium)', background: 'var(--md-sys-color-surface-container-highest)', overflow: 'hidden', flexShrink: 0 }}>
+            <div style={{ width: isReply ? '24px' : '32px', height: isReply ? '24px' : '32px', borderRadius: '0', background: 'var(--md-sys-color-surface-container-highest)', overflow: 'hidden', flexShrink: 0 }}>
                 {comment.profiles.avatar_url ? (
                     <img src={comment.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (

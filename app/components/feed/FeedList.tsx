@@ -15,19 +15,17 @@ export default function FeedList({ initialPosts }: FeedListProps) {
     // Use deterministic hash based on ID to avoid hydration mismatch
     const enhancePosts = (rawPosts: FeedItem[]) => {
         return rawPosts.map(p => {
-            // Simple hash of the ID
-            const hash = p.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
             return {
                 ...p,
-                layoutType: hash % 7 === 0 ? 'horizontal' : 'vertical' // ~14% chance (similar to 0.85)
+                layoutType: 'vertical'
             };
         });
     };
 
     const [posts, setPosts] = useState<any[]>(() => {
-        // Deduplicate initial posts just in case the server sent duplicates
+        // Deduplicate initial posts and only include reviews
         const uniqueInitial = initialPosts.filter((post, index, self) =>
-            index === self.findIndex((t) => t.id === post.id)
+            post.type === 'review' && index === self.findIndex((t) => t.id === post.id)
         );
         return enhancePosts(uniqueInitial);
     });
@@ -46,9 +44,9 @@ export default function FeedList({ initialPosts }: FeedListProps) {
             } else {
                 setPosts(prev => {
                     const enhancedNext = enhancePosts(nextPosts);
-                    // Filter out duplicates (based on ID)
+                    // Filter out duplicates and only include reviews
                     const uniqueNext = enhancedNext.filter(
-                        newPost => !prev.some(existing => existing.id === newPost.id)
+                        newPost => newPost.type === 'review' && !prev.some(existing => existing.id === newPost.id)
                     );
                     return [...prev, ...uniqueNext];
                 });
@@ -91,18 +89,14 @@ export default function FeedList({ initialPosts }: FeedListProps) {
                 {posts.map((post, index) => (
                     <div
                         key={`${post.id}-${post.created_at}`}
-                        className={`masonry-item ${post.layoutType === 'horizontal' && post.type === 'review' ? 'wide-span' : ''}`}
+                        className="masonry-item"
                         style={{
                             animation: `fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards`, // Smoother easing
                             animationDelay: `${(index % 10) * 0.1}s`,
                             opacity: 0,
                         }}
                     >
-                        {post.type === 'review' ? (
-                            <FeedPost post={post} variant={post.layoutType} />
-                        ) : (
-                            <FeedHotTake item={post} />
-                        )}
+                        <FeedPost post={post} variant={post.layoutType} />
                     </div>
                 ))}
             </div>
@@ -139,45 +133,35 @@ export default function FeedList({ initialPosts }: FeedListProps) {
                 }
 
                 .masonry-grid {
-                    column-count: 4;
-                    column-gap: 20px;
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 24px;
                 }
 
                 .masonry-item {
-                    break-inside: avoid;
-                    margin-bottom: 20px;
-                }
-                
-                .wide-span {
-                    column-span: all;
-                    margin-top: 20px;
-                    margin-bottom: 20px;
+                    width: 100%;
+                    display: flex;
+                    height: 100%;
                 }
 
                 /* Responsive Columns */
-                @media (max-width: 1200px) {
+                @media (max-width: 1024px) {
                     .masonry-grid {
-                        column-count: 3;
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 20px;
                     }
                 }
 
                 @media (max-width: 900px) {
-                    .masonry-grid {
-                        column-count: 2;
-                        column-gap: 16px; 
-                    }
                     .feed-list-container {
                         padding: 16px;
                     }
                 }
 
-                @media (max-width: 600px) {
+                @media (max-width: 680px) {
                     .masonry-grid {
-                        column-count: 1; 
-                        column-gap: 0;
-                    }
-                    .masonry-item {
-                        margin-bottom: 20px;
+                        grid-template-columns: 1fr;
+                        gap: 16px;
                     }
                     .feed-list-container {
                         padding: 12px;

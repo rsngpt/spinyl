@@ -97,7 +97,7 @@ export default function NotificationListItem({ notification, onClose }: Notifica
                 onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
                 onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
             >
-                <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, background: '#333' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '0', overflow: 'hidden', flexShrink: 0, background: '#333' }}>
                     {avatarUrl ? (
                         <img src={avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (

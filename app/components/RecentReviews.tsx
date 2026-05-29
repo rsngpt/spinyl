@@ -169,7 +169,7 @@ export default function RecentReviews() {
                                                 <div style={{
                                                     width: '24px',
                                                     height: '24px',
-                                                    borderRadius: 'var(--md-shape-corner-full)',
+                                                    borderRadius: '0',
                                                     background: 'var(--md-sys-color-surface-container-highest)',
                                                     border: '1px solid var(--md-sys-color-outline-variant)',
                                                     overflow: 'hidden',
