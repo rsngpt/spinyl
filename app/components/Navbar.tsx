@@ -82,20 +82,6 @@ const MobileNavItem = ({ href, onClick, icon, title, isActive }: MobileNavItemPr
                 )}
                 {icon}
             </div>
-            <span
-                style={{
-                    fontSize: '11px',
-                    fontWeight: isActive ? 600 : 500,
-                    letterSpacing: '0.2px',
-                    color: isActive 
-                        ? 'var(--md-sys-color-on-surface)' 
-                        : 'var(--md-sys-color-on-surface-variant)',
-                    transition: 'color 0.2s ease',
-                    whiteSpace: 'nowrap'
-                }}
-            >
-                {title}
-            </span>
         </motion.div>
     );
 
@@ -374,7 +360,6 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     zIndex: 1000,
                     borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
                     padding: '0 32px',
-                    height: '70px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between'
@@ -529,7 +514,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
             </nav>
 
             {/* Mobile Bottom Control Panel */}
-            <div className="mobile-bottom-nav">
+            <div className="mobile-bottom-nav flex h-full items-center justify-around px-2">
                 <MobileNavItem
                     href="/feed"
                     title="Feed"
@@ -867,22 +852,22 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                         left: 0;
                         right: 0;
                         width: 100%;
-                        height: 80px;
+                        height: 58px;
                         background: #000000;
                         backdrop-filter: none !important;
                         -webkit-backdrop-filter: none !important;
                         border-top: 1px solid var(--md-sys-color-outline-variant);
                         align-items: center;
                         justify-content: space-evenly;
-                        padding: 0 16px;
-                        padding-bottom: env(safe-area-inset-bottom);
-                        z-index: 1000;
+                        padding: 0px !important;
+                        margin: 0px !important;
+                        z-index: 9999;
                         box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.25);
                     }
 
                     .mobile-notification-wrapper {
                         position: fixed;
-                        top: 70px;
+                        top: 64px;
                         right: 0;
                         left: 0;
                         bottom: 80px;

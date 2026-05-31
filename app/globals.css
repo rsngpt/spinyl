@@ -355,7 +355,7 @@ h6 {
   align-items: center;
   justify-content: space-between;
   padding: 0 40px;
-  height: 80px;
+  height: 70px;
   background-color: #000000 !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -381,9 +381,14 @@ h6 {
 
   /* Navbar Overrides */
   .navbar-container {
-    padding: 0 20px;
-    height: 70px;
+    padding: 0px !important;
+    margin: 0px !important;
+    height: 64px;
     justify-content: center !important;
+    background-color: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
     /* Center Logo */
   }
 
@@ -399,15 +404,16 @@ h6 {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 80px;
+    height: 58px;
     background: #000000 !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     border-top: 1px solid var(--md-sys-color-outline-variant) !important;
     align-items: center;
     justify-content: space-evenly;
-    padding: 0 8px;
-    z-index: 1000;
+    padding: 0px !important;
+    margin: 0px !important;
+    z-index: 9999 !important;
     padding-bottom: env(safe-area-inset-bottom);
     box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.25);
   }
@@ -479,9 +485,9 @@ h6 {
 
   /* Navbar Overrides for smallest screens */
   .navbar-container {
-    height: 70px;
+    height: 64px;
     /* Keep fixed height */
-    padding: 0 16px;
+    padding: 0px !important;
     /* Prevent wrapping behavior from previous styles */
     flex-wrap: nowrap;
   }
@@ -1162,8 +1168,7 @@ h6 {
   }
   
   /* On mobile/Android view, we hide the default global navbar header to simulate native Android top bar */
-  header.desktop-only-links,
-  nav.navbar-container {
+  header.desktop-only-links {
     display: none !important;
   }
 }
