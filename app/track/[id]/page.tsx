@@ -41,7 +41,7 @@ export default async function TrackPage(props: PageProps) {
     const artistNames = track.artists.map((a: any) => a.name).join(', ');
 
     return (
-        <main style={{ minHeight: '100vh', paddingBottom: '80px', background: '#121212', color: '#fff' }}>
+        <main style={{ minHeight: '100vh', paddingBottom: '80px', background: '#000000', color: '#fff' }}>
 
             {/* Hero / Header Section */}
             <div style={{ position: 'relative', overflow: 'hidden' }}>

@@ -28,7 +28,52 @@ import { motion, AnimatePresence } from 'framer-motion';
 import SpookyTransition from './SpookyTransition';
 import NotificationDropdown from './NotificationDropdown';
 import MobileSearch from './MobileSearch';
-import { Home, Ghost, Bell, User, Search, Disc, Plus, Compass, LogOut } from 'lucide-react';
+import { Ghost, Bell, User, Search, Plus, LogOut } from 'lucide-react';
+
+function HomeIcon({ size = 24 }: { size?: number }) {
+    return (
+        <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            height={size} 
+            viewBox="0 -960 960 960" 
+            width={size} 
+            fill="currentColor"
+            style={{ display: 'block' }}
+        >
+            <path d="M117-76v-545l363-273 363 272.67V-76H572v-332H388v332H117Z"/>
+        </svg>
+    );
+}
+
+function FeedIcon({ size = 24 }: { size?: number }) {
+    return (
+        <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            height={size} 
+            viewBox="0 -960 960 960" 
+            width={size} 
+            fill="currentColor"
+            style={{ display: 'block' }}
+        >
+            <path d="m294.67-47.33 40-280H117.33L523-914h117.67l-40 320h262.66L410-47.33H294.67Z"/>
+        </svg>
+    );
+}
+
+function ExploreIcon({ size = 24 }: { size?: number }) {
+    return (
+        <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            height={size} 
+            viewBox="0 -960 960 960" 
+            width={size} 
+            fill="currentColor"
+            style={{ display: 'block' }}
+        >
+            <path d="M316.33-264 480-339l164.33 75 27.34-28.33-191.67-462-191 462L316.33-264ZM479.79-50.67q-88.43 0-167.26-33.27-78.82-33.27-137.07-91.52-58.25-58.25-91.52-137.07-33.27-78.82-33.27-167.38 0-89.24 33.33-167.66 33.33-78.43 91.69-136.95 58.37-58.52 136.97-92T479.56-910q89.33 0 168.03 33.43 78.71 33.42 137.04 91.87t91.85 137.02Q910-569.12 910-479.61q0 88.79-33.48 167.16-33.48 78.37-92 136.75Q726-117.33 647.57-84q-78.43 33.33-167.78 33.33Z"/>
+        </svg>
+    );
+}
 
 interface MobileNavItemProps {
     href?: string;
@@ -61,9 +106,7 @@ const MobileNavItem = ({ href, onClick, icon, title, isActive }: MobileNavItemPr
                     alignItems: 'center',
                     justifyContent: 'center',
                     borderRadius: '16px',
-                    color: isActive 
-                        ? 'var(--md-sys-color-on-secondary-container)' 
-                        : 'var(--md-sys-color-on-surface-variant)',
+                    color: '#ffffff',
                     transition: 'color 0.2s ease'
                 }}
             >
@@ -87,7 +130,7 @@ const MobileNavItem = ({ href, onClick, icon, title, isActive }: MobileNavItemPr
 
     if (href) {
         return (
-            <Link href={href} style={{ textDecoration: 'none', display: 'flex' }}>
+            <Link href={href} style={{ textDecoration: 'none', display: 'flex' }} onClick={onClick}>
                 {itemContent}
             </Link>
         );
@@ -116,9 +159,76 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
     const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false); // [NEW] Mobile Search State
     const [hasUnread, setHasUnread] = useState(false);
     const [profile, setProfile] = useState(initialProfile);
+
+    // Client-side page navigation indicator states
+    const [isNavigating, setIsNavigating] = useState(false);
+    const [transitionState, setTransitionState] = useState<'idle' | 'navigating' | 'fading'>('idle');
+    const [targetPath, setTargetPath] = useState('');
+    const navStartTimeRef = useRef<number>(0);
+
+    // Gracefully end navigation with minimum display time
+    const endNavigation = () => {
+        const elapsed = Date.now() - navStartTimeRef.current;
+        const minDisplayMs = 400; // Increased from 300 to 400ms (0.4s)
+
+        const startFadeOut = () => {
+            setTransitionState('fading');
+            setTimeout(() => {
+                setIsNavigating(false);
+                setTransitionState('idle');
+                setTargetPath('');
+            }, 250); // 250ms fade out duration
+        };
+
+        if (elapsed >= minDisplayMs) {
+            startFadeOut();
+        } else {
+            setTimeout(startFadeOut, minDisplayMs - elapsed);
+        }
+    };
+
+    useEffect(() => {
+        // When pathname matches targetPath (or is a subpath, except for root /), end the loading animation
+        const cleanPath = pathname.split('#')[0];
+        const isMatch = targetPath === '/' 
+            ? cleanPath === '/' 
+            : (cleanPath === targetPath || (targetPath && cleanPath.startsWith(targetPath + '/')));
+
+        if (isNavigating && transitionState === 'navigating' && isMatch) {
+            endNavigation();
+        }
+    }, [pathname, targetPath, isNavigating, transitionState]);
+
+    // Safety timeout for loading bar (6 seconds)
+    useEffect(() => {
+        if (!isNavigating) return;
+        const timer = setTimeout(() => {
+            setIsNavigating(false);
+            setTransitionState('idle');
+            setTargetPath('');
+        }, 6000);
+        return () => clearTimeout(timer);
+    }, [isNavigating]);
+
+    const handleNavClick = (href: string) => {
+        const cleanHref = href.split('#')[0];
+        // If clicking same path or is onboarding/login, don't show loading bar
+        if (cleanHref === pathname || cleanHref.startsWith('/#')) return;
+
+        navStartTimeRef.current = Date.now();
+        setIsNavigating(true);
+        setTransitionState('navigating');
+        setTargetPath(cleanHref);
+    };
+
     useEffect(() => {
         setIsSpooky(false);
-    }, [pathname]);
+        // Clean up navigation on path change (only if not already managing via endNavigation)
+        if (!isNavigating) {
+            setTargetPath('');
+            setTransitionState('idle');
+        }
+    }, [pathname, isNavigating]);
 
     useEffect(() => {
         const handleOpenSearch = () => {
@@ -365,6 +475,26 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     justifyContent: 'space-between'
                 }}
             >
+                {transitionState !== 'idle' && (
+                    <div 
+                        className="thin-loading-bar"
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: '3px',
+                            background: 'linear-gradient(90deg, rgb(255,1,35) 0%, rgb(255,96,29) 20%, rgb(254,179,31) 40%, rgb(22,207,45) 60%, rgb(2,145,255) 80%, rgb(255,1,35) 100%)',
+                            backgroundSize: '200% 100%',
+                            animation: 'thin-wave 1.5s linear infinite',
+                            zIndex: 1001,
+                            boxShadow: '0 1px 6px rgba(255, 159, 104, 0.2)',
+                            opacity: transitionState === 'fading' ? 0 : 1,
+                            transition: 'opacity 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+                            pointerEvents: 'none'
+                        }}
+                    />
+                )}
                 {/* Mobile Left Home Navigation (hidden on desktop) */}
                 <div className="mobile-nav-home">
                     <Link
@@ -373,11 +503,13 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                             if (pathname === '/') {
                                 e.preventDefault();
                                 window.scrollTo({ top: 0, behavior: 'smooth' });
+                            } else {
+                                handleNavClick('/');
                             }
                         }}
                         style={{ color: 'inherit', display: 'flex' }}
                     >
-                        <Home size={24} />
+                        <HomeIcon size={24} />
                     </Link>
                 </div>
 
@@ -389,6 +521,8 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                             if (pathname === '/') {
                                 e.preventDefault();
                                 window.scrollTo({ top: 0, behavior: 'smooth' });
+                            } else {
+                                handleNavClick('/');
                             }
                         }}
                         style={{ display: 'flex' }}
@@ -406,7 +540,11 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
 
                 {/* Desktop Left Group: Logo */}
                 <div className="nav-left-section">
-                    <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+                    <Link 
+                        href="/" 
+                        onClick={() => handleNavClick('/')}
+                        style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}
+                    >
                         <img
                             src="/spinyl-logo-white.png"
                             alt="Spinyl"
@@ -423,11 +561,11 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 {/* Desktop Right Group: Navigation links + Divider + Actions + Profile */}
                 <div className="nav-right-section">
                     <div className="desktop-only-links">
-                        <NavLink href="/#hero" icon={<Home size={18} />} label="Home" />
-                        <NavLink href="/feed" icon={<Disc size={18} />} label="Feed" />
-                        <NavLink href="/explore" icon={<Compass size={18} />} label="Explore" />
-                        <NavLink href="/search" icon={<Search size={18} />} label="Search" />
-                        {user && <NavLink href="/compose" icon={<Plus size={18} />} label="Create" />}
+                        <NavLink href="/#hero" icon={<HomeIcon size={24} />} label="Home" onClick={() => handleNavClick('/#hero')} />
+                        <NavLink href="/feed" icon={<FeedIcon size={24} />} label="Feed" onClick={() => handleNavClick('/feed')} />
+                        <NavLink href="/explore" icon={<ExploreIcon size={24} />} label="Explore" onClick={() => handleNavClick('/explore')} />
+                        <NavLink href="/search" icon={<Search size={24} />} label="Search" onClick={() => handleNavClick('/search')} />
+                        {user && <NavLink href="/compose" icon={<Plus size={24} />} label="Create" onClick={() => handleNavClick('/compose')} />}
                     </div>
 
                     <div className="nav-divider" />
@@ -442,7 +580,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                                         title="Notifications"
                                         onClick={handleOpenNotifications}
                                     >
-                                        <Bell size={18} />
+                                        <Bell size={24} />
                                         {hasUnread && <span className="bell-badge" />}
                                     </button>
 
@@ -460,6 +598,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                                 {/* User Profile Badge */}
                                 <Link 
                                     href={`/profile/${user.id}`} 
+                                    onClick={() => handleNavClick(`/profile/${user.id}`)}
                                     className={`nav-profile-link ${pathname.startsWith('/profile') ? 'active' : ''}`}
                                 >
                                     <div className="nav-avatar-container">
@@ -484,11 +623,11 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                                     className="nav-action-btn logout-btn"
                                     title="Log Out"
                                 >
-                                    <LogOut size={18} />
+                                    <LogOut size={24} />
                                 </button>
                             </>
                         ) : (
-                            <NavLink href="/login" icon={<User size={18} />} label="Log In" />
+                            <NavLink href="/login" icon={<User size={24} />} label="Log In" onClick={() => handleNavClick('/login')} />
                         )}
                     </div>
                 </div>
@@ -505,7 +644,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                             router.push('/notifications');
                         }}
                     >
-                        <Bell size={24} />
+                        <Bell size={28} />
                         {hasUnread && (
                             <span className="notification-dot" />
                         )}
@@ -518,28 +657,30 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 <MobileNavItem
                     href="/feed"
                     title="Feed"
-                    icon={<Home size={22} strokeWidth={pathname === '/feed' ? 2 : 1.5} />}
+                    icon={<FeedIcon size={26} />}
                     isActive={pathname === '/feed'}
+                    onClick={() => handleNavClick('/feed')}
                 />
 
                 <MobileNavItem
                     onClick={() => setIsMobileSearchOpen(true)}
                     title="Search"
-                    icon={<Search size={22} strokeWidth={isMobileSearchOpen || pathname === '/search' ? 2 : 1.5} />}
+                    icon={<Search size={26} strokeWidth={isMobileSearchOpen || pathname === '/search' ? 2 : 1.5} />}
                     isActive={isMobileSearchOpen || pathname === '/search'}
                 />
 
                 <MobileNavItem
                     href="/compose"
                     title="Compose"
-                    icon={<Plus size={22} strokeWidth={pathname === '/compose' ? 2 : 1.5} />}
+                    icon={<Plus size={26} strokeWidth={pathname === '/compose' ? 2 : 1.5} />}
                     isActive={pathname === '/compose'}
+                    onClick={() => handleNavClick('/compose')}
                 />
 
                 <MobileNavItem
                     onClick={() => setIsSpooky(true)}
                     title="Spooky"
-                    icon={<Ghost size={22} strokeWidth={isSpooky || pathname === '/special-theme' ? 2 : 1.5} color={isSpooky || pathname === '/special-theme' ? "#E50914" : undefined} />}
+                    icon={<Ghost size={26} strokeWidth={isSpooky || pathname === '/special-theme' ? 2 : 1.5} />}
                     isActive={isSpooky || pathname === '/special-theme'}
                 />
 
@@ -549,30 +690,32 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                         title="Profile"
                         icon={
                             <div style={{
-                                width: '22px', height: '22px', borderRadius: '50%',
-                                background: pathname.startsWith('/profile') ? 'var(--md-sys-color-primary)' : 'rgba(255, 255, 255, 0.2)', 
+                                width: '26px', height: '26px', borderRadius: '50%',
+                                background: pathname.startsWith('/profile') ? '#ffffff' : 'rgba(255, 255, 255, 0.2)', 
                                 overflow: 'hidden',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                border: pathname.startsWith('/profile') ? '2px solid var(--md-sys-color-primary)' : '1px solid rgba(255,255,255,0.25)',
+                                border: pathname.startsWith('/profile') ? '2px solid #ffffff' : '1px solid rgba(255,255,255,0.25)',
                                 transition: 'all 0.25s ease'
                             }}>
                                 {profile?.avatar_url ? (
                                     <img src={profile.avatar_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 ) : (
-                                    <span style={{ color: pathname.startsWith('/profile') ? '#000' : '#fff', fontWeight: 700, fontSize: '0.7rem' }}>
+                                    <span style={{ color: pathname.startsWith('/profile') ? '#000' : '#fff', fontWeight: 700, fontSize: '0.8rem' }}>
                                         {(profile?.username || user.email || 'U')[0].toUpperCase()}
                                     </span>
                                 )}
                             </div>
                         }
                         isActive={pathname.startsWith('/profile')}
+                        onClick={() => handleNavClick(`/profile/${user.id}`)}
                     />
                 ) : (
                     <MobileNavItem
                         href="/login"
                         title="Login"
-                        icon={<User size={22} strokeWidth={pathname === '/login' ? 2 : 1.5} />}
+                        icon={<User size={26} strokeWidth={pathname === '/login' ? 2 : 1.5} />}
                         isActive={pathname === '/login'}
+                        onClick={() => handleNavClick('/login')}
                     />
                 )}
             </div>
@@ -600,7 +743,31 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
 
             <SpookyTransition isActive={isSpooky} onComplete={handleSpookyTransition} />
 
+            {/* Content mask: hides page while spectrum bar is active */}
+            {/* Content mask: hides page while spectrum bar is active */}
+            {transitionState !== 'idle' && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: '#000000',
+                        zIndex: 999,
+                        pointerEvents: 'none',
+                        opacity: transitionState === 'fading' ? 0 : 1,
+                        transition: 'opacity 250ms cubic-bezier(0.4, 0, 0.2, 1)'
+                    }}
+                />
+            )}
+
             <style jsx>{`
+                @keyframes thin-wave {
+                    0% { background-position: 0% 50%; }
+                    100% { background-position: 200% 50%; }
+                }
+
                 .nav-left-section {
                     display: flex;
                     align-items: center;
@@ -609,7 +776,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 .desktop-only-links {
                     display: flex;
                     align-items: center;
-                    gap: 16px;
+                    gap: 20px;
                 }
 
                 .nav-right-section {
@@ -642,14 +809,13 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     border-radius: 50%;
                     background: transparent;
                     border: none;
-                    color: rgba(255, 255, 255, 0.7);
+                    color: #ffffff;
                     cursor: pointer;
                     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
                     position: relative;
                 }
 
                 .nav-action-btn:hover {
-                    background: rgba(255, 255, 255, 0.08);
                     color: #fff;
                 }
 
@@ -666,7 +832,6 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     background-color: #E50914;
                     border-radius: 50%;
                     border: 1.5px solid #130f0d;
-                    box-shadow: 0 0 6px rgba(229, 9, 20, 0.8);
                 }
 
                 /* User Profile Circular Button */
@@ -685,17 +850,15 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 }
 
                 :global(.nav-profile-link:hover) {
-                    background: rgba(255, 255, 255, 0.08);
                     color: #fff;
                 }
 
                 :global(.nav-profile-link.active) {
-                    background: rgba(255, 159, 104, 0.1);
+                    background: transparent;
                 }
 
                 :global(.nav-profile-link.active) .nav-avatar-container {
-                    border-color: var(--md-sys-color-primary);
-                    box-shadow: 0 0 10px rgba(255, 159, 104, 0.35);
+                    border-color: #fff;
                 }
 
                 .nav-avatar-container {
@@ -740,29 +903,25 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     100% { transform: translate(0, 0) scale(1.05); }
                 }
 
-                /* Navigation links styling */
-                :global(.nav-link-new) {
+                /* Navigation link icons */
+                :global(.navbar-simple-link) {
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     height: 38px;
                     width: 38px;
-                    border-radius: 50%;
-                    color: rgba(255, 255, 255, 0.65);
+                    color: #ffffff;
                     text-decoration: none;
-                    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                    transition: color 0.2s ease;
+                    cursor: pointer;
                 }
 
-                :global(.nav-link-new:hover) {
+                :global(.navbar-simple-link:hover) {
                     color: #fff !important;
-                    background: rgba(255, 255, 255, 0.05);
                 }
 
-                :global(.nav-link-new.active) {
-                    color: var(--md-sys-color-primary) !important;
-                    width: auto;
-                    padding: 0 16px;
-                    border-radius: 19px;
+                :global(.navbar-simple-link.active) {
+                    color: #fff !important;
                 }
 
                 .logo-hover {
@@ -783,7 +942,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     cursor: pointer;
                     position: relative;
                     padding: 8px;
-                    color: rgba(255, 255, 255, 0.8);
+                    color: #ffffff;
                 }
 
                 .notification-dot {
@@ -887,7 +1046,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
     );
 }
 
-function NavLink({ href, icon, label }: { href: string, icon: React.ReactNode, label: string }) {
+function NavLink({ href, icon, label, onClick }: { href: string, icon: React.ReactNode, label: string, onClick?: () => void }) {
     const pathname = usePathname();
     const isActive = href.startsWith('/#') 
         ? pathname === '/' 
@@ -896,50 +1055,18 @@ function NavLink({ href, icon, label }: { href: string, icon: React.ReactNode, l
     return (
         <Link
             href={href}
-            className={`nav-link-new ${isActive ? 'active' : ''}`}
+            onClick={onClick}
+            title={label}
+            className={`navbar-simple-link ${isActive ? 'active' : ''}`}
             style={{
-                position: 'relative'
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
             }}
         >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', zIndex: 2 }}>
-                {icon}
-                <AnimatePresence initial={false}>
-                    {isActive && (
-                        <motion.span
-                            initial={{ width: 0, opacity: 0 }}
-                            animate={{ width: 'auto', opacity: 1 }}
-                            exit={{ width: 0, opacity: 0 }}
-                            transition={{ duration: 0.2, ease: 'easeInOut' }}
-                            style={{
-                                fontSize: '0.88rem',
-                                fontWeight: 700,
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                display: 'inline-block'
-                            }}
-                        >
-                            {label}
-                        </motion.span>
-                    )}
-                </AnimatePresence>
-            </div>
-
-            {isActive && (
-                <motion.div
-                    layoutId="activeNavLine"
-                    style={{
-                        position: 'absolute',
-                        bottom: '-16px',
-                        left: '12px',
-                        right: '12px',
-                        height: '3px',
-                        background: 'linear-gradient(90deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-secondary) 100%)',
-                        borderTopLeftRadius: '3px',
-                        borderTopRightRadius: '3px',
-                        zIndex: 1
-                    }}
-                />
-            )}
+            {icon}
         </Link>
     );
 }

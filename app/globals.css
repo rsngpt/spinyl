@@ -1,17 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* Material 3 Dark Palette (Warm Charcoal & Subtle Orange/Amber) */
-  --md-sys-color-background: #130f0d;
+  /* Material 3 Dark Palette (Pure OLED Black & Subtle Orange/Amber) */
+  --md-sys-color-background: #000000;
   --md-sys-color-on-background: #f1e0db;
-  --md-sys-color-surface: #1c1614;
-  --md-sys-color-surface-dim: #140f0d;
-  --md-sys-color-surface-bright: #29211d;
-  --md-sys-color-surface-container-lowest: #110b09;
-  --md-sys-color-surface-container-low: #221b19;
-  --md-sys-color-surface-container: #27201d;
-  --md-sys-color-surface-container-high: #332a26;
-  --md-sys-color-surface-container-highest: #3e3430;
+  --md-sys-color-surface: #0a0a0a;
+  --md-sys-color-surface-dim: #000000;
+  --md-sys-color-surface-bright: #1c1c1c;
+  --md-sys-color-surface-container-lowest: #000000;
+  --md-sys-color-surface-container-low: #080808;
+  --md-sys-color-surface-container: #121212;
+  --md-sys-color-surface-container-high: #1a1a1a;
+  --md-sys-color-surface-container-highest: #242424;
   --md-sys-color-on-surface: #f1e0db;
   --md-sys-color-on-surface-variant: #d8c2bb;
   
@@ -143,34 +143,16 @@ h6 {
   width: 100%;
   height: 100%;
   z-index: -1;
-  background-color: var(--md-sys-color-background);
+  background-color: #000000;
   overflow: hidden;
 }
 
 .live-gradient-bg::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: 
-    radial-gradient(circle at 30% 30%, rgba(255, 159, 104, 0.14) 0%, rgba(0,0,0,0) 45%),
-    radial-gradient(circle at 70% 60%, rgba(255, 209, 102, 0.09) 0%, rgba(0,0,0,0) 45%);
-  animation: rotateAmbient 25s linear infinite;
-  filter: blur(100px);
+  display: none;
 }
 
 .live-gradient-bg::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: radial-gradient(circle, rgba(255, 159, 104, 0.04) 1.5px, transparent 1.5px);
-  background-size: 24px 24px;
-  pointer-events: none;
+  display: none;
 }
 
 @keyframes rotateAmbient {
@@ -275,7 +257,7 @@ h6 {
 /* Profile Page Layout Defaults */
 .profile-page-wrapper {
   min-height: 100vh;
-  background: linear-gradient(to bottom, #121212 0%, #000000 100%);
+  background: #000000;
   color: #fff;
   padding-top: 80px;
   padding-bottom: 120px;

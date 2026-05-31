@@ -1,33 +1,32 @@
 'use client';
 
-export default function Loading() {
+import React from 'react';
+
+export default function LoadingScreen() {
     return (
-        <div className="loading-container">
+        <div className="loading-container" style={{
+            height: '100vh',
+            width: '100vw',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#000000',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            zIndex: 9999,
+            overflow: 'hidden'
+        }}>
             <style jsx global>{`
-                @keyframes fade-in-logo {
-                    0% { opacity: 0; transform: scale(0.96); filter: blur(6px); }
-                    100% { opacity: 1; transform: scale(1); filter: blur(0); }
-                }
-
-                @keyframes pulse-breathing {
-                    0% { opacity: 0.9; filter: drop-shadow(0 0 2px rgba(255,255,255,0.1)); }
-                    100% { opacity: 1; filter: drop-shadow(0 0 10px rgba(255,255,255,0.35)); }
-                }
-
-                @keyframes spectrum-wave {
-                    0%, 100% { 
-                        transform: scaleY(0.85) translateX(0); 
-                        filter: brightness(0.7) saturate(0.8);
+                @keyframes wave-reveal {
+                    0% {
+                        opacity: 0;
+                        transform: scaleY(0) translateX(-80px);
                     }
-                    50% { 
-                        transform: scaleY(1.05) translateX(-35px); 
-                        filter: brightness(1.4) saturate(1.2) drop-shadow(0 0 6px currentColor);
+                    100% {
+                        opacity: 1;
+                        transform: scaleY(1) translateX(0);
                     }
-                }
-
-                @keyframes fade-in-bar {
-                    0% { opacity: 0; transform: scale(0.98); }
-                    100% { opacity: 1; transform: scale(1); }
                 }
 
                 .loading-container {
@@ -45,15 +44,11 @@ export default function Loading() {
                 }
 
                 .logo-svg-wrapper {
-                    width: 120px; /* Minimal, compact loading size */
-                    max-width: 50%;
-                    height: auto;
-                    animation: fade-in-logo 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                    /* Immediately visible at full opacity and scale */
                 }
 
                 .logo-white-group {
-                    animation: pulse-breathing 2.5s ease-in-out infinite alternate;
-                    transform-origin: center;
+                    /* Solid white wordmark with no breathing/opacity shifts */
                 }
 
                 /* Target the rect elements directly to avoid matrix transform override issues */
@@ -62,35 +57,30 @@ export default function Loading() {
                     opacity: 0;
                 }
 
-                /* Staggered entry and waving delays per bar (waving Red to Blue) */
+                /* Staggered entry wave: slide in and complete together forwards */
                 .rect-bar-1 { 
-                    animation: fade-in-bar 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards, 
-                               spectrum-wave 2.2s infinite ease-in-out 0.0s; 
+                    animation: wave-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards; 
                     color: rgb(255,1,35); 
                 }
                 .rect-bar-2 { 
-                    animation: fade-in-bar 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards, 
-                               spectrum-wave 2.2s infinite ease-in-out 0.15s; 
+                    animation: wave-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards; 
                     color: rgb(255,96,29); 
                 }
                 .rect-bar-3 { 
-                    animation: fade-in-bar 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards, 
-                               spectrum-wave 2.2s infinite ease-in-out 0.3s; 
+                    animation: wave-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards; 
                     color: rgb(254,179,31); 
                 }
                 .rect-bar-4 { 
-                    animation: fade-in-bar 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards, 
-                               spectrum-wave 2.2s infinite ease-in-out 0.45s; 
+                    animation: wave-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.55s forwards; 
                     color: rgb(22,207,45); 
                 }
                 .rect-bar-5 { 
-                    animation: fade-in-bar 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards, 
-                               spectrum-wave 2.2s infinite ease-in-out 0.6s; 
+                    animation: wave-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards; 
                     color: rgb(2,145,255); 
                 }
             `}</style>
 
-            <div className="logo-svg-wrapper">
+            <div className="logo-svg-wrapper" style={{ width: '120px', maxWidth: '50%', height: 'auto' }}>
                 <svg 
                     width="100%" 
                     height="100%" 
@@ -121,7 +111,7 @@ export default function Loading() {
                                 </g>
                                 <g transform="matrix(3.089088,0,0,3.089088,-1731.433987,-21715.989855)">
                                     <g transform="matrix(1,0,0,1,0,-12)">
-                                        <path d="M1773.303,8881.541L1766.83,8881.541L1766.83,8822.418L1882.067,8822.418L1882.067,8881.541L1875.711,8881.541C1875.46,8878.442 1875.935,8872.77 1872.932,8863.644C1868.798,8851.078 1856.963,8835.493 1837.107,8830.452C1803.068,8821.809 1773.617,8848.529 1773.313,8878.997C1773.3,8880.238 1773.302,8881.025 1773.303,8881.541ZM1870.357,8881.541L1863.876,8881.541C1863.879,8876.759 1863.846,8860.39 1847.461,8848.151C1832.809,8837.206 1807.723,8836.59 1792.343,8857.236C1784.868,8867.271 1784.948,8878.335 1784.962,8880.27C1784.965,8880.577 1785.018,8881.036 1785.018,8881.541L1778.681,8881.541C1778.336,8876.503 1779.392,8859.312 1793.094,8846.55C1808.983,8831.75 1830.659,8831.781 1844.444,8838.79C1869.273,8851.412 1869.273,8851.412 1870.366,8878.99C1870.354,8879.886 1870.405,8880.76 1870.357,8881.541ZM1858.237,8881.541L1851.871,8881.541C1851.827,8880.587 1851.837,8879.355 1851.776,8877.779C1851.733,8877.474 1851.335,8873.058 1849.464,8868.959C1841.626,8851.783 1820.945,8848.372 1808.219,8857.953C1797.328,8866.153 1796.851,8877.547 1796.857,8881.541L1790.597,8881.541C1790.143,8877.957 1791.447,8872.121 1791.633,8871.46C1795.967,8856.044 1807.379,8850.779 1810.169,8849.374C1828.931,8839.924 1856.234,8851.903 1858.192,8877.766C1858.311,8879.339 1858.336,8880.577 1858.237,8881.541ZM1845.741,8881.541L1839.302,8881.541C1839.439,8879.128 1839.488,8874.133 1834.991,8869.617C1825.198,8859.781 1809.276,8867.513 1809.507,8880.267C1809.514,8880.651 1809.556,8881.092 1809.569,8881.541L1802.991,8881.541C1803.003,8880.724 1802.988,8879.312 1803.113,8877.77C1803.995,8866.888 1816.348,8854.474 1831.933,8860.01C1836.478,8861.625 1839.623,8865.178 1840.156,8865.779C1844.24,8870.393 1844.465,8872.475 1845.188,8875.07C1845.205,8875.164 1846.108,8878.808 1845.741,8881.541ZM1830.872,8881.541L1818.136,8881.541C1817.956,8880.939 1817.859,8880.3 1817.859,8879.639C1817.859,8875.972 1820.837,8872.995 1824.504,8872.995C1828.171,8872.995 1831.148,8875.972 1831.148,8879.639C1831.148,8880.3 1831.052,8880.939 1830.872,8881.541Z" fill="white" />
+                                        <path d="M1773.303,8881.541L1766.83,8881.541L1766.83,8822.418L1882.067,8822.418L1882.067,8881.541L1875.711,8881.541C1875.46,8878.442 1875.935,8872.77 1872.932,8863.644C1868.798,8851.078 1856.963,8835.493 1837.107,8830.452C1803.068,8821.809 1773.617,8848.529 1773.313,8878.997C1773.3,8880.238 1773.302,8881.025 1773.303,8881.541ZM1870.357,8881.541L1863.876,8881.541C1863.879,8876.759 1863.846,8860.39 1847.461,8848.151C1832.809,8837.206 1807.723,8836.59 1792.343,8857.236C1784.868,8867.271 1784.948,8878.335 1784.962,8880.27C1784.965,8880.577 1785.018,8881.036 1785.018,8881.541L1778.681,8881.541C1778.336,8876.503 1779.392,8859.312 1793.094,8846.55C1808.983,8831.75 1830.659,8831.781 1844.444,8838.79C1869.273,8851.412 1870.085,8875.152 1870.366,8878.99C1870.354,8879.886 1870.405,8880.76 1870.357,8881.541ZM1858.237,8881.541L1851.871,8881.541C1851.827,8880.587 1851.837,8879.355 1851.776,8877.779C1851.733,8877.474 1851.335,8873.058 1849.464,8868.959C1841.626,8851.783 1820.945,8848.372 1808.219,8857.953C1797.328,8866.153 1796.851,8877.547 1796.857,8881.541L1790.597,8881.541C1790.143,8877.957 1791.447,8872.121 1791.633,8871.46C1795.967,8856.044 1807.379,8850.779 1810.169,8849.374C1828.931,8839.924 1856.234,8851.903 1858.192,8877.766C1858.311,8879.339 1858.336,8880.577 1858.237,8881.541ZM1845.741,8881.541L1839.302,8881.541C1839.439,8879.128 1839.488,8874.133 1834.991,8869.617C1825.198,8859.781 1809.276,8867.513 1809.507,8880.267C1809.514,8880.651 1809.556,8881.092 1809.569,8881.541L1802.991,8881.541C1803.003,8880.724 1802.988,8879.312 1803.113,8877.77C1803.995,8866.888 1816.348,8854.474 1831.933,8860.01C1836.478,8861.625 1839.623,8865.178 1840.156,8865.779C1844.24,8870.393 1844.465,8872.475 1845.188,8875.07C1845.205,8875.164 1846.108,8878.808 1845.741,8881.541ZM1830.872,8881.541L1818.136,8881.541C1817.956,8880.939 1817.859,8880.3 1817.859,8879.639C1817.859,8875.972 1820.837,8872.995 1824.504,8872.995C1828.171,8872.995 1831.148,8875.972 1831.148,8879.639C1831.148,8880.3 1831.052,8880.939 1830.872,8881.541Z" fill="white" />
                                     </g>
                                     <g transform="matrix(1.269565,0,0,1.269565,1743.716749,8796.539839)">
                                         <path d="M103.968,57.501C103.771,55.06 104.144,50.592 101.779,43.404C98.523,33.506 89.201,21.23 73.56,17.259C46.749,10.452 23.552,31.498 23.312,55.497C23.302,56.475 23.304,57.095 23.304,57.501L18.244,57.501C18.002,53.875 18.803,42.989 23.761,34.644C27.737,27.952 33.306,19.455 47.603,13.766C57.212,9.942 77.471,7.65 94.222,22.806C97.528,25.797 99.874,29.049 100.302,29.642C100.532,29.964 100.992,30.61 103.025,33.768C103.967,35.484 109.587,45.728 108.92,57.501L103.968,57.501Z" fill="white" />
@@ -142,19 +132,19 @@ export default function Loading() {
                             </g>
                             <g id="Border" transform="matrix(0,-1.929545,1.929545,0,-7358.206678,15838.022592)">
                                 <g transform="matrix(0.2,0,0,1,4066.812554,0)" className="color-bar color-bar-1">
-                                    <rect className="rect-bar rect-bar-1" x="5083.516" y="5492.516" width="82.521" height="632.427" fill="rgb(255,1,35)" />
+                                    <rect className="rect-bar rect-bar-1" x="5083.516" y="5492.516" width="82.521" height="632.427" fill="rgb(255,1,35)" style={{ opacity: 0 }} />
                                 </g>
                                 <g transform="matrix(0.2,0,0,1,4083.316821,0)" className="color-bar color-bar-2">
-                                    <rect className="rect-bar rect-bar-2" x="5083.516" y="5492.516" width="82.521" height="632.427" fill="rgb(255,96,29)" />
+                                    <rect className="rect-bar rect-bar-2" x="5083.516" y="5492.516" width="82.521" height="632.427" fill="rgb(255,96,29)" style={{ opacity: 0 }} />
                                 </g>
                                 <g transform="matrix(0.2,0,0,1,4099.821088,0)" className="color-bar color-bar-3">
-                                    <rect className="rect-bar rect-bar-3" x="5083.516" y="5492.516" width="82.521" height="632.427" fill="rgb(254,179,31)" />
+                                    <rect className="rect-bar rect-bar-3" x="5083.516" y="5492.516" width="82.521" height="632.427" fill="rgb(254,179,31)" style={{ opacity: 0 }} />
                                 </g>
                                 <g transform="matrix(0.2,0,0,1,4116.325355,0)" className="color-bar color-bar-4">
-                                    <rect className="rect-bar rect-bar-4" x="5083.516" y="5492.516" width="82.521" height="632.427" fill="rgb(22,207,45)" />
+                                    <rect className="rect-bar rect-bar-4" x="5083.516" y="5492.516" width="82.521" height="632.427" fill="rgb(22,207,45)" style={{ opacity: 0 }} />
                                 </g>
                                 <g transform="matrix(0.2,0,0,1,4132.829622,0)" className="color-bar color-bar-5">
-                                    <rect className="rect-bar rect-bar-5" x="5083.516" y="5492.516" width="82.521" height="632.427" fill="rgb(2,145,255)" />
+                                    <rect className="rect-bar rect-bar-5" x="5083.516" y="5492.516" width="82.521" height="632.427" fill="rgb(2,145,255)" style={{ opacity: 0 }} />
                                 </g>
                             </g>
                         </g>

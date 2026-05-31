@@ -248,7 +248,7 @@ export default function ProfileHeader({
                                 position: 'absolute', bottom: '-8px', right: '-8px',
                                 background: colors.primary, color: 'rgba(0,0,0,0.85)', borderRadius: '50%',
                                 width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.5)', zIndex: 20, border: '2px solid #121212'
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.5)', zIndex: 20, border: '2px solid #000000'
                             }}>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                     <polyline points="20 6 9 17 4 12"></polyline>

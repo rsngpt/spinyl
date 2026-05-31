@@ -230,7 +230,7 @@ export default function HotTakeComments({ hotTakeId, initialComments, user, user
                     bottom: 0;
                     left: 0;
                     right: 0;
-                    background: #121212; /* Match theme bg */
+                    background: #000000; /* Match theme bg */
                     padding: 12px 16px 20px 16px; /* Extra padding for safe area */
                     border-top: 1px solid rgba(255,255,255,0.1);
                     z-index: 100;

@@ -1,6 +1,7 @@
 import './globals.css';
 
 import Navbar from './components/Navbar';
+import ClientLoadingWrapper from './components/ClientLoadingWrapper';
 
 export const metadata = {
   title: 'Spinyl',
@@ -32,8 +33,10 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Navbar initialUser={user} initialProfile={profile} initialSession={session} />
-        {children}
+        <ClientLoadingWrapper>
+          <Navbar initialUser={user} initialProfile={profile} initialSession={session} />
+          {children}
+        </ClientLoadingWrapper>
       </body>
     </html>
   );
