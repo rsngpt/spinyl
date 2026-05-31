@@ -19,16 +19,15 @@
 
 'use client';
 
-import { createBrowserClient } from '@supabase/ssr';
+import { getBrowserClient } from '@/src/lib/supabase-client';
 import { createClient } from '@supabase/supabase-js'; // DIRECT CLIENT IMPORT
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import SpookyTransition from './SpookyTransition';
 import NotificationDropdown from './NotificationDropdown';
 import MobileSearch from './MobileSearch';
-import SearchBar from './SearchBar';
 import { Home, Ghost, Bell, User, Search, Disc, Plus, Compass, LogOut } from 'lucide-react';
 
 interface MobileNavItemProps {
@@ -182,17 +181,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
         }
     };
 
-    const [supabase] = useState(() => createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            auth: {
-                persistSession: false, // Fix hanging by disabling local storage
-                autoRefreshToken: true,
-                detectSessionInUrl: false
-            }
-        }
-    ));
+    const [supabase] = useState(() => getBrowserClient()!);
 
     // State for notifications
     const [notifications, setNotifications] = useState<any[]>([]);
@@ -381,9 +370,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     top: 0,
                     left: 0,
                     right: 0,
-                    backgroundColor: 'rgba(19, 15, 13, 0.92)', // Match the body warm background
-                    backdropFilter: 'blur(16px) saturate(140%)',
-                    WebkitBackdropFilter: 'blur(16px) saturate(140%)',
+                    backgroundColor: '#000000',
                     zIndex: 1000,
                     borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
                     padding: '0 32px',
@@ -432,7 +419,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     </Link>
                 </div>
 
-                {/* Desktop Left Group: Logo + Styled Text Navigation Links */}
+                {/* Desktop Left Group: Logo */}
                 <div className="nav-left-section">
                     <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
                         <img
@@ -446,18 +433,19 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                             }}
                         />
                     </Link>
+                </div>
 
+                {/* Desktop Right Group: Navigation links + Divider + Actions + Profile */}
+                <div className="nav-right-section">
                     <div className="desktop-only-links">
                         <NavLink href="/#hero" icon={<Home size={18} />} label="Home" />
                         <NavLink href="/feed" icon={<Disc size={18} />} label="Feed" />
                         <NavLink href="/explore" icon={<Compass size={18} />} label="Explore" />
+                        <NavLink href="/search" icon={<Search size={18} />} label="Search" />
                         {user && <NavLink href="/compose" icon={<Plus size={18} />} label="Create" />}
                     </div>
-                </div>
 
-                {/* Desktop Right Group: Search + Actions + Profile */}
-                <div className="nav-right-section">
-                    <SearchBar user={user} />
+                    <div className="nav-divider" />
 
                     <div className="desktop-action-links">
                         {user ? (
@@ -498,9 +486,6 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                                             </span>
                                         )}
                                     </div>
-                                    <span className="nav-username hide-on-mobile">
-                                        {profile?.username || profile?.full_name || user.email?.split('@')[0]}
-                                    </span>
                                 </Link>
 
                                 {/* Log Out Icon Button */}
@@ -634,7 +619,6 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 .nav-left-section {
                     display: flex;
                     align-items: center;
-                    gap: 20px;
                 }
 
                 .desktop-only-links {
@@ -657,6 +641,12 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     gap: 16px;
                 }
 
+                .nav-divider {
+                    width: 1px;
+                    height: 20px;
+                    background-color: rgba(255, 255, 255, 0.15);
+                }
+
                 /* Action Icon Buttons Styling */
                 .nav-action-btn {
                     width: 38px;
@@ -665,8 +655,8 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     align-items: center;
                     justify-content: center;
                     border-radius: 50%;
-                    background: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    background: transparent;
+                    border: none;
                     color: rgba(255, 255, 255, 0.7);
                     cursor: pointer;
                     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -676,12 +666,10 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 .nav-action-btn:hover {
                     background: rgba(255, 255, 255, 0.08);
                     color: #fff;
-                    border-color: rgba(255, 255, 255, 0.15);
-                    transform: translateY(-1px);
                 }
 
                 .nav-action-btn:active {
-                    transform: translateY(0);
+                    transform: scale(0.95);
                 }
 
                 .bell-badge {
@@ -696,15 +684,16 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     box-shadow: 0 0 6px rgba(229, 9, 20, 0.8);
                 }
 
-                /* User Profile Pill */
+                /* User Profile Circular Button */
                 :global(.nav-profile-link) {
                     display: flex;
                     align-items: center;
-                    gap: 10px;
-                    padding: 4px 14px 4px 5px;
-                    border-radius: 100px;
-                    background: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    justify-content: center;
+                    width: 38px;
+                    height: 38px;
+                    border-radius: 50%;
+                    background: transparent;
+                    border: none;
                     text-decoration: none;
                     color: rgba(255, 255, 255, 0.8);
                     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -712,17 +701,11 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
 
                 :global(.nav-profile-link:hover) {
                     background: rgba(255, 255, 255, 0.08);
-                    border-color: rgba(255, 255, 255, 0.15);
                     color: #fff;
-                    transform: translateY(-1px);
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
                 }
 
                 :global(.nav-profile-link.active) {
-                    color: var(--md-sys-color-primary);
                     background: rgba(255, 159, 104, 0.1);
-                    border-color: rgba(255, 159, 104, 0.2);
-                    box-shadow: 0 4px 12px rgba(255, 159, 104, 0.05);
                 }
 
                 :global(.nav-profile-link.active) .nav-avatar-container {
@@ -751,11 +734,6 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     object-fit: cover;
                 }
 
-                .nav-username {
-                    font-weight: 600;
-                    font-size: 0.88rem;
-                }
-
                 /* Premium Spooky ghost */
                 .spooky-ghost-icon {
                     color: rgba(255, 255, 255, 0.7);
@@ -778,48 +756,28 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 }
 
                 /* Navigation links styling */
-                :global(.nav-link) {
+                :global(.nav-link-new) {
                     display: flex;
                     align-items: center;
-                    gap: 8px;
-                    color: rgba(255, 255, 255, 0.65) !important;
+                    justify-content: center;
+                    height: 38px;
+                    width: 38px;
+                    border-radius: 50%;
+                    color: rgba(255, 255, 255, 0.65);
                     text-decoration: none;
-                    font-size: 0.92rem;
-                    font-weight: 600;
-                    transition: all 0.2s ease;
-                    padding: 8px 16px;
-                    border-radius: 20px;
-                    border: 1px solid transparent;
+                    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
                 }
 
-                :global(.nav-link:hover) {
+                :global(.nav-link-new:hover) {
                     color: #fff !important;
                     background: rgba(255, 255, 255, 0.05);
                 }
 
-                :global(.nav-link.active) {
+                :global(.nav-link-new.active) {
                     color: var(--md-sys-color-primary) !important;
-                    background: rgba(255, 159, 104, 0.1) !important;
-                    border-color: rgba(255, 159, 104, 0.15) !important;
-                }
-
-                /* Premium Login Button */
-                .login-btn-premium {
-                    background: #fff;
-                    color: #000;
-                    border: none;
-                    padding: 10px 22px;
-                    border-radius: 30px;
-                    font-weight: 700;
-                    font-size: 0.9rem;
-                    text-decoration: none;
-                    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                    cursor: pointer;
-                }
-
-                .login-btn-premium:hover {
-                    transform: scale(1.05);
-                    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+                    width: auto;
+                    padding: 0 16px;
+                    border-radius: 19px;
                 }
 
                 .logo-hover {
@@ -870,6 +828,9 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                         justify-content: center !important; 
                         position: relative; 
                         padding: 0 16px !important;
+                        background-color: #000000 !important;
+                        backdrop-filter: none !important;
+                        -webkit-backdrop-filter: none !important;
                     }
 
                     .mobile-nav-logo {
@@ -907,7 +868,9 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                         right: 0;
                         width: 100%;
                         height: 80px;
-                        background: var(--md-sys-color-surface-container);
+                        background: #000000;
+                        backdrop-filter: none !important;
+                        -webkit-backdrop-filter: none !important;
                         border-top: 1px solid var(--md-sys-color-outline-variant);
                         align-items: center;
                         justify-content: space-evenly;
@@ -948,10 +911,50 @@ function NavLink({ href, icon, label }: { href: string, icon: React.ReactNode, l
     return (
         <Link
             href={href}
-            className={`nav-link ${isActive ? 'active' : ''}`}
+            className={`nav-link-new ${isActive ? 'active' : ''}`}
+            style={{
+                position: 'relative'
+            }}
         >
-            {icon}
-            <span style={{ fontSize: '0.88rem', fontWeight: 600 }}>{label}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', zIndex: 2 }}>
+                {icon}
+                <AnimatePresence initial={false}>
+                    {isActive && (
+                        <motion.span
+                            initial={{ width: 0, opacity: 0 }}
+                            animate={{ width: 'auto', opacity: 1 }}
+                            exit={{ width: 0, opacity: 0 }}
+                            transition={{ duration: 0.2, ease: 'easeInOut' }}
+                            style={{
+                                fontSize: '0.88rem',
+                                fontWeight: 700,
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                display: 'inline-block'
+                            }}
+                        >
+                            {label}
+                        </motion.span>
+                    )}
+                </AnimatePresence>
+            </div>
+
+            {isActive && (
+                <motion.div
+                    layoutId="activeNavLine"
+                    style={{
+                        position: 'absolute',
+                        bottom: '-16px',
+                        left: '12px',
+                        right: '12px',
+                        height: '3px',
+                        background: 'linear-gradient(90deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-secondary) 100%)',
+                        borderTopLeftRadius: '3px',
+                        borderTopRightRadius: '3px',
+                        zIndex: 1
+                    }}
+                />
+            )}
         </Link>
     );
 }

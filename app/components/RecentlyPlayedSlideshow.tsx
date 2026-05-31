@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { createBrowserClient } from '@supabase/ssr';
+import { getBrowserClient } from '@/src/lib/supabase-client';
 
 type PlayHistoryItem = {
     track: {
@@ -25,10 +25,7 @@ export default function RecentlyPlayedSlideshow() {
     const [loading, setLoading] = useState(true);
     const [session, setSession] = useState<any>(null);
 
-    const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supabase = getBrowserClient()!;
 
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {

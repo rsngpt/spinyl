@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { createBrowserClient } from '@supabase/ssr';
+import { getBrowserClient } from '@/src/lib/supabase-client';
 import { User } from 'lucide-react';
 import { getRecentReviews } from '../actions/review';
 import VinylRecordDisplay from './VinylRecordDisplay';
@@ -27,10 +27,7 @@ export default function RecentReviews() {
     const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supabase = getBrowserClient()!;
 
     useEffect(() => {
         async function fetchReviews() {

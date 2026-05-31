@@ -1,14 +1,11 @@
 'use client';
 
-import { createBrowserClient } from '@supabase/ssr';
+import { getBrowserClient } from '@/src/lib/supabase-client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Cookies from 'js-cookie';
 
-const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabase = typeof window !== 'undefined' ? getBrowserClient()! : null as any;
 
 export default function LoginButton() {
   const [user, setUser] = useState<any>(null);

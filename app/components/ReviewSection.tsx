@@ -1,6 +1,6 @@
 'use client';
 
-import { createBrowserClient } from '@supabase/ssr';
+import { getBrowserClient } from '@/src/lib/supabase-client';
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import LoginButton from './LoginButton';
@@ -269,10 +269,7 @@ export default function ReviewSection({
     currentUser?: any;
     isMobileActive?: boolean;
 }) {
-    const [supabase] = useState(() => createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    ));
+    const [supabase] = useState(() => getBrowserClient()!);
     const searchParams = useSearchParams();
     const [user, setUser] = useState<any>(currentUser || null);
     const [userProfile, setUserProfile] = useState<{ username: string; avatar_url: string | null } | null>(null);

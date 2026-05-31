@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Search, X } from 'lucide-react';
 
 interface SearchResult {
     id: string;
@@ -14,13 +15,19 @@ interface SearchResult {
 }
 
 interface SearchOverlayProps {
-    query: string;
+    query?: string;
     isVisible: boolean;
     onClose: () => void;
     user: any;
 }
 
-export default function SearchOverlay({ query, isVisible, onClose, user }: SearchOverlayProps) {
+export default function SearchOverlay({ query: propQuery, isVisible, onClose, user }: SearchOverlayProps) {
+    const [internalQuery, setInternalQuery] = useState('');
+    const query = propQuery !== undefined ? propQuery : internalQuery;
+    const setQuery = propQuery !== undefined ? (_val: string) => {} : setInternalQuery;
+
+    const inputRef = useRef<HTMLInputElement>(null);
+
     const [results, setResults] = useState<{
         albums: SearchResult[];
         tracks: SearchResult[];
@@ -30,6 +37,31 @@ export default function SearchOverlay({ query, isVisible, onClose, user }: Searc
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState<'all' | 'albums' | 'songs' | 'artists' | 'people'>('all');
     const router = useRouter();
+
+    // Auto-focus when opened on desktop
+    useEffect(() => {
+        if (isVisible && propQuery === undefined) {
+            setTimeout(() => {
+                inputRef.current?.focus();
+            }, 100);
+        }
+    }, [isVisible, propQuery]);
+
+    // Handle Escape key
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && isVisible) {
+                handleClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isVisible]);
+
+    const handleClose = () => {
+        setInternalQuery('');
+        onClose();
+    };
 
     // Debounce Search
     useEffect(() => {
@@ -76,15 +108,37 @@ export default function SearchOverlay({ query, isVisible, onClose, user }: Searc
         else if (item.type === 'album') router.push(`/album/${item.id}`);
         else if (item.type === 'track') router.push(`/track/${item.id}`);
         else console.log('Clicked', item); // Placeholder
-        onClose();
+        handleClose();
     };
 
     return (
         <div
             className="search-overlay"
-            onMouseEnter={() => { /* Keep open */ }}
         >
             <div className="search-content">
+                {/* Search Input for Desktop */}
+                {propQuery === undefined && (
+                    <div className="search-input-wrapper-desktop">
+                        <Search className="search-icon-large" size={22} />
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            placeholder="Search for albums, songs, artists, people..."
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            className="search-input-desktop"
+                        />
+                        {query.length > 0 ? (
+                            <button className="clear-btn-desktop" onClick={() => setQuery('')} title="Clear search">
+                                <X size={18} />
+                            </button>
+                        ) : (
+                            <button className="close-btn-desktop" onClick={handleClose} title="Close search">
+                                <X size={18} />
+                            </button>
+                        )}
+                    </div>
+                )}
                 {/* Tabs */}
                 <div className="search-tabs">
                     <button
@@ -171,19 +225,77 @@ export default function SearchOverlay({ query, isVisible, onClose, user }: Searc
                 /* ... existing styles ... */
                 .search-overlay {
                     position: fixed;
-                    top: 80px; /* Below Navbar */
+                    top: 70px; /* Below Navbar */
                     left: 0;
                     width: 100%;
-                    height: calc(100vh - 80px);
-                    background: rgba(18, 18, 18, 0.95);
-                    backdrop-filter: blur(15px);
+                    height: calc(100vh - 70px);
+                    background: rgba(19, 15, 13, 0.96);
+                    backdrop-filter: blur(20px);
+                    WebkitBackdropFilter: blur(20px);
                     z-index: 999;
                     overflow-y: auto;
                     padding: 40px;
                     animation: fadeIn 0.3s ease;
                 }
 
+                .search-input-wrapper-desktop {
+                    display: flex;
+                    align-items: center;
+                    background: rgba(255, 255, 255, 0.04);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 12px;
+                    padding: 12px 18px;
+                    gap: 14px;
+                    margin-bottom: 32px;
+                    transition: all 0.25s ease;
+                }
+
+                .search-input-wrapper-desktop:focus-within {
+                    background: rgba(255, 255, 255, 0.07);
+                    border-color: var(--md-sys-color-primary);
+                    box-shadow: 0 0 15px rgba(255, 159, 104, 0.15);
+                }
+
+                .search-icon-large {
+                    color: rgba(255, 255, 255, 0.45);
+                }
+
+                .search-input-desktop {
+                    flex: 1;
+                    background: transparent;
+                    border: none;
+                    color: #fff;
+                    font-size: 1.15rem;
+                    font-weight: 500;
+                    outline: none;
+                }
+
+                .search-input-desktop::placeholder {
+                    color: rgba(255, 255, 255, 0.3);
+                }
+
+                .clear-btn-desktop, .close-btn-desktop {
+                    background: transparent;
+                    border: none;
+                    color: rgba(255, 255, 255, 0.55);
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 4px;
+                    border-radius: 50%;
+                    transition: all 0.2s;
+                }
+
+                .clear-btn-desktop:hover, .close-btn-desktop:hover {
+                    background: rgba(255, 255, 255, 0.08);
+                    color: #fff;
+                }
+
                 @media (max-width: 768px) {
+                    .search-input-wrapper-desktop {
+                        display: none !important;
+                    }
                     .search-overlay {
                         top: 0;
                         height: 100vh;

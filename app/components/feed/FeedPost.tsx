@@ -253,7 +253,7 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     box-sizing: border-box;
                     display: flex;
                     flex-direction: column;
-                    height: 100%;
+                    height: auto;
                 }
 
                 .ambient-bg {
@@ -270,7 +270,7 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
                     display: flex;
                     flex-direction: column;
-                    height: 360px;
+                    height: auto;
                 }
                 
                 .feed-post:hover {
@@ -578,7 +578,7 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                     overflow: hidden;
                     text-overflow: ellipsis;
                     display: -webkit-box;
-                    -webkit-line-clamp: 2;
+                    -webkit-line-clamp: 15;
                     -webkit-box-orient: vertical;
                     margin: 0;
                     white-space: normal;

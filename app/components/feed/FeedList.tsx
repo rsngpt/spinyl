@@ -121,7 +121,7 @@ export default function FeedList({ initialPosts }: FeedListProps) {
                     padding: 20px;
                 }
 
-                @keyframes fadeInUp {
+                @keyframes :global(fadeInUp) {
                     from {
                         opacity: 0;
                         transform: translateY(20px);
@@ -133,35 +133,47 @@ export default function FeedList({ initialPosts }: FeedListProps) {
                 }
 
                 .masonry-grid {
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 24px;
+                    column-count: 4;
+                    column-gap: 24px;
+                    width: 100%;
                 }
 
                 .masonry-item {
                     width: 100%;
-                    display: flex;
-                    height: 100%;
+                    display: inline-block;
+                    margin-bottom: 24px;
+                    break-inside: avoid;
+                    box-sizing: border-box;
                 }
 
                 /* Responsive Columns */
-                @media (max-width: 1024px) {
+                @media (max-width: 1200px) {
                     .masonry-grid {
-                        grid-template-columns: repeat(2, 1fr);
-                        gap: 20px;
+                        column-count: 3;
+                        column-gap: 20px;
+                    }
+                    .masonry-item {
+                        margin-bottom: 20px;
                     }
                 }
 
                 @media (max-width: 900px) {
+                    .masonry-grid {
+                        column-count: 2;
+                        column-gap: 16px;
+                    }
+                    .masonry-item {
+                        margin-bottom: 16px;
+                    }
                     .feed-list-container {
                         padding: 16px;
                     }
                 }
 
-                @media (max-width: 680px) {
+                @media (max-width: 600px) {
                     .masonry-grid {
-                        grid-template-columns: 1fr;
-                        gap: 16px;
+                        column-count: 1;
+                        column-gap: 16px;
                     }
                     .feed-list-container {
                         padding: 12px;
