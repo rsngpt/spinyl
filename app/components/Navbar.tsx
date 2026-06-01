@@ -21,6 +21,7 @@
 
 import { getBrowserClient } from '@/src/lib/supabase-client';
 import { createClient } from '@supabase/supabase-js'; // DIRECT CLIENT IMPORT
+import { signOutAction } from '@/app/auth/actions';
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -28,49 +29,125 @@ import { motion, AnimatePresence } from 'framer-motion';
 import SpookyTransition from './SpookyTransition';
 import NotificationDropdown from './NotificationDropdown';
 import MobileSearch from './MobileSearch';
-import { Ghost, Bell, User, Search, Plus, LogOut } from 'lucide-react';
+import DefaultAvatar from './DefaultAvatar';
+import { Ghost, User } from 'lucide-react';
 
 function HomeIcon({ size = 24 }: { size?: number }) {
     return (
-        <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            height={size} 
-            viewBox="0 -960 960 960" 
-            width={size} 
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height={size}
+            viewBox="0 -960 960 960"
+            width={size}
             fill="currentColor"
             style={{ display: 'block' }}
         >
-            <path d="M117-76v-545l363-273 363 272.67V-76H572v-332H388v332H117Z"/>
+            <path d="M117-76v-545l363-273 363 272.67V-76H572v-332H388v332H117Z" />
         </svg>
     );
 }
 
 function FeedIcon({ size = 24 }: { size?: number }) {
     return (
-        <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            height={size} 
-            viewBox="0 -960 960 960" 
-            width={size} 
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height={size}
+            viewBox="0 -960 960 960"
+            width={size}
             fill="currentColor"
             style={{ display: 'block' }}
         >
-            <path d="m294.67-47.33 40-280H117.33L523-914h117.67l-40 320h262.66L410-47.33H294.67Z"/>
+            <path d="m294.67-47.33 40-280H117.33L523-914h117.67l-40 320h262.66L410-47.33H294.67Z" />
         </svg>
     );
 }
 
 function ExploreIcon({ size = 24 }: { size?: number }) {
     return (
-        <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            height={size} 
-            viewBox="0 -960 960 960" 
-            width={size} 
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height={size}
+            viewBox="0 -960 960 960"
+            width={size}
             fill="currentColor"
             style={{ display: 'block' }}
         >
-            <path d="M316.33-264 480-339l164.33 75 27.34-28.33-191.67-462-191 462L316.33-264ZM479.79-50.67q-88.43 0-167.26-33.27-78.82-33.27-137.07-91.52-58.25-58.25-91.52-137.07-33.27-78.82-33.27-167.38 0-89.24 33.33-167.66 33.33-78.43 91.69-136.95 58.37-58.52 136.97-92T479.56-910q89.33 0 168.03 33.43 78.71 33.42 137.04 91.87t91.85 137.02Q910-569.12 910-479.61q0 88.79-33.48 167.16-33.48 78.37-92 136.75Q726-117.33 647.57-84q-78.43 33.33-167.78 33.33Z"/>
+            <path d="m192-59-72-72 360-810 360 810-72 72-288-123L192-59Z" />
+        </svg>
+    );
+}
+
+function SearchIcon({ size = 24 }: { size?: number }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height={size}
+            viewBox="0 -960 960 960"
+            width={size}
+            fill="currentColor"
+            style={{ display: 'block' }}
+        >
+            <path d="M791-88 525.79-353.33q-29.46 21.66-68.46 34.33-39 12.67-85 12.67-117.04 0-197.85-80.87-80.81-80.87-80.81-196.67 0-115.8 80.87-196.46Q255.41-861 371.87-861q115.13 0 195.8 80.81 80.66 80.81 80.66 196.52 0 46.34-12.5 84-12.5 37.67-35.83 70l267 266L791-88ZM371.25-412.33q72.59 0 121.84-49.17 49.24-49.17 49.24-121.76 0-72.58-49.24-122.16Q443.84-755 371.25-755q-73.25 0-122.42 49.58-49.16 49.58-49.16 122.16 0 72.59 49.16 121.76 49.17 49.17 122.42 49.17Z" />
+        </svg>
+    );
+}
+
+function CreateIcon({ size = 24 }: { size?: number }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height={size}
+            viewBox="0 -960 960 960"
+            width={size}
+            fill="currentColor"
+            style={{ display: 'block' }}
+        >
+            <path d="M425-310h110v-115h114v-110H535v-114H425v114H310v110h115v115ZM479 5-5-479l484-487 487 487L479 5Z" />
+        </svg>
+    );
+}
+
+function BellIcon({ size = 24 }: { size?: number }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height={size}
+            viewBox="0 -960 960 960"
+            width={size}
+            fill="currentColor"
+            style={{ display: 'block' }}
+        >
+            <path d="M46-46v-868h868v708H206L46-46Zm194-354h320v-80H240v80Zm0-120h480v-80H240v80Zm0-120h480v-80H240v80Z"/>
+        </svg>
+    );
+}
+
+function LogOutIcon({ size = 24 }: { size?: number }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height={size}
+            viewBox="0 -960 960 960"
+            width={size}
+            fill="currentColor"
+            style={{ display: 'block' }}
+        >
+            <path d="M86-86v-788h402v126H212v536h276v126H86Zm541-146-88-89 96-96H352v-126h283l-96-96 88-89 247 248-247 248Z"/>
+        </svg>
+    );
+}
+
+function LoginIcon({ size = 24 }: { size?: number }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height={size}
+            viewBox="0 -960 960 960"
+            width={size}
+            fill="currentColor"
+            style={{ display: 'block' }}
+        >
+            <path d="M579-481q41-41 41-99t-41-99q-41-41-99-41t-99 41q-41 41-41 99t41 99q41 41 99 41t99-41ZM120-120v-720h720v720H120Zm80-80h560v-46q-54-53-125.5-83.5T480-360q-83 0-154.5 30.5T200-246v46Z" />
         </svg>
     );
 }
@@ -101,11 +178,11 @@ const MobileNavItem = ({ href, onClick, icon, title, isActive }: MobileNavItemPr
                 style={{
                     position: 'relative',
                     width: '56px',
-                    height: '32px',
+                    height: '38px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    borderRadius: '16px',
+                    borderRadius: '19px',
                     color: '#ffffff',
                     transition: 'color 0.2s ease'
                 }}
@@ -160,6 +237,14 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
     const [hasUnread, setHasUnread] = useState(false);
     const [profile, setProfile] = useState(initialProfile);
 
+    useEffect(() => {
+        setUser(initialUser);
+    }, [initialUser]);
+
+    useEffect(() => {
+        setProfile(initialProfile);
+    }, [initialProfile]);
+
     // Client-side page navigation indicator states
     const [isNavigating, setIsNavigating] = useState(false);
     const [transitionState, setTransitionState] = useState<'idle' | 'navigating' | 'fading'>('idle');
@@ -190,8 +275,8 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
     useEffect(() => {
         // When pathname matches targetPath (or is a subpath, except for root /), end the loading animation
         const cleanPath = pathname.split('#')[0];
-        const isMatch = targetPath === '/' 
-            ? cleanPath === '/' 
+        const isMatch = targetPath === '/'
+            ? cleanPath === '/'
             : (cleanPath === targetPath || (targetPath && cleanPath.startsWith(targetPath + '/')));
 
         if (isNavigating && transitionState === 'navigating' && isMatch) {
@@ -334,7 +419,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 throw new Error(`API returned status ${res.status}`);
             }
             const data = await res.json();
-            
+
             const combined: any[] = [...(data.notifications || []), ...systemNotifications];
 
             combined.sort(
@@ -430,12 +515,38 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
         }
     };
 
+    const userRef = useRef(user);
+    useEffect(() => {
+        userRef.current = user;
+    }, [user]);
+
     useEffect(() => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
                 if (event === 'SIGNED_OUT') {
                     setUser(null);
                     setProfile(null);
+                    try {
+                        const urlEnv = process.env.NEXT_PUBLIC_SUPABASE_URL;
+                        if (urlEnv) {
+                            const projectId = urlEnv.split('//')[1]?.split('.')[0];
+                            if (projectId) {
+                                const prefix = `sb-${projectId}`;
+                                localStorage.removeItem(`${prefix}-auth-token`);
+                                const cookies = document.cookie.split(';');
+                                cookies.forEach(c => {
+                                    const name = c.trim().split('=')[0];
+                                    if (name && name.startsWith(prefix)) {
+                                        document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; domain=${window.location.hostname}`;
+                                        document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
+                                    }
+                                });
+                            }
+                        }
+                    } catch (e) {}
+                    if (typeof window !== 'undefined' && window.location.pathname !== '/' && !window.location.pathname.startsWith('/login')) {
+                        window.location.href = '/';
+                    }
                     return;
                 }
 
@@ -469,49 +580,28 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     backgroundColor: '#000000',
                     zIndex: 1000,
                     borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                    padding: '0 32px',
+                    padding: 0,
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between'
+                    justifyContent: 'center',
+                    height: '65px'
                 }}
             >
-                {transitionState !== 'idle' && (
-                    <div 
-                        className="thin-loading-bar"
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            height: '3px',
-                            background: 'linear-gradient(90deg, rgb(255,1,35) 0%, rgb(255,96,29) 20%, rgb(254,179,31) 40%, rgb(22,207,45) 60%, rgb(2,145,255) 80%, rgb(255,1,35) 100%)',
-                            backgroundSize: '200% 100%',
-                            animation: 'thin-wave 1.5s linear infinite',
-                            zIndex: 1001,
-                            boxShadow: '0 1px 6px rgba(255, 159, 104, 0.2)',
-                            opacity: transitionState === 'fading' ? 0 : 1,
-                            transition: 'opacity 250ms cubic-bezier(0.4, 0, 0.2, 1)',
-                            pointerEvents: 'none'
-                        }}
-                    />
-                )}
-                {/* Mobile Left Home Navigation (hidden on desktop) */}
-                <div className="mobile-nav-home">
-                    <Link
-                        href="/"
-                        onClick={(e) => {
-                            if (pathname === '/') {
-                                e.preventDefault();
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
-                            } else {
-                                handleNavClick('/');
-                            }
-                        }}
-                        style={{ color: 'inherit', display: 'flex' }}
-                    >
-                        <HomeIcon size={24} />
-                    </Link>
-                </div>
+                <div
+                    className="nav-content-inner"
+                    style={{
+                        width: '100%',
+                        maxWidth: '1200px',
+                        margin: '0 auto',
+                        padding: '0 24px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        height: '100%',
+                        position: 'relative'
+                    }}
+                >
+
 
                 {/* Mobile Centered Logo (hidden on desktop) */}
                 <div className="mobile-nav-logo">
@@ -540,8 +630,8 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
 
                 {/* Desktop Left Group: Logo */}
                 <div className="nav-left-section">
-                    <Link 
-                        href="/" 
+                    <Link
+                        href="/"
                         onClick={() => handleNavClick('/')}
                         style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}
                     >
@@ -564,11 +654,10 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                         <NavLink href="/#hero" icon={<HomeIcon size={24} />} label="Home" onClick={() => handleNavClick('/#hero')} />
                         <NavLink href="/feed" icon={<FeedIcon size={24} />} label="Feed" onClick={() => handleNavClick('/feed')} />
                         <NavLink href="/explore" icon={<ExploreIcon size={24} />} label="Explore" onClick={() => handleNavClick('/explore')} />
-                        <NavLink href="/search" icon={<Search size={24} />} label="Search" onClick={() => handleNavClick('/search')} />
-                        {user && <NavLink href="/compose" icon={<Plus size={24} />} label="Create" onClick={() => handleNavClick('/compose')} />}
+                        <NavLink href="/search" icon={<SearchIcon size={24} />} label="Search" onClick={() => handleNavClick('/search')} />
                     </div>
 
-                    <div className="nav-divider" />
+
 
                     <div className="desktop-action-links">
                         {user ? (
@@ -580,7 +669,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                                         title="Notifications"
                                         onClick={handleOpenNotifications}
                                     >
-                                        <Bell size={24} />
+                                        <BellIcon size={24} />
                                         {hasUnread && <span className="bell-badge" />}
                                     </button>
 
@@ -596,8 +685,8 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                                 </div>
 
                                 {/* User Profile Badge */}
-                                <Link 
-                                    href={`/profile/${user.id}`} 
+                                <Link
+                                    href={`/profile/${user.id}`}
                                     onClick={() => handleNavClick(`/profile/${user.id}`)}
                                     className={`nav-profile-link ${pathname.startsWith('/profile') ? 'active' : ''}`}
                                 >
@@ -605,9 +694,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                                         {profile?.avatar_url ? (
                                             <img src={profile.avatar_url} alt="Profile" className="nav-avatar-img" />
                                         ) : (
-                                            <span>
-                                                {(profile?.username || user.email || 'U')[0].toUpperCase()}
-                                            </span>
+                                            <DefaultAvatar fill="currentColor" />
                                         )}
                                     </div>
                                 </Link>
@@ -615,109 +702,220 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                                 {/* Log Out Icon Button */}
                                 <button
                                     onClick={async () => {
+                                        // Update state instantly so UI responds immediately
                                         setUser(null);
                                         setProfile(null);
-                                        await supabase.auth.signOut();
+                                        
+                                        // Perform client-side signOut immediately
+                                        try {
+                                            supabase.auth.signOut();
+                                        } catch (err) {
+                                            console.error('Error during client signOut:', err);
+                                        }
+
+                                        // Call Server Action to clear cookies on the server
+                                        try {
+                                            await signOutAction();
+                                        } catch (err) {
+                                            console.error('Error during server signOut:', err);
+                                        }
+                                        
+                                        try {
+                                            const urlEnv = process.env.NEXT_PUBLIC_SUPABASE_URL;
+                                            if (urlEnv) {
+                                                const projectId = urlEnv.split('//')[1]?.split('.')[0];
+                                                if (projectId) {
+                                                    const prefix = `sb-${projectId}`;
+                                                    localStorage.removeItem(`${prefix}-auth-token`);
+                                                    
+                                                    // Clear notifications cache
+                                                    for (let i = 0; i < localStorage.length; i++) {
+                                                        const key = localStorage.key(i);
+                                                        if (key && (key.startsWith('notifications_') || key.startsWith('lastReadTime_'))) {
+                                                            localStorage.removeItem(key);
+                                                        }
+                                                    }
+
+                                                    const cookiesList = document.cookie.split(';');
+                                                    cookiesList.forEach(c => {
+                                                        const name = c.trim().split('=')[0];
+                                                        if (name && name.startsWith(prefix)) {
+                                                            document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; domain=${window.location.hostname}`;
+                                                            document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        } catch (e) {}
                                         window.location.href = '/';
                                     }}
                                     className="nav-action-btn logout-btn"
                                     title="Log Out"
                                 >
-                                    <LogOut size={24} />
+                                    <LogOutIcon size={24} />
                                 </button>
                             </>
                         ) : (
-                            <NavLink href="/login" icon={<User size={24} />} label="Log In" onClick={() => handleNavClick('/login')} />
+                            <NavLink href="/login" icon={<LoginIcon size={24} />} label="Log In" onClick={() => handleNavClick('/login')} />
                         )}
                     </div>
                 </div>
 
-                {/* Mobile Top Notification Bell */}
+                {/* Mobile Top Left: Notification Bell */}
                 {user && (
                     <div
                         className="mobile-nav-bell"
                         onClick={() => {
                             setHasUnread(false);
                             if (user?.id) {
-                                  localStorage.setItem(`lastReadTime_${user.id}`, Date.now().toString());
+                                localStorage.setItem(`lastReadTime_${user.id}`, Date.now().toString());
                             }
                             router.push('/notifications');
                         }}
                     >
-                        <Bell size={28} />
+                        <BellIcon size={24} />
                         {hasUnread && (
                             <span className="notification-dot" />
                         )}
                     </div>
                 )}
+
+                {/* Mobile Top Right: Logout / Login */}
+                {user ? (
+                    <div
+                        className="mobile-nav-logout"
+                        onClick={async () => {
+                            setUser(null);
+                            setProfile(null);
+                            try { supabase.auth.signOut(); } catch (err) {}
+                            try { await signOutAction(); } catch (err) {}
+                            try {
+                                const urlEnv = process.env.NEXT_PUBLIC_SUPABASE_URL;
+                                if (urlEnv) {
+                                    const projectId = urlEnv.split('//')[1]?.split('.')[0];
+                                    if (projectId) {
+                                        const prefix = `sb-${projectId}`;
+                                        localStorage.removeItem(`${prefix}-auth-token`);
+                                        for (let i = 0; i < localStorage.length; i++) {
+                                            const key = localStorage.key(i);
+                                            if (key && (key.startsWith('notifications_') || key.startsWith('lastReadTime_'))) {
+                                                localStorage.removeItem(key);
+                                            }
+                                        }
+                                        const cookiesList = document.cookie.split(';');
+                                        cookiesList.forEach(c => {
+                                            const name = c.trim().split('=')[0];
+                                            if (name && name.startsWith(prefix)) {
+                                                document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; domain=${window.location.hostname}`;
+                                                document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
+                                            }
+                                        });
+                                    }
+                                }
+                            } catch (e) {}
+                            window.location.href = '/';
+                        }}
+                    >
+                        <LogOutIcon size={24} />
+                    </div>
+                ) : (
+                    <Link
+                        href="/login"
+                        className="mobile-nav-logout"
+                        onClick={() => handleNavClick('/login')}
+                        style={{ color: 'inherit', textDecoration: 'none' }}
+                    >
+                        <LoginIcon size={24} />
+                    </Link>
+                )}
+                </div>
             </nav>
 
             {/* Mobile Bottom Control Panel */}
-            <div className="mobile-bottom-nav flex h-full items-center justify-around px-2">
-                <MobileNavItem
-                    href="/feed"
-                    title="Feed"
-                    icon={<FeedIcon size={26} />}
-                    isActive={pathname === '/feed'}
-                    onClick={() => handleNavClick('/feed')}
-                />
-
-                <MobileNavItem
-                    onClick={() => setIsMobileSearchOpen(true)}
-                    title="Search"
-                    icon={<Search size={26} strokeWidth={isMobileSearchOpen || pathname === '/search' ? 2 : 1.5} />}
-                    isActive={isMobileSearchOpen || pathname === '/search'}
-                />
-
-                <MobileNavItem
-                    href="/compose"
-                    title="Compose"
-                    icon={<Plus size={26} strokeWidth={pathname === '/compose' ? 2 : 1.5} />}
-                    isActive={pathname === '/compose'}
-                    onClick={() => handleNavClick('/compose')}
-                />
-
-                <MobileNavItem
-                    onClick={() => setIsSpooky(true)}
-                    title="Spooky"
-                    icon={<Ghost size={26} strokeWidth={isSpooky || pathname === '/special-theme' ? 2 : 1.5} />}
-                    isActive={isSpooky || pathname === '/special-theme'}
-                />
-
-                {user ? (
-                    <MobileNavItem
-                        href={`/profile/${user.id}`}
-                        title="Profile"
-                        icon={
-                            <div style={{
-                                width: '26px', height: '26px', borderRadius: '50%',
-                                background: pathname.startsWith('/profile') ? '#ffffff' : 'rgba(255, 255, 255, 0.2)', 
-                                overflow: 'hidden',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                border: pathname.startsWith('/profile') ? '2px solid #ffffff' : '1px solid rgba(255,255,255,0.25)',
-                                transition: 'all 0.25s ease'
-                            }}>
-                                {profile?.avatar_url ? (
-                                    <img src={profile.avatar_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                ) : (
-                                    <span style={{ color: pathname.startsWith('/profile') ? '#000' : '#fff', fontWeight: 700, fontSize: '0.8rem' }}>
-                                        {(profile?.username || user.email || 'U')[0].toUpperCase()}
-                                    </span>
-                                )}
-                            </div>
-                        }
-                        isActive={pathname.startsWith('/profile')}
-                        onClick={() => handleNavClick(`/profile/${user.id}`)}
-                    />
-                ) : (
-                    <MobileNavItem
-                        href="/login"
-                        title="Login"
-                        icon={<User size={26} strokeWidth={pathname === '/login' ? 2 : 1.5} />}
-                        isActive={pathname === '/login'}
-                        onClick={() => handleNavClick('/login')}
+            <div className="mobile-bottom-nav">
+                {transitionState !== 'idle' && (
+                    <div
+                        className="thin-loading-bar"
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: '3px',
+                            background: 'linear-gradient(90deg, rgb(255,1,35) 0%, rgb(255,96,29) 20%, rgb(254,179,31) 40%, rgb(22,207,45) 60%, rgb(2,145,255) 80%, rgb(255,1,35) 100%)',
+                            backgroundSize: '200% 100%',
+                            animation: 'thin-wave 1.5s linear infinite',
+                            zIndex: 10000,
+                            boxShadow: '0 -1px 6px rgba(255, 159, 104, 0.2)',
+                            opacity: transitionState === 'fading' ? 0 : 1,
+                            transition: 'opacity 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+                            pointerEvents: 'none'
+                        }}
                     />
                 )}
+                <div className="mobile-bottom-nav-inner">
+                    <MobileNavItem
+                        href="/"
+                        title="Home"
+                        icon={<HomeIcon size={24} />}
+                        isActive={pathname === '/'}
+                        onClick={() => {
+                            if (pathname === '/') {
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            } else {
+                                handleNavClick('/');
+                            }
+                        }}
+                    />
+
+                    <MobileNavItem
+                        href="/feed"
+                        title="Feed"
+                        icon={<FeedIcon size={24} />}
+                        isActive={pathname === '/feed'}
+                        onClick={() => handleNavClick('/feed')}
+                    />
+
+                    <MobileNavItem
+                        onClick={() => setIsMobileSearchOpen(true)}
+                        title="Search"
+                        icon={<SearchIcon size={24} />}
+                        isActive={isMobileSearchOpen || pathname === '/search'}
+                    />
+
+                    {user ? (
+                        <MobileNavItem
+                            href={`/profile/${user.id}`}
+                            title="Profile"
+                            icon={
+                                <div style={{
+                                    width: '28px', height: '28px', borderRadius: '50%',
+                                    background: pathname.startsWith('/profile') ? '#ffffff' : 'rgba(255, 255, 255, 0.2)', 
+                                    overflow: 'hidden',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    border: pathname.startsWith('/profile') ? '2px solid #ffffff' : '1px solid rgba(255,255,255,0.25)',
+                                    transition: 'all 0.25s ease'
+                                }}>
+                                    {profile?.avatar_url ? (
+                                        <img src={profile.avatar_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    ) : (
+                                        <DefaultAvatar fill={pathname.startsWith('/profile') ? '#000' : '#fff'} />
+                                    )}
+                                </div>
+                            }
+                            isActive={pathname.startsWith('/profile')}
+                            onClick={() => handleNavClick(`/profile/${user.id}`)}
+                        />
+                    ) : (
+                        <MobileNavItem
+                            href="/login"
+                            title="Login"
+                            icon={<LoginIcon size={24} />}
+                            isActive={pathname === '/login'}
+                            onClick={() => handleNavClick('/login')}
+                        />
+                    )}
+                </div>
             </div>
 
             {/* Mobile Search Component */}
@@ -793,11 +991,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     gap: 16px;
                 }
 
-                .nav-divider {
-                    width: 1px;
-                    height: 20px;
-                    background-color: rgba(255, 255, 255, 0.15);
-                }
+
 
                 /* Action Icon Buttons Styling */
                 .nav-action-btn {
@@ -862,8 +1056,8 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 }
 
                 .nav-avatar-container {
-                    width: 28px;
-                    height: 28px;
+                    width: 24px;
+                    height: 24px;
                     border-radius: 50%;
                     background: var(--md-sys-color-primary-container);
                     color: var(--md-sys-color-on-primary-container);
@@ -873,7 +1067,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     justify-content: center;
                     border: 1px solid rgba(255,255,255,0.1);
                     font-weight: 700;
-                    font-size: 0.8rem;
+                    font-size: 0.7rem;
                 }
 
                 .nav-avatar-img {
@@ -937,7 +1131,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     display: none;
                 }
 
-                .mobile-nav-bell, .mobile-nav-home {
+                .mobile-nav-bell, .mobile-nav-logout {
                     display: none;
                     cursor: pointer;
                     position: relative;
@@ -993,16 +1187,18 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                         align-items: center;
                         justify-content: center;
                         position: absolute !important;
-                        right: 16px;
+                        left: 16px;
                     }
 
-                    .mobile-nav-home {
+                    .mobile-nav-logout {
                         display: flex;
                         align-items: center;
                         justify-content: center;
                         position: absolute !important;
-                        left: 16px;
+                        right: 16px;
                     }
+
+
 
                     .mobile-bottom-nav {
                         display: flex;
@@ -1011,17 +1207,28 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                         left: 0;
                         right: 0;
                         width: 100%;
-                        height: 58px;
+                        height: 65px;
                         background: #000000;
                         backdrop-filter: none !important;
                         -webkit-backdrop-filter: none !important;
                         border-top: 1px solid var(--md-sys-color-outline-variant);
                         align-items: center;
-                        justify-content: space-evenly;
+                        justify-content: center;
                         padding: 0px !important;
                         margin: 0px !important;
                         z-index: 9999;
                         box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.25);
+                    }
+
+                    .mobile-bottom-nav-inner {
+                        width: 100%;
+                        max-width: 1200px;
+                        padding: 0 24px;
+                        margin: 0 auto;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-evenly;
+                        height: 100%;
                     }
 
                     .mobile-notification-wrapper {
@@ -1048,8 +1255,8 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
 
 function NavLink({ href, icon, label, onClick }: { href: string, icon: React.ReactNode, label: string, onClick?: () => void }) {
     const pathname = usePathname();
-    const isActive = href.startsWith('/#') 
-        ? pathname === '/' 
+    const isActive = href.startsWith('/#')
+        ? pathname === '/'
         : pathname === href || (href !== '/' && pathname.startsWith(href));
 
     return (

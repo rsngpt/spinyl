@@ -8,6 +8,7 @@ import VinylRatingInput from './VinylRatingInput';
 import Link from 'next/link';
 import { deleteReview } from '../actions/review';
 import { formatFriendlyDate } from '../../src/lib/date-utils';
+import DefaultAvatar from './DefaultAvatar';
 
 
 interface Comment {
@@ -176,7 +177,9 @@ export default function ReviewModal({ isOpen, onClose, review, currentUser, user
                                     {profile.avatar_url ? (
                                         <img src={profile.avatar_url} alt={profile.username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     ) : (
-                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: 'var(--md-sys-color-on-surface)' }}>{profile.username[0].toUpperCase()}</div>
+                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--md-sys-color-on-surface)' }}>
+                                            <DefaultAvatar fill="currentColor" />
+                                        </div>
                                     )}
                                 </div>
                                 <div>
@@ -283,12 +286,12 @@ export default function ReviewModal({ isOpen, onClose, review, currentUser, user
                                     </div>
                                 )}
                                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                    <div style={{ width: '32px', height: '32px', borderRadius: '0', background: 'var(--md-sys-color-surface-container-highest)', overflow: 'hidden', flexShrink: 0 }}>
+                                    <div style={{ width: '32px', height: '32px', borderRadius: '0', background: 'var(--md-sys-color-surface-container-highest)', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                         {/* Your Avatar */}
                                         {userProfile?.avatar_url || currentUser?.user_metadata?.avatar_url ? (
                                             <img src={userProfile?.avatar_url || currentUser.user_metadata.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                         ) : (
-                                            <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, var(--md-sys-color-surface-container-highest), var(--md-sys-color-surface-container-low))' }} />
+                                            <DefaultAvatar fill="currentColor" />
                                         )}
                                     </div>
                                     <input
@@ -337,11 +340,11 @@ export default function ReviewModal({ isOpen, onClose, review, currentUser, user
 function CommentItem({ comment, currentUser, onReply, onDelete, isReply = false }: { comment: Comment, currentUser: any, onReply: () => void, onDelete: () => void, isReply?: boolean }) {
     return (
         <div style={{ display: 'flex', gap: '12px' }}>
-            <div style={{ width: isReply ? '24px' : '32px', height: isReply ? '24px' : '32px', borderRadius: '0', background: 'var(--md-sys-color-surface-container-highest)', overflow: 'hidden', flexShrink: 0 }}>
+            <div style={{ width: isReply ? '24px' : '32px', height: isReply ? '24px' : '32px', borderRadius: '0', background: 'var(--md-sys-color-surface-container-highest)', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {comment.profiles.avatar_url ? (
                     <img src={comment.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isReply ? '0.65rem' : '0.8rem', fontWeight: 800, color: 'var(--md-sys-color-on-surface)' }}>{comment.profiles.username[0].toUpperCase()}</div>
+                    <DefaultAvatar fill="currentColor" />
                 )}
             </div>
             <div style={{ flex: 1 }}>

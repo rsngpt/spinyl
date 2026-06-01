@@ -6,6 +6,7 @@ import { HotTakeFeedItem } from '../../actions/feed';
 import { toggleHotTakeVote } from '../../actions/hot_takes';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import DefaultAvatar from '../DefaultAvatar';
 
 interface FeedHotTakeProps {
     item: HotTakeFeedItem & { type?: 'hot_take' }; // Ensure type compatibility
@@ -77,7 +78,7 @@ export default function FeedHotTake({ item, isDetailView = false }: FeedHotTakeP
                         {item.profiles?.avatar_url ? (
                             <img src={item.profiles.avatar_url} alt={item.profiles.username || 'User'} />
                         ) : (
-                            <span>{(item.profiles?.username?.[0] || 'U').toUpperCase()}</span>
+                            <DefaultAvatar fill="currentColor" />
                         )}
                     </div>
                     <span className="username">@{item.profiles?.username || 'unknown'}</span>

@@ -116,9 +116,9 @@ export default function FeedList({ initialPosts }: FeedListProps) {
             <style jsx>{`
                 .feed-list-container {
                     width: 100%;
-                    max-width: 1400px;
+                    max-width: 1200px;
                     margin: 0 auto;
-                    padding: 20px;
+                    padding: 20px 24px;
                 }
 
                 @keyframes :global(fadeInUp) {

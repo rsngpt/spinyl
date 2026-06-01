@@ -9,6 +9,7 @@ import { MessageCircle, Share2, MoreHorizontal, Quote } from 'lucide-react';
 import InstagramStoryCard from '../InstagramStoryCard';
 import html2canvas from 'html2canvas';
 import { getBase64Image } from '../../actions/image-proxy';
+import DefaultAvatar from '../DefaultAvatar';
 
 interface FeedPostProps {
     post: ReviewFeedItem;
@@ -138,7 +139,9 @@ export default function FeedPost({ post, variant = 'vertical' }: FeedPostProps) 
                                 {profiles?.avatar_url ? (
                                     <img src={profiles.avatar_url} alt={profiles.username || 'User'} className="avatar-img" />
                                 ) : (
-                                    <div className="avatar-placeholder">{(profiles?.username?.[0] || 'U').toUpperCase()}</div>
+                                    <div className="avatar-placeholder">
+                                        <DefaultAvatar fill="currentColor" />
+                                    </div>
                                 )}
                             </div>
                         </div>

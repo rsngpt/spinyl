@@ -6,6 +6,7 @@ import { getBrowserClient } from '@/src/lib/supabase-client';
 import { User } from 'lucide-react';
 import { getRecentReviews } from '../actions/review';
 import VinylRecordDisplay from './VinylRecordDisplay';
+import DefaultAvatar from './DefaultAvatar';
 
 type Review = {
     id: string;
@@ -177,7 +178,7 @@ export default function RecentReviews() {
                                                     {profile?.avatar_url ? (
                                                         <img src={profile.avatar_url} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                                     ) : (
-                                                        <User size={12} color="var(--md-sys-color-primary)" />
+                                                        <DefaultAvatar size={16} fill="var(--md-sys-color-primary)" />
                                                     )}
                                                 </div>
                                                 <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--md-sys-color-on-surface)' }}>@{profile?.username || 'Unknown'}</span>

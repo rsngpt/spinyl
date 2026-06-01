@@ -119,7 +119,7 @@ export default function SearchOverlay({ query: propQuery, isVisible, onClose, us
                 {/* Search Input for Desktop */}
                 {propQuery === undefined && (
                     <div className="search-input-wrapper-desktop">
-                        <Search className="search-icon-large" size={22} />
+                        <Search className="search-icon-large" size={24} />
                         <input
                             ref={inputRef}
                             type="text"

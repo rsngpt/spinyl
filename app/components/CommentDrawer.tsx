@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { getComments, addComment, deleteComment } from '../actions/comments';
 import { X, Send, MoreHorizontal, Trash2 } from 'lucide-react';
 import { formatFriendlyDate } from '../../src/lib/date-utils';
+import DefaultAvatar from './DefaultAvatar';
 
 
 interface Comment {
@@ -213,8 +214,8 @@ function CommentItem({ comment, onReply, currentUserId, onDelete }: { comment: C
                 {comment.profiles.avatar_url ? (
                     <img src={comment.profiles.avatar_url} alt={comment.profiles.username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 'bold' }}>
-                        {comment.profiles.username[0].toUpperCase()}
+                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#e3e3e3' }}>
+                        <DefaultAvatar size={20} fill="currentColor" />
                     </div>
                 )}
             </div>

@@ -4,6 +4,7 @@ import { getBrowserClient } from '@/src/lib/supabase-client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Cookies from 'js-cookie';
+import DefaultAvatar from './DefaultAvatar';
 
 const supabase = typeof window !== 'undefined' ? getBrowserClient()! : null as any;
 
@@ -78,9 +79,10 @@ export default function LoginButton() {
               backgroundColor: '#555',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              padding: '6px'
             }}>
-              👤
+              <DefaultAvatar fill="#fff" />
             </div>
           )}
           <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{displayName}</span>

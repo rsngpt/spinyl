@@ -67,9 +67,13 @@ export async function signOutAction() {
 
     // Delete them explicitly
     supabaseCookies.forEach(c => {
-        cookieStore.delete(c.name);
+        try {
+            cookieStore.delete(c.name);
+        } catch (e) {
+            console.error(`Failed to delete cookie ${c.name}:`, e);
+        }
     });
 
     revalidatePath('/', 'layout');
-    redirect('/login');
+    return { success: true };
 }

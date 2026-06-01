@@ -5,6 +5,7 @@ import { postHotTakeComment } from '../../actions/hot_takes';
 import { Send } from 'lucide-react';
 import Link from 'next/link';
 import { formatFriendlyDate } from '../../../src/lib/date-utils';
+import DefaultAvatar from '../DefaultAvatar';
 
 
 interface Comment {
@@ -94,7 +95,7 @@ export default function HotTakeComments({ hotTakeId, initialComments, user, user
                                 {comment.profiles?.avatar_url ? (
                                     <img src={comment.profiles.avatar_url} alt={comment.profiles.username || 'User'} />
                                 ) : (
-                                    <span>{(comment.profiles?.username?.[0] || 'U').toUpperCase()}</span>
+                                    <DefaultAvatar fill="currentColor" />
                                 )}
                             </Link>
                             <div className="comment-content">
@@ -118,7 +119,7 @@ export default function HotTakeComments({ hotTakeId, initialComments, user, user
                         {userProfile?.avatar_url ? (
                             <img src={userProfile.avatar_url} alt="You" />
                         ) : (
-                            <span>{(userProfile?.username?.[0] || 'U').toUpperCase()}</span>
+                            <DefaultAvatar fill="currentColor" />
                         )}
                     </div>
                     <div className="input-wrapper">

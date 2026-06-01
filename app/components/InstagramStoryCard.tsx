@@ -2,6 +2,7 @@
 
 import React, { forwardRef, useEffect, useState } from 'react';
 import VinylRatingInput from './VinylRatingInput';
+import DefaultAvatar from './DefaultAvatar';
 
 interface InstagramStoryCardProps {
     albumName: string;
@@ -208,10 +209,9 @@ const InstagramStoryCard = forwardRef<HTMLDivElement, InstagramStoryCardProps>((
                                 width: '100%', height: '100%',
                                 background: 'linear-gradient(135deg, #FF0080, #7928CA)',
                                 color: '#fff',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontSize: '3rem', fontWeight: 800
+                                display: 'flex', alignItems: 'center', justifyContent: 'center'
                             }}>
-                                {getInitials(username)}
+                                <DefaultAvatar fill="currentColor" />
                             </div>
                         )}
                     </div>

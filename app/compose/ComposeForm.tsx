@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { createHotTake } from '../actions/hot_takes';
 import { Loader2, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import DefaultAvatar from '../components/DefaultAvatar';
 
 interface ComposeFormProps {
     userAvatar: string | null;
@@ -113,8 +114,8 @@ export default function ComposeForm({ userAvatar, username }: ComposeFormProps) 
                         {userAvatar ? (
                             <img src={userAvatar} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
-                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#fff' }}>
-                                {(username?.[0] || '?').toUpperCase()}
+                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                                <DefaultAvatar fill="currentColor" />
                             </div>
                         )}
                     </div>

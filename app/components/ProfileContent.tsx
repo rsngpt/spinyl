@@ -8,6 +8,7 @@ import FollowButton from './FollowButton';
 import VinylRecordDisplay from './VinylRecordDisplay';
 import { formatLongDate } from '../../src/lib/date-utils';
 import { Disc, Users, UserCheck } from 'lucide-react';
+import DefaultAvatar from './DefaultAvatar';
 
 interface ProfileContentProps {
     reviews: any[];
@@ -215,8 +216,8 @@ export default function ProfileContent({
                                             {user.avatar_url ? (
                                                 <img src={user.avatar_url} alt={user.username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                             ) : (
-                                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--md-sys-color-outline)' }}>
-                                                    {(user.username || user.full_name || 'U')[0].toUpperCase()}
+                                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--md-sys-color-outline)' }}>
+                                                    <DefaultAvatar fill="currentColor" />
                                                 </div>
                                             )}
                                         </div>

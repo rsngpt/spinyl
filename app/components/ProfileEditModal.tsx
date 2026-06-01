@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { updateProfile } from '@/app/actions/profile';
+import DefaultAvatar from './DefaultAvatar';
 
 type ProfileData = {
     username: string | null;
@@ -184,7 +185,9 @@ export default function ProfileEditModal({ profile, onUpdate }: Props) {
                                 {previewUrl ? (
                                     <img src={previewUrl} alt="Preview" />
                                 ) : (
-                                    <div className="avatar-placeholder">📷</div>
+                                    <div className="avatar-placeholder" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', padding: '12px' }}>
+                                        <DefaultAvatar fill="currentColor" />
+                                    </div>
                                 )}
                                 <div className="avatar-overlay">CHANGE</div>
                             </div>

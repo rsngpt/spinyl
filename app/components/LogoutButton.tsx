@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { signOutAction } from '@/app/auth/actions';
+import { getBrowserClient } from '@/src/lib/supabase-client';
 
 export default function LogoutButton() {
     const router = useRouter();
@@ -13,17 +14,53 @@ export default function LogoutButton() {
             console.log('Logging out via Server Action...');
             setIsLoading(true);
 
-            // Call Server Action
-            // This will handle the cookies cleanup and redirect
+            // Trigger client-side signout instantly to update the Navbar state via onAuthStateChange
+            try {
+                const supabase = getBrowserClient()!;
+                supabase.auth.signOut();
+            } catch (err) {
+                console.error('Client-side signOut error:', err);
+            }
+
+            // Call Server Action to delete cookies on the server
             await signOutAction();
 
+            // Clean up client-side localStorage/cookies for safety
+            try {
+                const urlEnv = process.env.NEXT_PUBLIC_SUPABASE_URL;
+                if (urlEnv) {
+                    const projectId = urlEnv.split('//')[1]?.split('.')[0];
+                    if (projectId) {
+                        const prefix = `sb-${projectId}`;
+                        localStorage.removeItem(`${prefix}-auth-token`);
+                        
+                        // Clear notifications cache
+                        for (let i = 0; i < localStorage.length; i++) {
+                            const key = localStorage.key(i);
+                            if (key && (key.startsWith('notifications_') || key.startsWith('lastReadTime_'))) {
+                                localStorage.removeItem(key);
+                            }
+                        }
+
+                        const cookiesList = document.cookie.split(';');
+                        cookiesList.forEach(c => {
+                            const name = c.trim().split('=')[0];
+                            if (name && name.startsWith(prefix)) {
+                                document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; domain=${window.location.hostname}`;
+                                document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
+                            }
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error('Client storage cleanup error:', e);
+            }
+
+            // Force a hard redirect to the homepage to trigger the loader mount
+            window.location.href = '/';
         } catch (error) {
             console.error('Logout error:', error);
-            // If it's a redirect error, it's expected behavior in server actions
-            // but we can try to force navigation just in case
-        } finally {
-            // Usually we don't need to do anything here because of redirect
-            // But if it fails, we assume we might still be on the page
+            window.location.href = '/';
         }
     };
 

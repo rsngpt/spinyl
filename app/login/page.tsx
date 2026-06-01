@@ -155,7 +155,7 @@ export default function LoginPage() {
                     )}
 
                     {successMessage && (
-                        <div style={{ padding: '12px', background: 'rgba(255, 159, 104, 0.1)', border: '1px solid #ff9f68', borderRadius: '8px', color: '#ffb488', fontSize: '0.9rem', marginBottom: '12px' }}>
+                        <div style={{ padding: '12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px', color: '#ffffff', fontSize: '0.9rem', marginBottom: '12px' }}>
                             {successMessage}
                         </div>
                     )}

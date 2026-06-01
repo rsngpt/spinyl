@@ -6,23 +6,24 @@ import FollowButton from './FollowButton';
 import ProfileEditModal from './ProfileEditModal';
 import RoastModal from './RoastModal';
 import { Flame, Lock } from 'lucide-react';
+import DefaultAvatar from './DefaultAvatar';
 
-// Helper to extract dynamic colors from avatar image client-side
+// Helper to extract dynamic colors from avatar image client-side and convert to grayscale
 function extractColorsFromImage(imgElement: HTMLImageElement): { primary: string; secondary: string; glow: string } {
     try {
         const canvas = document.createElement('canvas');
         canvas.width = 30;
         canvas.height = 30;
         const ctx = canvas.getContext('2d');
-        if (!ctx) return { primary: '#ff9f68', secondary: '#ffe1d1', glow: 'rgba(255, 159, 104, 0.4)' };
+        if (!ctx) return { primary: '#ffffff', secondary: '#cccccc', glow: 'rgba(255, 255, 255, 0.15)' };
         
         // Use crossOrigin anonymous to prevent canvas taint if CORS allowed
         imgElement.crossOrigin = "anonymous";
         ctx.drawImage(imgElement, 0, 0, 30, 30);
         const imgData = ctx.getImageData(0, 0, 30, 30).data;
         
-        let bestColor = { r: 255, g: 159, b: 104, score: 0 };
-        let secondBestColor = { r: 255, g: 225, b: 209, score: 0 };
+        let bestColor = { r: 255, g: 255, b: 255, score: 0 };
+        let secondBestColor = { r: 200, g: 200, b: 200, score: 0 };
         
         for (let i = 0; i < imgData.length; i += 4) {
             const r = imgData[i];
@@ -31,15 +32,11 @@ function extractColorsFromImage(imgElement: HTMLImageElement): { primary: string
             const a = imgData[i+3];
             if (a < 200) continue; // Skip semi-transparent pixels
             
-            // Saturation: difference between color channels
-            const max = Math.max(r, g, b);
-            const min = Math.min(r, g, b);
-            const saturation = max - min;
-            
+            // Score by brightness/contrast for monochrome styling
             const brightness = (r + g + b) / 3;
             if (brightness < 40 || brightness > 230) continue; // Skip extremes
             
-            const score = saturation * (1 + brightness / 255);
+            const score = brightness;
             if (score > bestColor.score) {
                 secondBestColor = bestColor;
                 bestColor = { r, g, b, score };
@@ -48,9 +45,11 @@ function extractColorsFromImage(imgElement: HTMLImageElement): { primary: string
             }
         }
         
-        const primary = `rgb(${bestColor.r}, ${bestColor.g}, ${bestColor.b})`;
-        const secondary = `rgb(${secondBestColor.r}, ${secondBestColor.g}, ${secondBestColor.b})`;
-        const glow = `rgba(${bestColor.r}, ${bestColor.g}, ${bestColor.b}, 0.55)`;
+        const primaryGray = Math.round(bestColor.r * 0.299 + bestColor.g * 0.587 + bestColor.b * 0.114);
+        const secondaryGray = Math.round(secondBestColor.r * 0.299 + secondBestColor.g * 0.587 + secondBestColor.b * 0.114);
+        const primary = `rgb(${primaryGray}, ${primaryGray}, ${primaryGray})`;
+        const secondary = `rgb(${secondaryGray}, ${secondaryGray}, ${secondaryGray})`;
+        const glow = `rgba(${primaryGray}, ${primaryGray}, ${primaryGray}, 0.25)`;
         
         return { primary, secondary, glow };
     } catch (e) {
@@ -64,11 +63,11 @@ function getFallbackColors(seedString: string): { primary: string; secondary: st
     for (let i = 0; i < seedString.length; i++) {
         hash = seedString.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const hue = Math.abs(hash) % 360;
+    const lightness = 60 + (Math.abs(hash) % 30); // 60% to 90% lightness
     return {
-        primary: `hsl(${hue}, 85%, 65%)`,
-        secondary: `hsl(${(hue + 45) % 360}, 75%, 75%)`,
-        glow: `hsla(${hue}, 85%, 65%, 0.45)`
+        primary: `hsl(0, 0%, ${lightness}%)`,
+        secondary: `hsl(0, 0%, ${lightness - 20}%)`,
+        glow: `hsla(0, 0%, ${lightness}%, 0.25)`
     };
 }
 
@@ -107,7 +106,7 @@ export default function ProfileHeader({
     const [colors, setColors] = React.useState({
         primary: 'var(--md-sys-color-primary)',
         secondary: 'var(--md-sys-color-secondary)',
-        glow: 'rgba(255, 159, 104, 0.25)'
+        glow: 'rgba(255, 255, 255, 0.15)'
     });
 
     const displayName = profileState.full_name || profileState.username || 'Music Lover';
@@ -236,9 +235,7 @@ export default function ProfileHeader({
                             </div>
                         ) : (
                             <div className="sleeve-container default-avatar">
-                                <span style={{ fontSize: '3rem', fontWeight: 800, color: 'rgba(255,255,255,0.2)' }}>
-                                    {displayName[0]?.toUpperCase()}
-                                </span>
+                                <DefaultAvatar size="50%" fill="rgba(255,255,255,0.2)" />
                             </div>
                         )}
 

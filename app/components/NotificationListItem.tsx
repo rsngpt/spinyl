@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { formatFriendlyDate } from '../../src/lib/date-utils';
+import DefaultAvatar from './DefaultAvatar';
 
 
 interface NotificationListItemProps {
@@ -101,8 +102,8 @@ export default function NotificationListItem({ notification, onClose }: Notifica
                     {avatarUrl ? (
                         <img src={avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
-                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#fff' }}>
-                            {initial}
+                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                            <DefaultAvatar size={24} fill="currentColor" />
                         </div>
                     )}
                 </div>

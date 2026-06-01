@@ -13,6 +13,7 @@ import ReviewModal from './ReviewModal';
 import InstagramStoryCard from './InstagramStoryCard';
 import html2canvas from 'html2canvas';
 import { formatFriendlyDate, formatFriendlyTime } from '../../src/lib/date-utils';
+import DefaultAvatar from './DefaultAvatar';
 
 
 
@@ -120,10 +121,9 @@ const ReviewItem = ({
                                     width: '100%', height: '100%',
                                     background: 'linear-gradient(135deg, var(--md-sys-color-surface-container-highest), var(--md-sys-color-surface-container-low))',
                                     color: 'var(--md-sys-color-on-surface)',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    fontSize: '1rem', fontWeight: 800
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
                                 }}>
-                                    {getInitials(profile.username)}
+                                    <DefaultAvatar size={24} fill="currentColor" />
                                 </div>
                             )}
                             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(120deg, rgba(255,255,255,0.08) 0%, transparent 40%)' }} />

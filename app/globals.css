@@ -3,7 +3,7 @@
 :root {
   /* Material 3 Dark Palette (Pure OLED Black & Subtle Orange/Amber) */
   --md-sys-color-background: #000000;
-  --md-sys-color-on-background: #f1e0db;
+  --md-sys-color-on-background: #ffffff;
   --md-sys-color-surface: #0a0a0a;
   --md-sys-color-surface-dim: #000000;
   --md-sys-color-surface-bright: #1c1c1c;
@@ -12,28 +12,28 @@
   --md-sys-color-surface-container: #121212;
   --md-sys-color-surface-container-high: #1a1a1a;
   --md-sys-color-surface-container-highest: #242424;
-  --md-sys-color-on-surface: #f1e0db;
-  --md-sys-color-on-surface-variant: #d8c2bb;
+  --md-sys-color-on-surface: #ffffff;
+  --md-sys-color-on-surface-variant: #cccccc;
   
-  --md-sys-color-primary: #ff9f68;
-  --md-sys-color-on-primary: #4e260f;
-  --md-sys-color-primary-container: #6e371a;
-  --md-sys-color-on-primary-container: #ffdacf;
+  --md-sys-color-primary: #ffffff;
+  --md-sys-color-on-primary: #000000;
+  --md-sys-color-primary-container: #222222;
+  --md-sys-color-on-primary-container: #ffffff;
   
-  --md-sys-color-secondary: #ffd8c2;
-  --md-sys-color-on-secondary: #472815;
-  --md-sys-color-secondary-container: #613d28;
-  --md-sys-color-on-secondary-container: #ffe1d1;
+  --md-sys-color-secondary: #cccccc;
+  --md-sys-color-on-secondary: #000000;
+  --md-sys-color-secondary-container: #1a1a1a;
+  --md-sys-color-on-secondary-container: #ffffff;
   
-  --md-sys-color-tertiary: #ffd166;
-  --md-sys-color-on-tertiary: #3e2f00;
-  --md-sys-color-tertiary-container: #594400;
-  --md-sys-color-on-tertiary-container: #ffe082;
+  --md-sys-color-tertiary: #ffffff;
+  --md-sys-color-on-tertiary: #000000;
+  --md-sys-color-tertiary-container: #222222;
+  --md-sys-color-on-tertiary-container: #ffffff;
   
   --md-sys-color-error: #ffb4ab;
   --md-sys-color-on-error: #690005;
-  --md-sys-color-outline: #a08c85;
-  --md-sys-color-outline-variant: #53433e;
+  --md-sys-color-outline: #555555;
+  --md-sys-color-outline-variant: #2a2a2a;
 
   /* Shape tokens */
   --md-shape-corner-none: 0px;
@@ -49,7 +49,7 @@
   --surface: var(--md-sys-color-surface-container-low);
   --surface-hover: var(--md-sys-color-surface-container);
   --primary: var(--md-sys-color-primary);
-  --primary-hover: #ffb488;
+  --primary-hover: #dddddd;
   --text-main: var(--md-sys-color-on-background);
   --text-secondary: var(--md-sys-color-on-surface-variant);
   
@@ -264,7 +264,7 @@ h6 {
 }
 
 .profile-page-container {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 20px 24px;
   display: flex;
