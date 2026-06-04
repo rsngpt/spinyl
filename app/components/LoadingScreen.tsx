@@ -51,7 +51,7 @@ export default function LoadingScreen() {
                     /* Solid white wordmark with no breathing/opacity shifts */
                 }
 
-                /* Target the rect elements directly to avoid matrix transform override issues */
+                 /* Target the rect elements directly to avoid matrix transform override issues */
                 .rect-bar {
                     transform-origin: center;
                     opacity: 0;
@@ -63,20 +63,12 @@ export default function LoadingScreen() {
                     color: rgb(255,1,35); 
                 }
                 .rect-bar-2 { 
-                    animation: wave-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards; 
-                    color: rgb(255,96,29); 
+                    animation: wave-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards; 
+                    color: rgb(2,145,255); 
                 }
                 .rect-bar-3 { 
-                    animation: wave-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards; 
-                    color: rgb(254,179,31); 
-                }
-                .rect-bar-4 { 
-                    animation: wave-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.55s forwards; 
-                    color: rgb(22,207,45); 
-                }
-                .rect-bar-5 { 
                     animation: wave-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards; 
-                    color: rgb(2,145,255); 
+                    color: rgb(254,179,31); 
                 }
             `}</style>
 
@@ -131,20 +123,14 @@ export default function LoadingScreen() {
                                 </g>
                             </g>
                             <g id="Border" transform="matrix(0,-1.929545,1.929545,0,-7358.206678,15838.022592)">
-                                <g transform="matrix(0.2,0,0,1,4066.812554,0)" className="color-bar color-bar-1">
+                                <g transform="matrix(0.3,0,0,1,3572.446,0)" className="color-bar color-bar-1">
                                     <rect className="rect-bar rect-bar-1" x="5083.516" y="5492.516" width="82.521" height="632.427" fill="rgb(255,1,35)" style={{ opacity: 0 }} />
                                 </g>
-                                <g transform="matrix(0.2,0,0,1,4083.316821,0)" className="color-bar color-bar-2">
-                                    <rect className="rect-bar rect-bar-2" x="5083.516" y="5492.516" width="82.521" height="632.427" fill="rgb(255,96,29)" style={{ opacity: 0 }} />
+                                <g transform="matrix(0.3,0,0,1,3597.202,0)" className="color-bar color-bar-2">
+                                    <rect className="rect-bar rect-bar-2" x="5083.516" y="5492.516" width="82.521" height="632.427" fill="rgb(2,145,255)" style={{ opacity: 0 }} />
                                 </g>
-                                <g transform="matrix(0.2,0,0,1,4099.821088,0)" className="color-bar color-bar-3">
+                                <g transform="matrix(0.3,0,0,1,3621.958,0)" className="color-bar color-bar-3">
                                     <rect className="rect-bar rect-bar-3" x="5083.516" y="5492.516" width="82.521" height="632.427" fill="rgb(254,179,31)" style={{ opacity: 0 }} />
-                                </g>
-                                <g transform="matrix(0.2,0,0,1,4116.325355,0)" className="color-bar color-bar-4">
-                                    <rect className="rect-bar rect-bar-4" x="5083.516" y="5492.516" width="82.521" height="632.427" fill="rgb(22,207,45)" style={{ opacity: 0 }} />
-                                </g>
-                                <g transform="matrix(0.2,0,0,1,4132.829622,0)" className="color-bar color-bar-5">
-                                    <rect className="rect-bar rect-bar-5" x="5083.516" y="5492.516" width="82.521" height="632.427" fill="rgb(2,145,255)" style={{ opacity: 0 }} />
                                 </g>
                             </g>
                         </g>

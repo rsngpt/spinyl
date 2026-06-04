@@ -587,6 +587,26 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     height: '65px'
                 }}
             >
+                {transitionState !== 'idle' && (
+                    <div
+                        className="thin-loading-bar desktop-aura-light"
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: '3px',
+                            background: 'linear-gradient(90deg, rgb(255,1,35) 0%, rgb(254,179,31) 33%, rgb(2,145,255) 66%, rgb(255,1,35) 100%)',
+                            backgroundSize: '200% 100%',
+                            animation: 'thin-wave 1.5s linear infinite',
+                            zIndex: 1001,
+                            boxShadow: '0 1px 6px rgba(255, 159, 104, 0.2)',
+                            opacity: transitionState === 'fading' ? 0 : 1,
+                            transition: 'opacity 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+                            pointerEvents: 'none'
+                        }}
+                    />
+                )}
                 <div
                     className="nav-content-inner"
                     style={{
@@ -819,14 +839,15 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                         <LogOutIcon size={24} />
                     </div>
                 ) : (
-                    <Link
-                        href="/login"
-                        className="mobile-nav-logout"
-                        onClick={() => handleNavClick('/login')}
-                        style={{ color: 'inherit', textDecoration: 'none' }}
-                    >
-                        <LoginIcon size={24} />
-                    </Link>
+                    <div className="mobile-nav-logout">
+                        <Link
+                            href="/login"
+                            onClick={() => handleNavClick('/login')}
+                            style={{ color: 'inherit', textDecoration: 'none', display: 'flex' }}
+                        >
+                            <LoginIcon size={24} />
+                        </Link>
+                    </div>
                 )}
                 </div>
             </nav>
@@ -842,7 +863,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                             left: 0,
                             right: 0,
                             height: '3px',
-                            background: 'linear-gradient(90deg, rgb(255,1,35) 0%, rgb(255,96,29) 20%, rgb(254,179,31) 40%, rgb(22,207,45) 60%, rgb(2,145,255) 80%, rgb(255,1,35) 100%)',
+                            background: 'linear-gradient(90deg, rgb(255,1,35) 0%, rgb(254,179,31) 33%, rgb(2,145,255) 66%, rgb(255,1,35) 100%)',
                             backgroundSize: '200% 100%',
                             animation: 'thin-wave 1.5s linear infinite',
                             zIndex: 10000,
@@ -964,6 +985,16 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 @keyframes thin-wave {
                     0% { background-position: 0% 50%; }
                     100% { background-position: 200% 50%; }
+                }
+
+                .desktop-aura-light {
+                    display: block;
+                }
+
+                @media (max-width: 768px) {
+                    .desktop-aura-light {
+                        display: none;
+                    }
                 }
 
                 .nav-left-section {
