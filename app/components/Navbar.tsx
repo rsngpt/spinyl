@@ -801,7 +801,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 )}
 
                 {/* Mobile Top Right: Logout / Login */}
-                {user ? (
+                {user && (
                     <div
                         className="mobile-nav-logout"
                         onClick={async () => {
@@ -837,16 +837,6 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                         }}
                     >
                         <LogOutIcon size={24} />
-                    </div>
-                ) : (
-                    <div className="mobile-nav-logout">
-                        <Link
-                            href="/login"
-                            onClick={() => handleNavClick('/login')}
-                            style={{ color: 'inherit', textDecoration: 'none', display: 'flex' }}
-                        >
-                            <LoginIcon size={24} />
-                        </Link>
                     </div>
                 )}
                 </div>
