@@ -617,17 +617,18 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     top: 0,
                     left: 0,
                     right: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.55)',
-                    backdropFilter: 'blur(30px)',
-                    WebkitBackdropFilter: 'blur(30px)',
+                    backgroundColor: 'rgba(15, 15, 15, 0.6)',
+                    backdropFilter: 'blur(24px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
                     zIndex: 1000,
                     borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05)',
+                    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
                     padding: 0,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    height: '65px'
+                    height: '65px',
+                    transition: 'background-color 0.3s ease, backdrop-filter 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease'
                 }}
             >
                 {transitionState !== 'idle' && (
@@ -1096,23 +1097,23 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     justify-content: center;
                     border-radius: 50%;
                     background: transparent;
-                    border: 1px solid transparent;
+                    border: none;
                     color: rgba(255, 255, 255, 0.6);
                     cursor: pointer;
-                    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                     position: relative;
                 }
 
                 .nav-action-btn:hover {
                     color: #fff;
-                    background: rgba(255, 255, 255, 0.08);
-                    border-color: rgba(255, 255, 255, 0.05);
-                    transform: scale(1.05) translateY(-1px);
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                    background: rgba(255, 255, 255, 0.06);
+                    transform: translateY(-2px) scale(1.1);
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.25));
                 }
 
                 .nav-action-btn:active {
-                    transform: scale(0.95);
+                    transform: scale(0.92);
                 }
 
                 .bell-badge {
@@ -1139,17 +1140,20 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     border: none;
                     text-decoration: none;
                     color: rgba(255, 255, 255, 0.8);
-                    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 }
 
                 :global(.nav-profile-link:hover),
                 :global(.nav-profile-link-btn:hover) {
                     color: #fff;
+                    transform: translateY(-2px) scale(1.1);
+                    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.25));
                 }
 
                 :global(.nav-profile-link.active) .nav-avatar-container,
                 :global(.nav-profile-link-btn.active) .nav-avatar-container {
                     border-color: #fff;
+                    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
                 }
 
                 .nav-avatar-container {
@@ -1244,25 +1248,39 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     border-radius: 50%;
                     color: rgba(255, 255, 255, 0.6) !important;
                     text-decoration: none;
-                    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                     cursor: pointer;
                     background: transparent;
-                    border: 1px solid transparent;
+                    border: none;
+                    position: relative;
                 }
 
                 :global(.navbar-simple-link:hover) {
                     color: #fff !important;
-                    background: rgba(255, 255, 255, 0.08);
-                    border-color: rgba(255, 255, 255, 0.05);
-                    transform: scale(1.05) translateY(-1px);
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                    background: rgba(255, 255, 255, 0.06);
+                    transform: translateY(-2px) scale(1.1);
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.25));
                 }
 
                 :global(.navbar-simple-link.active) {
                     color: var(--md-sys-color-primary) !important;
-                    background: rgba(255, 159, 104, 0.08);
-                    border-color: rgba(255, 159, 104, 0.15);
-                    box-shadow: 0 4px 15px rgba(255, 159, 104, 0.08);
+                    background: transparent !important;
+                    border: none !important;
+                    box-shadow: none !important;
+                }
+
+                :global(.navbar-simple-link.active::after) {
+                    content: '';
+                    position: absolute;
+                    bottom: 2px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 4px;
+                    height: 4px;
+                    border-radius: 50%;
+                    background-color: var(--md-sys-color-primary);
+                    box-shadow: 0 0 8px var(--md-sys-color-primary);
                 }
 
                 .logo-hover {
