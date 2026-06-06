@@ -157,28 +157,14 @@ export default function CinematicHero({
                     gap: '24px'
                 }}
             >
-                {/* Main Row: Cover & Info Block */}
-                <div className="hero-main-content" style={{ display: 'flex', alignItems: 'flex-end', gap: '40px', width: '100%' }}>
+                <div className="hero-main-content" style={{ display: 'flex', alignItems: 'center', gap: '40px', width: '100%' }}>
                     {/* Album Cover holding the animating vinyl rating */}
                     <HeroVinylRating coverUrl={albumCover} rating={averageRating} size={260} />
 
                     {/* Right Parallel info block */}
-                    <div className="hero-info-block" style={{ flex: 1, minWidth: 0, paddingBottom: '10px' }}>
+                    <div className="hero-info-block" style={{ flex: 1, minWidth: 0 }}>
                         {/* Desktop-only Title & Subtitles */}
                         <div className="desktop-only-info">
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                                <span style={{
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '3px',
-                                    fontSize: '0.75rem',
-                                    fontWeight: 800,
-                                    color: 'var(--md-sys-color-primary)',
-                                    textShadow: '0 2px 4px rgba(0,0,0,0.4)'
-                                }}>
-                                    Album Review
-                                </span>
-                            </div>
-
                             <h1 
                                 className="font-display" 
                                 style={{
@@ -189,7 +175,8 @@ export default function CinematicHero({
                                     lineHeight: 1.05,
                                     letterSpacing: '-0.03em',
                                     textShadow: '0 4px 24px rgba(0,0,0,0.85)',
-                                    color: '#fff'
+                                    color: '#fff',
+                                    fontStyle: 'italic'
                                 }}
                             >
                                 {album.name}
@@ -235,9 +222,6 @@ export default function CinematicHero({
                                         ⭐ Unrated
                                     </span>
                                 )}
-                                <span className="m3-badge" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
-                                    💬 {reviewsCount} Reviews
-                                </span>
                             </div>
                         </div>
 
@@ -245,13 +229,11 @@ export default function CinematicHero({
                         <div className="mobile-only-info" style={{ 
                             display: 'flex', 
                             flexDirection: 'column', 
-                            height: 'var(--hero-vinyl-size, 140px)', 
-                            justifyContent: 'space-between',
+                            gap: '8px',
                             width: '100%', 
                             flex: 1, 
                             minWidth: 0, 
-                            textAlign: 'left',
-                            marginTop: '-2px'
+                            textAlign: 'left'
                         }}>
                             <h1 
                                 className="font-display" 
@@ -272,31 +254,27 @@ export default function CinematicHero({
                             <div style={{ 
                                 display: 'flex', 
                                 flexDirection: 'column', 
-                                justifyContent: 'space-between', 
-                                flex: 1, 
+                                gap: '4px',
                                 marginTop: '4px',
                                 fontSize: '0.8rem', 
                                 color: 'rgba(255,255,255,0.75)', 
                                 lineHeight: 1.25 
                             }}>
-                                <div style={{ fontWeight: 700, color: 'var(--md-sys-color-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.7rem' }}>
-                                    Album Review • {releaseYear}
-                                </div>
                                 <div>
                                     <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Artists:</span>{' '}
                                     <span style={{ fontWeight: 600, color: '#fff' }}>{album.artists.map((a: any) => a.name).join(', ')}</span>
                                 </div>
                                 <div>
-                                    <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Genres:</span>{' '}
+                                    <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Genre:</span>{' '}
                                     <span style={{ fontWeight: 600, color: '#fff' }}>{genreList}</span>
+                                </div>
+                                <div>
+                                    <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Year:</span>{' '}
+                                    <span style={{ fontWeight: 600, color: '#fff' }}>{releaseYear}</span>
                                 </div>
                                 <div>
                                     <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Tracks:</span>{' '}
                                     <span style={{ fontWeight: 600, color: '#fff' }}>{album.total_tracks}</span>
-                                </div>
-                                <div>
-                                    <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Reviews:</span>{' '}
-                                    <span style={{ fontWeight: 600, color: '#fff' }}>{reviewsCount} reviews</span>
                                 </div>
                             </div>
                         </div>
@@ -354,13 +332,12 @@ export default function CinematicHero({
                     .hero-main-content {
                         gap: 16px !important;
                         justify-content: center !important;
-                        align-items: flex-start !important;
-                    }
-                    .hero-vinyl-group {
+                        align-items: center !important;
                         --hero-vinyl-size: 145px !important;
                     }
                     .hero-info-block {
                         flex: 0 1 180px !important;
+                        align-self: center !important;
                     }
                     .cinematic-backdrop-container {
                         height: 75vw !important;
@@ -390,12 +367,11 @@ export default function CinematicHero({
                     }
                     .hero-main-content {
                         gap: 12px !important;
-                    }
-                    .hero-vinyl-group {
                         --hero-vinyl-size: 130px !important;
                     }
                     .hero-info-block {
                         flex: 0 1 160px !important;
+                        align-self: center !important;
                     }
                 }
             `}</style>
