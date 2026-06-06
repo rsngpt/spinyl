@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Twitter, Instagram, Github, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
+import { Twitter, Instagram, Github, Linkedin, Mail } from 'lucide-react';
 
 export default function Footer() {
     return (
@@ -67,17 +67,9 @@ export default function Footer() {
                     <div>
                         <h4 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '24px', fontWeight: '700' }}>Get in Touch</h4>
                         <ul style={{ listStyle: 'none', padding: 0 }}>
-                            <li style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#B3B3B3', marginBottom: '16px' }}>
+                            <li style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#B3B3B3' }}>
                                 <Mail size={18} color="#ff9f68" />
                                 <span style={{ fontSize: '0.95rem' }}>spinylchord@gmail.com</span>
-                            </li>
-                            <li style={{ display: 'flex', gap: '12px', alignItems: 'center', color: '#B3B3B3', marginBottom: '16px' }}>
-                                <Phone size={18} color="#ff9f68" />
-                                <span style={{ fontSize: '0.95rem' }}>+91 8840271419</span>
-                            </li>
-                            <li style={{ display: 'flex', gap: '12px', alignItems: 'start', color: '#B3B3B3' }}>
-                                <MapPin size={18} color="#ff9f68" style={{ marginTop: '4px' }} />
-                                <span style={{ fontSize: '0.95rem' }}>Bennett University,<br />Greater Noida, UP 201310</span>
                             </li>
                         </ul>
                     </div>
