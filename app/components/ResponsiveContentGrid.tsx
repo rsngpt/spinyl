@@ -170,16 +170,7 @@ export default function ResponsiveContentGrid({
 
   return (
     <div style={{ width: '100%', paddingBottom: '32px' }}>
-      {/* Android Style Top App Bar (visible on mobile only via CSS) */}
-      <div className="m3-top-app-bar">
-        <button className="m3-icon-btn" onClick={() => window.history.back()}>
-          <ArrowLeft size={24} />
-        </button>
-        <h2 className="m3-top-app-bar-title">{albumData.name}</h2>
-        <button className="m3-icon-btn">
-          <MoreVertical size={24} />
-        </button>
-      </div>
+
 
       {/* Android Style Tab Bar (visible on mobile only via CSS) */}
       <div className="m3-tab-bar-mobile-only">

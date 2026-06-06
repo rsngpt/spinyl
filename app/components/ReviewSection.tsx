@@ -48,6 +48,15 @@ const getInitials = (name: string) => {
         .slice(0, 2);
 };
 
+const getRatingBadgeInfo = (score: number) => {
+    if (score === 10) return { text: 'Perfection', bg: '#8a2be2', color: '#fff' };
+    if (score >= 8) return { text: 'Masterpiece', bg: '#3b82f6', color: '#fff' };
+    if (score >= 6) return { text: 'Good', bg: '#10b981', color: '#fff' };
+    if (score >= 4) return { text: 'Average', bg: '#f59e0b', color: '#fff' };
+    if (score >= 2) return { text: 'Skip', bg: '#ef4444', color: '#fff' };
+    return { text: 'Trash', bg: '#7f1d1d', color: '#fff' };
+};
+
 const ReviewItem = ({
     review,
     setReviewToShare,
@@ -88,177 +97,359 @@ const ReviewItem = ({
             borderRadius: '16px',
             alignItems: 'flex-start',
             boxSizing: 'border-box',
-            width: '100%'
+            width: '100%',
+            transition: 'all 0.3s ease'
         }}>
-            {/* LEFT COLUMN: Sleeve (User PFP) + Vinyl Disc */}
-            <div className="review-vinyl-wrapper" style={{
-                position: 'relative',
-                flexShrink: 0
+            {/* MOBILE LAYOUT (Moctale Style List with Vinyls) */}
+            <div className="mobile-review-layout" style={{ 
+                display: 'none', 
+                flexDirection: 'row', 
+                gap: '16px', 
+                width: '100%',
+                boxSizing: 'border-box',
+                alignItems: 'flex-start'
             }}>
-                {/* Vinyl Record (fitted more than half visible, edge-to-edge) */}
-                <div style={{
-                    position: 'absolute',
-                    top: '0',
-                    left: '55%',
-                    width: '100%',
-                    height: '100%',
-                    zIndex: 5,
-                    animation: 'spin 12s linear infinite',
-                }}>
-                    <VinylRatingInput value={review.rating} onChange={() => { }} readonly />
-                </div>
-
-                {/* Sleeve (User PFP) */}
-                <div style={{
+                {/* LEFT COLUMN: Sleeve (User PFP) + Vinyl Disc */}
+                <div className="review-vinyl-wrapper" style={{
                     position: 'relative',
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: '0',
-                    overflow: 'hidden',
-                    zIndex: 10,
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
-                    background: '#1a1513',
-                    border: '1px solid rgba(255, 255, 255, 0.08)'
+                    flexShrink: 0
                 }}>
-                    {profile.avatar_url ? (
-                        <img
-                            src={profile.avatar_url}
-                            alt={profile.username}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                    ) : (
-                        <div style={{
-                            width: '100%', height: '100%',
-                            background: 'linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-tertiary) 100%)',
-                            color: '#fff',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontFamily: 'var(--font-display)',
-                            fontWeight: 900,
-                            fontSize: '1.8rem',
-                            letterSpacing: '-1px'
-                        }}>
-                            {getInitials(profile.username || 'Unknown')}
-                        </div>
-                    )}
-                    {/* Glare sheen */}
+                    {/* Vinyl Record (fitted more than half visible, edge-to-edge) */}
                     <div style={{
                         position: 'absolute',
-                        inset: 0,
-                        background: 'linear-gradient(125deg, rgba(255,255,255,0.12) 0%, transparent 45%)',
-                        pointerEvents: 'none'
-                    }} />
+                        top: '0',
+                        left: '55%',
+                        width: '100%',
+                        height: '100%',
+                        zIndex: 5,
+                        animation: 'spin 12s linear infinite',
+                    }}>
+                        <VinylRatingInput value={review.rating} onChange={() => { }} readonly />
+                    </div>
+
+                    {/* Sleeve (User PFP) */}
+                    <div style={{
+                        position: 'relative',
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: '0',
+                        overflow: 'hidden',
+                        zIndex: 10,
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                        background: '#1a1513',
+                        border: '1px solid rgba(255, 255, 255, 0.08)'
+                    }}>
+                        {profile.avatar_url ? (
+                            <img
+                                src={profile.avatar_url}
+                                alt={profile.username}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                        ) : (
+                            <div style={{
+                                width: '100%', height: '100%',
+                                background: 'linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-tertiary) 100%)',
+                                color: '#fff',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontFamily: 'var(--font-display)',
+                                fontWeight: 900,
+                                fontSize: '1.4rem',
+                                letterSpacing: '-1px'
+                            }}>
+                                {getInitials(profile.username || 'Unknown')}
+                            </div>
+                        )}
+                        {/* Glare sheen */}
+                        <div style={{
+                            position: 'absolute',
+                            inset: 0,
+                            background: 'linear-gradient(125deg, rgba(255,255,255,0.12) 0%, transparent 45%)',
+                            pointerEvents: 'none'
+                        }} />
+                    </div>
+                </div>
+
+                {/* RIGHT COLUMN: Review details */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                    {/* Header Row: Username + Date, Rating Badge */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '8px', marginBottom: '8px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                            <Link href={`/profile/${review.user_id}`} style={{ textDecoration: 'none', color: '#fff' }}>
+                                <span className="font-display" style={{ fontWeight: 800, fontSize: '0.9rem', letterSpacing: '-0.01em', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {profile.username}
+                                </span>
+                            </Link>
+                            <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', fontWeight: 500, marginTop: '1px' }}>
+                                {dateStr}
+                            </span>
+                        </div>
+
+                        {/* Numerical Rating Pill */}
+                        <div style={{
+                            border: '1px solid rgba(255, 255, 255, 0.4)',
+                            borderRadius: '16px',
+                            padding: '3px 8px',
+                            background: 'transparent',
+                            flexShrink: 0
+                        }}>
+                            <span className="font-display" style={{
+                                fontWeight: 800,
+                                fontSize: '0.78rem',
+                                color: '#fff',
+                                letterSpacing: '-0.02em'
+                            }}>
+                                {review.rating}/10
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Review text body */}
+                    <div style={{ marginBottom: '10px' }}>
+                        <p style={{
+                            margin: 0,
+                            lineHeight: '1.45',
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            fontSize: '0.88rem',
+                            whiteSpace: 'pre-line',
+                            display: isExpanded ? 'block' : '-webkit-box',
+                            WebkitLineClamp: isExpanded ? 'unset' : 3,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                        }}>
+                            {quotedText}
+                        </p>
+                        {isLongReview && (
+                            <button
+                                onClick={() => setIsExpanded(!isExpanded)}
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#fff',
+                                    fontWeight: 700,
+                                    fontSize: '0.78rem',
+                                    cursor: 'pointer',
+                                    marginTop: '4px',
+                                    padding: 0,
+                                    textDecoration: 'underline',
+                                    alignSelf: 'flex-start'
+                                }}
+                            >
+                                {isExpanded ? 'Show less' : 'Read more'}
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Actions Row */}
+                    <div style={{ display: 'flex', alignItems: 'center', width: '100%', color: 'rgba(255, 255, 255, 0.5)' }}>
+                        <button
+                            onClick={() => setIsLiked(!isLiked)}
+                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: isLiked ? 'var(--md-sys-color-tertiary)' : 'inherit', transition: 'color 0.2s', marginRight: '16px' }}
+                        >
+                            <Heart size={18} fill={isLiked ? "var(--md-sys-color-tertiary)" : "none"} style={{ transition: 'transform 0.2s' }} />
+                            <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{isLiked ? '1' : ''}</span>
+                        </button>
+
+                        <button
+                            onClick={onOpenComments}
+                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: 'inherit', transition: 'color 0.2s', marginRight: '16px' }}
+                        >
+                            <MessageCircle size={18} />
+                        </button>
+
+                        <button
+                            onClick={() => handleShareToStory(review)}
+                            disabled={isGeneratingStory}
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: 0,
+                                cursor: isGeneratingStory ? 'wait' : 'pointer',
+                                color: 'inherit',
+                                marginLeft: 'auto',
+                                display: 'flex',
+                                alignItems: 'center',
+                                opacity: isGeneratingStory ? 0.5 : 1
+                            }}
+                            title="Share as Instagram Story"
+                        >
+                            <MoreHorizontal size={18} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {/* RIGHT COLUMN: Review Information & Verdict */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0 }}>
-                {/* Header: Username, Date/Time & Rating badge */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', minWidth: 0 }}>
-                        <Link href={`/profile/${review.user_id}`} style={{ textDecoration: 'none', color: '#fff' }}>
-                            <span className="font-display" style={{ fontWeight: 800, fontSize: '0.95rem', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
-                                {profile.username}
-                            </span>
-                        </Link>
-                        <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem' }}>&bull;</span>
-                        <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
-                            {dateStr} {timeStr}
-                        </span>
+            {/* DESKTOP LAYOUT (Classic Sleeve + Vinyl Disc) */}
+            <div className="desktop-review-layout" style={{ display: 'flex', flexDirection: 'row', gap: '24px', width: '100%', minWidth: 0, alignItems: 'flex-start' }}>
+                {/* LEFT COLUMN: Sleeve (User PFP) + Vinyl Disc */}
+                <div className="review-vinyl-wrapper" style={{
+                    position: 'relative',
+                    flexShrink: 0
+                }}>
+                    {/* Vinyl Record (fitted more than half visible, edge-to-edge) */}
+                    <div style={{
+                        position: 'absolute',
+                        top: '0',
+                        left: '55%',
+                        width: '100%',
+                        height: '100%',
+                        zIndex: 5,
+                        animation: 'spin 12s linear infinite',
+                    }}>
+                        <VinylRatingInput value={review.rating} onChange={() => { }} readonly />
                     </div>
 
-                    {/* Pill Rating Badge */}
+                    {/* Sleeve (User PFP) */}
                     <div style={{
-                        border: '1.5px solid rgba(255, 255, 255, 0.8)',
-                        borderRadius: '24px',
-                        padding: '6px 14px',
-                        background: 'transparent',
-                        flexShrink: 0
+                        position: 'relative',
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: '0',
+                        overflow: 'hidden',
+                        zIndex: 10,
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                        background: '#1a1513',
+                        border: '1px solid rgba(255, 255, 255, 0.08)'
                     }}>
-                        <span className="font-display" style={{
-                            fontWeight: 800,
-                            fontSize: '0.9rem',
-                            color: '#fff',
-                            letterSpacing: '-0.02em'
-                        }}>
-                            {review.rating}/10
-                        </span>
+                        {profile.avatar_url ? (
+                            <img
+                                src={profile.avatar_url}
+                                alt={profile.username}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                        ) : (
+                            <div style={{
+                                width: '100%', height: '100%',
+                                background: 'linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-tertiary) 100%)',
+                                color: '#fff',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontFamily: 'var(--font-display)',
+                                fontWeight: 900,
+                                fontSize: '1.8rem',
+                                letterSpacing: '-1px'
+                            }}>
+                                {getInitials(profile.username || 'Unknown')}
+                            </div>
+                        )}
+                        {/* Glare sheen */}
+                        <div style={{
+                            position: 'absolute',
+                            inset: 0,
+                            background: 'linear-gradient(125deg, rgba(255,255,255,0.12) 0%, transparent 45%)',
+                            pointerEvents: 'none'
+                        }} />
                     </div>
                 </div>
 
-                {/* Review text body */}
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <p style={{
-                        margin: 0,
-                        lineHeight: '1.6',
-                        color: 'rgba(255, 255, 255, 0.75)',
-                        fontSize: '0.95rem',
-                        whiteSpace: 'pre-line',
-                        display: isExpanded ? 'block' : '-webkit-box',
-                        WebkitLineClamp: isExpanded ? 'unset' : 3,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                    }}>
-                        {quotedText}
-                    </p>
-                    {isLongReview && (
-                        <button
-                            onClick={() => setIsExpanded(!isExpanded)}
-                            style={{
-                                background: 'transparent',
-                                border: 'none',
+                {/* RIGHT COLUMN: Review Information & Verdict */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0 }}>
+                    {/* Header: Username, Date/Time & Rating badge */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', minWidth: 0 }}>
+                            <Link href={`/profile/${review.user_id}`} style={{ textDecoration: 'none', color: '#fff' }}>
+                                <span className="font-display" style={{ fontWeight: 800, fontSize: '0.95rem', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
+                                    {profile.username}
+                                </span>
+                            </Link>
+                            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem' }}>&bull;</span>
+                            <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
+                                {dateStr} {timeStr}
+                            </span>
+                        </div>
+
+                        {/* Pill Rating Badge */}
+                        <div style={{
+                            border: '1.5px solid rgba(255, 255, 255, 0.8)',
+                            borderRadius: '24px',
+                            padding: '6px 14px',
+                            background: 'transparent',
+                            flexShrink: 0
+                        }}>
+                            <span className="font-display" style={{
+                                fontWeight: 800,
+                                fontSize: '0.9rem',
                                 color: '#fff',
-                                fontWeight: 700,
-                                fontSize: '0.85rem',
-                                cursor: 'pointer',
-                                marginTop: '6px',
+                                letterSpacing: '-0.02em'
+                            }}>
+                                {review.rating}/10
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Review text body */}
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <p style={{
+                            margin: 0,
+                            lineHeight: '1.6',
+                            color: 'rgba(255, 255, 255, 0.75)',
+                            fontSize: '0.95rem',
+                            whiteSpace: 'pre-line',
+                            display: isExpanded ? 'block' : '-webkit-box',
+                            WebkitLineClamp: isExpanded ? 'unset' : 3,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                        }}>
+                            {quotedText}
+                        </p>
+                        {isLongReview && (
+                            <button
+                                onClick={() => setIsExpanded(!isExpanded)}
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#fff',
+                                    fontWeight: 700,
+                                    fontSize: '0.85rem',
+                                    cursor: 'pointer',
+                                    marginTop: '6px',
+                                    padding: 0,
+                                    textDecoration: 'underline',
+                                    alignSelf: 'flex-start'
+                                }}
+                            >
+                                {isExpanded ? 'Show less' : 'Read more'}
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Action Bar footer */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '8px', color: 'rgba(255, 255, 255, 0.5)' }}>
+                        <button
+                            onClick={() => setIsLiked(!isLiked)}
+                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: isLiked ? 'var(--md-sys-color-tertiary)' : 'inherit', transition: 'color 0.2s' }}
+                        >
+                            <Heart size={18} fill={isLiked ? "var(--md-sys-color-tertiary)" : "none"} style={{ transition: 'transform 0.2s' }} />
+                            <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{isLiked ? '1' : ''}</span>
+                        </button>
+
+                        <button
+                            onClick={onOpenComments}
+                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: 'inherit', transition: 'color 0.2s' }}
+                        >
+                            <MessageCircle size={18} />
+                        </button>
+
+                        {/* Share Button (Story) */}
+                        <button
+                            onClick={() => handleShareToStory(review)}
+                            disabled={isGeneratingStory}
+                            title="Share as Instagram Story"
+                            style={{
+                                background: 'none',
+                                border: 'none',
                                 padding: 0,
-                                textDecoration: 'underline',
-                                alignSelf: 'flex-start'
+                                cursor: isGeneratingStory ? 'wait' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                color: 'inherit',
+                                transition: 'color 0.2s',
+                                marginLeft: 'auto',
+                                opacity: isGeneratingStory ? 0.5 : 1
                             }}
                         >
-                            {isExpanded ? 'Show less' : 'Read more'}
+                            <Share2 size={18} />
                         </button>
-                    )}
-                </div>
-
-                {/* Action Bar footer */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '8px', color: 'rgba(255, 255, 255, 0.5)' }}>
-                    <button
-                        onClick={() => setIsLiked(!isLiked)}
-                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: isLiked ? 'var(--md-sys-color-tertiary)' : 'inherit', transition: 'color 0.2s' }}
-                    >
-                        <Heart size={18} fill={isLiked ? "var(--md-sys-color-tertiary)" : "none"} style={{ transition: 'transform 0.2s' }} />
-                        <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{isLiked ? '1' : ''}</span>
-                    </button>
-
-                    <button
-                        onClick={onOpenComments}
-                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: 'inherit', transition: 'color 0.2s' }}
-                    >
-                        <MessageCircle size={18} />
-                    </button>
-
-                    {/* Share Button (Story) */}
-                    <button
-                        onClick={() => handleShareToStory(review)}
-                        disabled={isGeneratingStory}
-                        title="Share as Instagram Story"
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            padding: 0,
-                            cursor: isGeneratingStory ? 'wait' : 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            color: 'inherit',
-                            transition: 'color 0.2s',
-                            marginLeft: 'auto',
-                            opacity: isGeneratingStory ? 0.5 : 1
-                        }}
-                    >
-                        <Share2 size={18} />
-                    </button>
+                    </div>
                 </div>
             </div>
 
@@ -268,11 +459,31 @@ const ReviewItem = ({
                     height: 110px;
                     margin-right: 65px;
                 }
+                .mobile-review-layout {
+                    display: none !important;
+                }
+                .desktop-review-layout {
+                    display: flex !important;
+                }
                 @media (max-width: 600px) {
+                    .mobile-review-layout {
+                        display: flex !important;
+                    }
+                    .desktop-review-layout {
+                        display: none !important;
+                    }
+                    .review-card-item {
+                        background: transparent !important;
+                        border: none !important;
+                        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+                        border-radius: 0px !important;
+                        padding: 16px 0px !important;
+                        gap: 0px !important;
+                    }
                     .review-vinyl-wrapper {
-                        width: 80px;
-                        height: 80px;
-                        margin-right: 48px;
+                        width: 65px !important;
+                        height: 65px !important;
+                        margin-right: 36px !important;
                     }
                 }
             `}</style>
@@ -655,27 +866,6 @@ export default function ReviewSection({
                     </button>
                 )}
             </div>
-
-            {/* Mobile Android-style Floating Action Button (FAB) */}
-            {user && isMobileActive && !showForm && (
-                <button
-                    onClick={() => {
-                        const existingReview = reviews.find(r => r.user_id === user.id);
-                        if (existingReview) {
-                            setRating(existingReview.rating);
-                            setReviewText(existingReview.review_text);
-                        } else {
-                            setRating(8);
-                            setReviewText('');
-                        }
-                        setShowForm(true);
-                    }}
-                    className="m3-fab"
-                    title={reviews.some(r => r.user_id === user.id) ? "Edit Review" : "Write a Review"}
-                >
-                    <Plus size={24} />
-                </button>
-            )}
 
             {!user ? (
                 <div style={{ textAlign: 'center', padding: '32px', background: 'var(--md-sys-color-surface-container-low)', border: '1px solid var(--md-sys-color-outline-variant)', borderRadius: 'var(--md-shape-corner-large)' }}>

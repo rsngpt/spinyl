@@ -57,10 +57,10 @@ export default function HeroVinylRating({ coverUrl, rating, size = 280 }: HeroVi
             className="hero-vinyl-group"
             style={{
                 position: 'relative',
-                width: size,
-                height: size,
+                width: 'var(--hero-vinyl-size, ' + size + 'px)',
+                height: 'var(--hero-vinyl-size, ' + size + 'px)',
                 flexShrink: 0,
-                marginRight: slideOut ? `${size * 0.55}px` : '0px',
+                marginRight: slideOut ? 'calc(var(--hero-vinyl-size, ' + size + 'px) * 0.55)' : '0px',
                 transition: 'margin-right 1.2s cubic-bezier(0.25, 1, 0.5, 1)'
             }}
         >
