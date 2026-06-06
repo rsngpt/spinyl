@@ -96,9 +96,15 @@ export default function SearchPage() {
     };
 
     const handleItemClick = (item: SearchResult) => {
-        if (item.type === 'user') router.push(`/profile/${item.id}`);
-        else if (item.type === 'album') router.push(`/album/${item.id}`);
-        else if (item.type === 'track') router.push(`/track/${item.id}`);
+        let targetUrl = '';
+        if (item.type === 'user') targetUrl = `/profile/${item.id}`;
+        else if (item.type === 'album') targetUrl = `/album/${item.id}`;
+        else if (item.type === 'track') targetUrl = `/track/${item.id}`;
+
+        if (targetUrl) {
+            window.dispatchEvent(new CustomEvent('spinyl:nav-start', { detail: { href: targetUrl } }));
+            router.push(targetUrl);
+        }
     };
 
     return (

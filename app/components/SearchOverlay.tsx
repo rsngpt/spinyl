@@ -103,11 +103,17 @@ export default function SearchOverlay({ query: propQuery, isVisible, onClose, us
     };
 
     const handleItemClick = (item: SearchResult) => {
-        if (item.type === 'user') router.push(`/profile/${item.id}`);
-        // Handle other types later (e.g., album page)
-        else if (item.type === 'album') router.push(`/album/${item.id}`);
-        else if (item.type === 'track') router.push(`/track/${item.id}`);
-        else console.log('Clicked', item); // Placeholder
+        let targetUrl = '';
+        if (item.type === 'user') targetUrl = `/profile/${item.id}`;
+        else if (item.type === 'album') targetUrl = `/album/${item.id}`;
+        else if (item.type === 'track') targetUrl = `/track/${item.id}`;
+
+        if (targetUrl) {
+            window.dispatchEvent(new CustomEvent('spinyl:nav-start', { detail: { href: targetUrl } }));
+            router.push(targetUrl);
+        } else {
+            console.log('Clicked', item);
+        }
         handleClose();
     };
 

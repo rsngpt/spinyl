@@ -51,7 +51,6 @@ export default function ResponsiveContentGrid({
 }: ResponsiveContentGridProps) {
   const [activeTab, setActiveTab] = useState<'tracks' | 'reviews'>('tracks');
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
-  const [isPlayerVisible, setIsPlayerVisible] = useState(true);
   const [isApiReady, setIsApiReady] = useState(false);
   const playerControllerRef = useRef<any>(null);
 
@@ -118,7 +117,6 @@ export default function ResponsiveContentGrid({
 
         if (playerControllerRef.current) {
           e.preventDefault();
-          setIsPlayerVisible(true);
           
           const currentTrackId = playingTrackIdRef.current;
           const currentTracks = tracksRef.current;
@@ -153,7 +151,6 @@ export default function ResponsiveContentGrid({
   }, [albumData.spotify_id, isApiReady]);
 
   const handlePlayTrack = (trackId: string) => {
-    setIsPlayerVisible(true);
     if (playingTrackId === trackId) {
       if (playerControllerRef.current) {
         playerControllerRef.current.togglePlay();
@@ -172,7 +169,7 @@ export default function ResponsiveContentGrid({
   };
 
   return (
-    <div style={{ width: '100%', paddingBottom: isPlayerVisible ? '120px' : '32px' }}>
+    <div style={{ width: '100%', paddingBottom: '32px' }}>
       {/* Android Style Top App Bar (visible on mobile only via CSS) */}
       <div className="m3-top-app-bar">
         <button className="m3-icon-btn" onClick={() => window.history.back()}>
@@ -211,7 +208,7 @@ export default function ResponsiveContentGrid({
       </div>
 
       {/* Content Split: Tracklist vs Reviews */}
-      <div className="content-grid">
+      <div className="content-grid album-reviews-grid">
         {/* Left Column: Tracklist */}
         <section
           className={`glass-panel-m3 tracklist-column ${activeTab === 'tracks' ? '' : 'mobile-hidden'}`}
@@ -293,70 +290,55 @@ export default function ResponsiveContentGrid({
         </section>
       </div>
 
-      {/* Floating Spotify Player Bar */}
-      <div className={`m3-spotify-player-bar ${isPlayerVisible ? 'visible' : 'hidden'}`}>
-        <div className="m3-spotify-player-content">
-          {/* Header info */}
-          <div className="m3-spotify-player-header-info desktop-only">
-            <img 
-              src={albumData.cover_image} 
-              alt={albumData.name} 
-              className="m3-spotify-player-art"
-            />
-            <div style={{ minWidth: 0 }}>
-              <span className="m3-player-track-title" style={{ display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                {playingTrackId 
-                  ? tracks.find(t => t.id === playingTrackId)?.name || 'Track Preview'
-                  : 'Album Playback'}
-              </span>
-              <span className="m3-player-artist-name" style={{ display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                {albumData.artists.join(', ')}
-              </span>
+      {/* Static Spotify Player below the grid */}
+      <div style={{ maxWidth: '1200px', margin: '40px auto 0', padding: '0 40px' }}>
+        <div 
+          className="glass-panel-m3" 
+          style={{ 
+            padding: '24px', 
+            borderRadius: '20px', 
+            border: '1px solid rgba(255, 255, 255, 0.05)',
+            background: 'rgba(255, 255, 255, 0.02)',
+            backdropFilter: 'blur(20px)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: '200px' }}>
+              <img 
+                src={albumData.cover_image} 
+                alt={albumData.name} 
+                style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '8px' }}
+              />
+              <div style={{ minWidth: 0 }}>
+                <span style={{ display: 'block', fontWeight: 700, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', color: '#fff' }}>
+                  {playingTrackId 
+                    ? tracks.find(t => t.id === playingTrackId)?.name || 'Track Preview'
+                    : 'Album Playback'}
+                </span>
+                <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                  {albumData.artists.join(', ')}
+                </span>
+              </div>
+            </div>
+            
+            <div style={{ flex: 1, minWidth: '280px', height: '80px', position: 'relative' }}>
+              <div id="spotify-player-embed-target" style={{ width: '100%', height: '100%' }} />
+              {!isApiReady && (
+                <iframe
+                  src={`https://open.spotify.com/embed/${playingTrackId ? 'track/' + playingTrackId : 'album/' + albumData.spotify_id}?utm_source=generator&theme=0`}
+                  width="100%"
+                  height="80"
+                  frameBorder="0"
+                  allowFullScreen={false}
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                  style={{ border: 'none', position: 'absolute', top: 0, left: 0 }}
+                />
+              )}
             </div>
           </div>
-
-          {/* IFrame Embed Container */}
-          <div className="m3-spotify-iframe-container" style={{ position: 'relative', height: '80px' }}>
-            <div id="spotify-player-embed-target" style={{ width: '100%', height: '100%' }} />
-            {!isApiReady && (
-              <iframe
-                src={`https://open.spotify.com/embed/${playingTrackId ? 'track/' + playingTrackId : 'album/' + albumData.spotify_id}?utm_source=generator&theme=0`}
-                width="100%"
-                height="80"
-                frameBorder="0"
-                allowFullScreen={false}
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy"
-                style={{ border: 'none', position: 'absolute', top: 0, left: 0 }}
-              />
-            )}
-          </div>
-
-          {/* Close Button */}
-          <button 
-            className="m3-player-close-btn"
-            onClick={() => setIsPlayerVisible(false)}
-            title="Hide Player"
-          >
-            <ChevronDown size={20} />
-          </button>
         </div>
       </div>
-
-      {/* Float Fab to restore player */}
-      <button 
-        className={`m3-player-restore-fab ${!isPlayerVisible ? 'visible' : 'hidden'}`}
-        onClick={() => {
-          setIsPlayerVisible(true);
-          if (playerControllerRef.current) {
-            playerControllerRef.current.play();
-          }
-        }}
-        title="Restore Spotify Player"
-      >
-        <Music size={18} />
-        <span className="desktop-only" style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em' }}>PLAYER</span>
-      </button>
     </div>
   );
 }

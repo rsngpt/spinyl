@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type VinylState = 'GOLD' | 'SILVER' | 'BLACK' | 'BROKEN';
+export type VinylState = 'GOLD' | 'SILVER' | 'BLACK' | 'BROKEN';
 
 interface VinylRatingInputProps {
     value: number; // 1-10
@@ -11,7 +11,7 @@ interface VinylRatingInputProps {
     readonly?: boolean;
 }
 
-const getVinylState = (score: number): VinylState => {
+export const getVinylState = (score: number): VinylState => {
     if (score === 10) return 'GOLD';
     if (score >= 7) return 'SILVER';
     if (score >= 4) return 'BLACK';
@@ -25,7 +25,15 @@ const getLabel = (score: number) => {
     return "Damaged Goods (Broken)";
 };
 
-const VinylDisc = ({ state, value }: { state: VinylState; value: number }) => {
+export const VinylDisc = ({ state, value }: { state: VinylState; value: number }) => {
+    if (value >= 9.95) {
+        return (
+            <svg viewBox="0 0 200 200" className="w-full h-full" style={{ filter: 'drop-shadow(0 12px 28px rgba(0,0,0,0.65))' }}>
+                <image href="/vinyl-10-gold.png" x="0" y="0" width="200" height="200" />
+            </svg>
+        );
+    }
+
     const isGold = state === 'GOLD';
     const isSilver = state === 'SILVER';
     const isShiny = isGold || isSilver || state === 'BLACK';
@@ -42,6 +50,7 @@ const VinylDisc = ({ state, value }: { state: VinylState; value: number }) => {
         if (state === 'BLACK') return 'var(--md-sys-color-outline-variant)';
         return 'var(--md-sys-color-error)';
     };
+
 
     return (
         <svg viewBox="0 0 200 200" className="w-full h-full" style={{ filter: 'drop-shadow(0 12px 28px rgba(0,0,0,0.65))' }}>

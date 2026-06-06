@@ -1417,3 +1417,14 @@ h6 {
     padding: 0 16px;
   }
 }
+
+/* Album Reviews Grid Layout (Split: 40% tracks, 60% reviews) */
+.album-reviews-grid {
+  grid-template-columns: 4fr 6fr !important;
+}
+
+@media (max-width: 768px) {
+  .album-reviews-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

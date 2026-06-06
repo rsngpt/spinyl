@@ -306,6 +306,44 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
         setTargetPath(cleanHref);
     };
 
+    // Global click listener to trigger loading bar for any internal links
+    useEffect(() => {
+        const handleGlobalClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            const anchor = target.closest('a');
+            
+            if (anchor) {
+                const href = anchor.getAttribute('href');
+                const isExternal = anchor.getAttribute('target') === '_blank';
+                // Check if it's an internal link and not same page/special links
+                if (href && href.startsWith('/') && !href.startsWith('/#') && !isExternal) {
+                    handleNavClick(href);
+                }
+            }
+        };
+
+        document.addEventListener('click', handleGlobalClick);
+        return () => {
+            document.removeEventListener('click', handleGlobalClick);
+        };
+    }, [pathname]);
+
+    // Listener for programmatic routing transitions
+    useEffect(() => {
+        const handleNavStart = (e: Event) => {
+            const customEvent = e as CustomEvent;
+            const href = customEvent.detail?.href;
+            if (href) {
+                handleNavClick(href);
+            }
+        };
+
+        window.addEventListener('spinyl:nav-start', handleNavStart);
+        return () => {
+            window.removeEventListener('spinyl:nav-start', handleNavStart);
+        };
+    }, [pathname]);
+
     useEffect(() => {
         setIsSpooky(false);
         // Clean up navigation on path change (only if not already managing via endNavigation)

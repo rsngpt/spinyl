@@ -55,6 +55,7 @@ export default function FeedHotTake({ item, isDetailView = false }: FeedHotTakeP
     const handleCommentClick = (e: React.MouseEvent) => {
         if (isDetailView) return; // Already on detail page, do nothing or scroll to comments
         e.preventDefault();
+        window.dispatchEvent(new CustomEvent('spinyl:nav-start', { detail: { href: `/hot-take/${item.id}` } }));
         router.push(`/hot-take/${item.id}`);
     };
 

@@ -152,7 +152,7 @@ export default function RecentReviews() {
                                     }}
                                 >
                                     {/* Vinyl Sleeve + Record Display */}
-                                    <div style={{ marginRight: '30px' /* Space for peeking vinyl */ }}>
+                                    <div style={{ marginRight: '48px' /* Space for peeking vinyl */ }}>
                                         <VinylRecordDisplay
                                             coverUrl={album?.cover_image}
                                             rating={review.rating}

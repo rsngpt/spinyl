@@ -25,10 +25,10 @@ export default function VinylRecordDisplay({ coverUrl, rating, size = 80, classN
                 className="vinyl-record-disc"
                 style={{
                     position: 'absolute',
-                    top: '2.5%', // (100% - 95%) / 2
-                    left: '32%', // Peeking out slightly less initially
-                    width: '95%',
-                    height: '95%',
+                    top: '0',
+                    left: '55%',
+                    width: '100%',
+                    height: '100%',
                     zIndex: 5,
                     animation: 'spin 12s linear infinite',
                     filter: 'drop-shadow(2px 3px 6px rgba(0,0,0,0.45))',
@@ -82,7 +82,7 @@ export default function VinylRecordDisplay({ coverUrl, rating, size = 80, classN
                 
                 /* Hover expansion rules for the disc */
                 .vinyl-group:hover .vinyl-record-disc {
-                    left: 62% !important;
+                    left: 65% !important;
                     filter: drop-shadow(4px 8px 16px rgba(0,0,0,0.6)) !important;
                 }
             `}</style>

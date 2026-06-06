@@ -24,6 +24,7 @@ export default function ComposeForm({ userAvatar, username }: ComposeFormProps) 
             try {
                 await createHotTake(content);
                 // Redirect happens in server action, but just in case
+                window.dispatchEvent(new CustomEvent('spinyl:nav-start', { detail: { href: '/feed' } }));
                 router.push('/feed');
             } catch (error) {
                 alert('Failed to post. Please try again.');

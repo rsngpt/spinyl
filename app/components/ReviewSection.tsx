@@ -48,7 +48,6 @@ const getInitials = (name: string) => {
         .slice(0, 2);
 };
 
-// ReviewItem now delegates Modal opening to parent
 const ReviewItem = ({
     review,
     setReviewToShare,
@@ -79,100 +78,119 @@ const ReviewItem = ({
     const quotedText = `"${review.review_text}"`;
 
     return (
-        <div className="review-item-container" style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingBottom: '20px', borderBottom: '1px solid var(--md-sys-color-outline-variant)' }}>
-            {/* Header: Avatar, Username, Time-ago, and Rating */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                {/* LEFT: Sleeve + Vinyl */}
-                <div style={{ position: 'relative', width: '42px', flexShrink: 0 }}>
+        <div className="review-card-item" style={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '24px',
+            padding: '24px',
+            background: 'rgba(255, 255, 255, 0.02)',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
+            borderRadius: '16px',
+            alignItems: 'flex-start',
+            boxSizing: 'border-box',
+            width: '100%'
+        }}>
+            {/* LEFT COLUMN: Sleeve (User PFP) + Vinyl Disc */}
+            <div className="review-vinyl-wrapper" style={{
+                position: 'relative',
+                flexShrink: 0
+            }}>
+                {/* Vinyl Record (fitted more than half visible, edge-to-edge) */}
+                <div style={{
+                    position: 'absolute',
+                    top: '0',
+                    left: '55%',
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 5,
+                    animation: 'spin 12s linear infinite',
+                }}>
+                    <VinylRatingInput value={review.rating} onChange={() => { }} readonly />
+                </div>
+
+                {/* Sleeve (User PFP) */}
+                <div style={{
+                    position: 'relative',
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '0',
+                    overflow: 'hidden',
+                    zIndex: 10,
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                    background: '#1a1513',
+                    border: '1px solid rgba(255, 255, 255, 0.08)'
+                }}>
+                    {profile.avatar_url ? (
+                        <img
+                            src={profile.avatar_url}
+                            alt={profile.username}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                    ) : (
+                        <div style={{
+                            width: '100%', height: '100%',
+                            background: 'linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-tertiary) 100%)',
+                            color: '#fff',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontFamily: 'var(--font-display)',
+                            fontWeight: 900,
+                            fontSize: '1.8rem',
+                            letterSpacing: '-1px'
+                        }}>
+                            {getInitials(profile.username || 'Unknown')}
+                        </div>
+                    )}
+                    {/* Glare sheen */}
                     <div style={{
                         position: 'absolute',
-                        top: '1px',
-                        left: '20px',
-                        width: '38px',
-                        height: '38px',
-                        zIndex: 5,
-                        animation: 'spin-slow 10s linear infinite',
-                        filter: 'brightness(0.9)'
-                    }}>
-                        <VinylRatingInput value={review.rating} onChange={() => { }} readonly />
+                        inset: 0,
+                        background: 'linear-gradient(125deg, rgba(255,255,255,0.12) 0%, transparent 45%)',
+                        pointerEvents: 'none'
+                    }} />
+                </div>
+            </div>
+
+            {/* RIGHT COLUMN: Review Information & Verdict */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0 }}>
+                {/* Header: Username, Date/Time & Rating badge */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', minWidth: 0 }}>
+                        <Link href={`/profile/${review.user_id}`} style={{ textDecoration: 'none', color: '#fff' }}>
+                            <span className="font-display" style={{ fontWeight: 800, fontSize: '0.95rem', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
+                                {profile.username}
+                            </span>
+                        </Link>
+                        <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem' }}>&bull;</span>
+                        <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
+                            {dateStr} {timeStr}
+                        </span>
                     </div>
 
-                    <Link href={`/profile/${review.user_id}`}>
-                        <div style={{
-                            position: 'relative',
-                            width: '42px',
-                            height: '42px',
-                            borderRadius: '0',
-                            overflow: 'hidden',
-                            zIndex: 10,
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-                            background: '#222',
-                            cursor: 'pointer',
-                            transition: 'var(--transition)'
-                        }}>
-                            {profile.avatar_url ? (
-                                <img
-                                    src={profile.avatar_url}
-                                    alt={profile.username}
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                />
-                            ) : (
-                                <div style={{
-                                    width: '100%', height: '100%',
-                                    background: 'linear-gradient(135deg, var(--md-sys-color-surface-container-highest), var(--md-sys-color-surface-container-low))',
-                                    color: 'var(--md-sys-color-on-surface)',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                }}>
-                                    <DefaultAvatar size={24} fill="currentColor" />
-                                </div>
-                            )}
-                            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(120deg, rgba(255,255,255,0.08) 0%, transparent 40%)' }} />
-                        </div>
-                    </Link>
-                </div>
-
-                {/* Username & Time inline (just like feed post) */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '20px', flexWrap: 'nowrap', minWidth: 0 }}>
-                    <Link href={`/profile/${review.user_id}`} style={{ textDecoration: 'none', color: 'var(--md-sys-color-on-surface)' }}>
-                        <span className="font-display" style={{ fontWeight: 800, fontSize: '0.95rem', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
-                            {profile.username}
-                        </span>
-                    </Link>
-                    <span style={{ color: 'var(--md-sys-color-outline)', fontSize: '0.8rem', flexShrink: 0 }}>&bull;</span>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                        {dateStr} {timeStr}
-                    </span>
-                </div>
-
-                {/* Rating Badge on Right */}
-                <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
+                    {/* Pill Rating Badge */}
                     <div style={{
-                        background: review.rating >= 8 ? 'var(--md-sys-color-tertiary-container)' : 'var(--md-sys-color-surface-container-highest)',
-                        border: review.rating >= 8 ? '1px solid var(--md-sys-color-tertiary)' : '1px solid var(--md-sys-color-outline-variant)',
-                        padding: '4px 8px',
-                        borderRadius: 'var(--md-shape-corner-medium)',
-                        textAlign: 'center',
-                        boxShadow: review.rating >= 8 ? '0 0 12px rgba(243, 120, 211, 0.2)' : 'none'
+                        border: '1.5px solid rgba(255, 255, 255, 0.8)',
+                        borderRadius: '24px',
+                        padding: '6px 14px',
+                        background: 'transparent',
+                        flexShrink: 0
                     }}>
                         <span className="font-display" style={{
                             fontWeight: 800,
-                            fontSize: '0.85rem',
-                            color: review.rating >= 8 ? 'var(--md-sys-color-on-tertiary-container)' : 'var(--md-sys-color-on-surface)',
+                            fontSize: '0.9rem',
+                            color: '#fff',
                             letterSpacing: '-0.02em'
                         }}>
                             {review.rating}/10
                         </span>
                     </div>
                 </div>
-            </div>
 
-            {/* Review content & actions below */}
-            <div className="review-item-body">
-                <div>
+                {/* Review text body */}
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <p style={{
                         margin: 0,
                         lineHeight: '1.6',
-                        color: 'var(--md-sys-color-on-surface-variant)',
+                        color: 'rgba(255, 255, 255, 0.75)',
                         fontSize: '0.95rem',
                         whiteSpace: 'pre-line',
                         display: isExpanded ? 'block' : '-webkit-box',
@@ -188,13 +206,14 @@ const ReviewItem = ({
                             style={{
                                 background: 'transparent',
                                 border: 'none',
-                                color: 'var(--md-sys-color-primary)',
-                                fontWeight: 600,
-                                fontSize: '0.8rem',
+                                color: '#fff',
+                                fontWeight: 700,
+                                fontSize: '0.85rem',
                                 cursor: 'pointer',
-                                marginTop: '4px',
+                                marginTop: '6px',
                                 padding: 0,
-                                textDecoration: 'underline'
+                                textDecoration: 'underline',
+                                alignSelf: 'flex-start'
                             }}
                         >
                             {isExpanded ? 'Show less' : 'Read more'}
@@ -202,8 +221,8 @@ const ReviewItem = ({
                     )}
                 </div>
 
-                {/* ACTION BAR */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '12px', color: 'var(--text-secondary)' }}>
+                {/* Action Bar footer */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '8px', color: 'rgba(255, 255, 255, 0.5)' }}>
                     <button
                         onClick={() => setIsLiked(!isLiked)}
                         style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: isLiked ? 'var(--md-sys-color-tertiary)' : 'inherit', transition: 'color 0.2s' }}
@@ -244,13 +263,16 @@ const ReviewItem = ({
             </div>
 
             <style jsx>{`
-                .review-item-body {
-                    padding-left: 74px;
+                .review-vinyl-wrapper {
+                    width: 110px;
+                    height: 110px;
+                    margin-right: 65px;
                 }
                 @media (max-width: 600px) {
-                    .review-item-body {
-                        padding-left: 0;
-                        margin-top: 4px;
+                    .review-vinyl-wrapper {
+                        width: 80px;
+                        height: 80px;
+                        margin-right: 48px;
                     }
                 }
             `}</style>
@@ -352,6 +374,21 @@ export default function ReviewSection({
             }
         }
     }, [searchParams, reviews]);
+
+    useEffect(() => {
+        const handleWriteTrigger = () => {
+            setShowForm(true);
+        };
+
+        if (searchParams.get('writeReview') === 'true' && user) {
+            setShowForm(true);
+        }
+
+        window.addEventListener('writeReviewTriggered', handleWriteTrigger);
+        return () => {
+            window.removeEventListener('writeReviewTriggered', handleWriteTrigger);
+        };
+    }, [searchParams, user]);
 
     const handleDeleteClick = () => {
         setShowDeleteConfirm(true);
