@@ -129,7 +129,7 @@ export default function AlbumSwitcher({ globalAlbums, indianAlbums }: AlbumSwitc
 
             <div style={{ textAlign: 'center', marginTop: '40px' }}>
                 <a
-                    href={activeTab === 'global' ? '/explore' : '/explore?region=IN'}
+                    href={activeTab === 'global' ? '/shelf' : '/shelf?region=IN'}
                     style={{
                         color: 'var(--text-secondary)',
                         fontSize: '0.9rem',

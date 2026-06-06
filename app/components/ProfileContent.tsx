@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import LikeButton from './LikeButton';
@@ -16,6 +16,7 @@ interface ProfileContentProps {
     followingList: any[] | null;
     isOwnProfile: boolean;
     currentUserId?: string;
+    initialTab?: string;
 }
 
 // Framer motion variants for staggered grid/list entrances
@@ -43,9 +44,20 @@ export default function ProfileContent({
     followersList,
     followingList,
     isOwnProfile,
-    currentUserId
+    currentUserId,
+    initialTab
 }: ProfileContentProps) {
-    const [activeTab, setActiveTab] = useState<'reviews' | 'followers' | 'following'>('reviews');
+    const [activeTab, setActiveTab] = useState<'reviews' | 'followers' | 'following'>(
+        (initialTab === 'followers' || initialTab === 'following' || initialTab === 'reviews')
+            ? initialTab
+            : 'reviews'
+    );
+
+    useEffect(() => {
+        if (initialTab === 'followers' || initialTab === 'following' || initialTab === 'reviews') {
+            setActiveTab(initialTab);
+        }
+    }, [initialTab]);
 
     return (
         <div className="profile-content-container">

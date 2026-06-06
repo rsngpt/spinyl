@@ -5,18 +5,18 @@ import GenreSelector from './GenreSelector';
 import ArtistSelector from './ArtistSelector';
 import RecommendationsGrid from './RecommendationsGrid';
 import { createBrowserClient } from '@supabase/ssr';
-import './explore.css';
+import './shelf.css';
 
 type Step = 'GENRE' | 'ARTIST' | 'RESULTS';
 
-type ExploreWizardProps = {
+type ShelfWizardProps = {
     initialVibe?: {
         genres: string[];
         artists: any[];
     } | null;
 };
 
-export default function ExploreWizard({ initialVibe }: ExploreWizardProps) {
+export default function ShelfWizard({ initialVibe }: ShelfWizardProps) {
     const [step, setStep] = useState<Step>(
         (initialVibe?.genres?.length && initialVibe?.artists?.length) ? 'RESULTS' : 'GENRE'
     );
@@ -94,7 +94,7 @@ export default function ExploreWizard({ initialVibe }: ExploreWizardProps) {
 
 
     return (
-        <div className="explore-container">
+        <div className="shelf-container">
             {/* Progress Indicator */}
             {step !== 'RESULTS' && (
                 <div className="step-indicator">

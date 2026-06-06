@@ -403,12 +403,12 @@ export default function DashboardHome({
                         )}
                     </section>
 
-                    {/* Explore Charts */}
+                    {/* Shelf Charts */}
                     <section>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
                             <Globe size={20} color="var(--md-sys-color-primary)" />
                             <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, color: '#fff', letterSpacing: '-0.2px' }}>
-                                Explore Charts
+                                Shelf Charts
                             </h2>
                         </div>
 

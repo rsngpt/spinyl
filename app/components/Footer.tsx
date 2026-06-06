@@ -45,7 +45,7 @@ export default function Footer() {
                     <div>
                         <h4 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '24px', fontWeight: '700' }}>Platform</h4>
                         <ul style={{ listStyle: 'none', padding: 0 }}>
-                            <FooterLink href="/explore">Explore Music</FooterLink>
+                            <FooterLink href="/shelf">Shelf</FooterLink>
                             <FooterLink href="/reviews">Latest Reviews</FooterLink>
                             <FooterLink href="/profile">My Collection</FooterLink>
                             <FooterLink href="/features">Features</FooterLink>

@@ -1,11 +1,11 @@
 import React from 'react';
-import ExploreWizard from '../components/explore/ExploreWizard';
+import ShelfWizard from '../components/shelf/ShelfWizard';
 import { redirect } from 'next/navigation';
 import { getSupabaseServerClient } from '@/src/lib/supabase-server';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Explore() {
+export default async function Shelf() {
   const supabase = await getSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -24,7 +24,7 @@ export default async function Explore() {
 
   return (
     <main style={{ paddingTop: '80px', minHeight: '100vh' }}>
-      <div className="explore-container">
+      <div className="shelf-container">
         <div className="wizard-header">
           <h1 className="wizard-title">
             Discover
@@ -34,7 +34,7 @@ export default async function Explore() {
           </p>
         </div>
 
-        <ExploreWizard initialVibe={initialVibe} />
+        <ShelfWizard initialVibe={initialVibe} />
       </div>
     </main>
   );

@@ -17,8 +17,15 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     };
 }
 
-export default async function ProfilePage({ params }: { params: { id: string } }) {
-    const { id } = await params; // Await params in Next.js 15+ convention if strictly needed, though mostly direct access works in 14. Let's await.
+export default async function ProfilePage({ 
+    params, 
+    searchParams 
+}: { 
+    params: { id: string }; 
+    searchParams: { tab?: string }; 
+}) {
+    const { id } = await params;
+    const { tab } = await searchParams;
     const supabase = await getSupabaseServerClient();
 
     // 1. Fetch User Profile
@@ -170,6 +177,7 @@ export default async function ProfilePage({ params }: { params: { id: string } }
                         followingList={followingList}
                         isOwnProfile={isOwnProfile}
                         currentUserId={currentUser?.id}
+                        initialTab={tab}
                     />
                 </main>
             </div>

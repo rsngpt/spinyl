@@ -30,7 +30,7 @@ import SpookyTransition from './SpookyTransition';
 import NotificationDropdown from './NotificationDropdown';
 import MobileSearch from './MobileSearch';
 import DefaultAvatar from './DefaultAvatar';
-import { Ghost, User } from 'lucide-react';
+import { Ghost, User, Settings, Edit2, LogOut } from 'lucide-react';
 
 function HomeIcon({ size = 24 }: { size?: number }) {
     return (
@@ -42,7 +42,7 @@ function HomeIcon({ size = 24 }: { size?: number }) {
             fill="currentColor"
             style={{ display: 'block' }}
         >
-            <path d="M117-76v-545l363-273 363 272.67V-76H572v-332H388v332H117Z" />
+            <path d="M480-300q75 0 127.5-52.5T660-480q0-75-52.5-127.5T480-660q-75 0-127.5 52.5T300-480q0 75 52.5 127.5T480-300Zm-28.5-151.5Q440-463 440-480t11.5-28.5Q463-520 480-520t28.5 11.5Q520-497 520-480t-11.5 28.5Q497-440 480-440t-28.5-11.5ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
         </svg>
     );
 }
@@ -57,12 +57,12 @@ function FeedIcon({ size = 24 }: { size?: number }) {
             fill="currentColor"
             style={{ display: 'block' }}
         >
-            <path d="m294.67-47.33 40-280H117.33L523-914h117.67l-40 320h262.66L410-47.33H294.67Z" />
+            <path d="M120-120v-240h320v240H120Zm400 0v-400h320v400H520ZM360-280Zm240-160Zm-480 0v-400h320v400H120Zm240-80Zm160-80v-240h320v240H520Zm80-80ZM200-200h160v-80H200v80Zm400 0h160v-240H600v240ZM200-520h160v-240H200v240Zm400-160h160v-80H600v80Z" />
         </svg>
     );
 }
 
-function ExploreIcon({ size = 24 }: { size?: number }) {
+function ShelfIcon({ size = 24 }: { size?: number }) {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -72,7 +72,22 @@ function ExploreIcon({ size = 24 }: { size?: number }) {
             fill="currentColor"
             style={{ display: 'block' }}
         >
-            <path d="m192-59-72-72 360-810 360 810-72 72-288-123L192-59Z" />
+            <path d="M120-120v-720h720v720H120Zm80-80h560v-120H200v120Zm460-200h100v-360H660v360Zm-460 0h100v-360H200v360Zm180 0h200v-360H380v360Z" />
+        </svg>
+    );
+}
+
+function BoilerRoomIcon({ size = 24 }: { size?: number }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height={size}
+            viewBox="0 -960 960 960"
+            width={size}
+            fill="currentColor"
+            style={{ display: 'block' }}
+        >
+            <path d="M240-400q0 52 21 98.5t60 81.5q-1-5-1-9v-9q0-32 12-60t35-51l113-111 113 111q23 23 35 51t12 60v9q0 4-1 9 39-35 60-81.5t21-98.5q0-50-18.5-94.5T648-574q-20 13-42 19.5t-45 6.5q-62 0-107.5-41T401-690q-39 33-69 68.5t-50.5 72Q261-513 250.5-475T240-400Zm240 52-57 56q-11 11-17 25t-6 29q0 32 23.5 55t56.5 23q33 0 56.5-23t23.5-55q0-16-6-29.5T537-292l-57-56Zm0-492v132q0 34 23.5 57t57.5 23q18 0 33.5-7.5T622-658l18-22q74 42 117 117t43 163q0 134-93 227T480-80q-134 0-227-93t-93-227q0-129 86.5-245T480-840Z" />
         </svg>
     );
 }
@@ -117,25 +132,11 @@ function BellIcon({ size = 24 }: { size?: number }) {
             fill="currentColor"
             style={{ display: 'block' }}
         >
-            <path d="M46-46v-868h868v708H206L46-46Zm194-354h320v-80H240v80Zm0-120h480v-80H240v80Zm0-120h480v-80H240v80Z"/>
+            <path d="M160-200v-80h80v-280q0-83 50-147.5T420-792v-88h120v88q80 20 130 84.5T720-560v280h80v80H160Zm320-300Zm0 420q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80ZM320-280h320v-280q0-66-47-113t-113-47q-66 0-113 47t-47 113v280Z" />
         </svg>
     );
 }
 
-function LogOutIcon({ size = 24 }: { size?: number }) {
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height={size}
-            viewBox="0 -960 960 960"
-            width={size}
-            fill="currentColor"
-            style={{ display: 'block' }}
-        >
-            <path d="M86-86v-788h402v126H212v536h276v126H86Zm541-146-88-89 96-96H352v-126h283l-96-96 88-89 247 248-247 248Z"/>
-        </svg>
-    );
-}
 
 function LoginIcon({ size = 24 }: { size?: number }) {
     return (
@@ -233,6 +234,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
     const [isSpooky, setIsSpooky] = useState(false);
     const [user, setUser] = useState(initialUser);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false); // [NEW] Mobile Search State
     const [hasUnread, setHasUnread] = useState(false);
     const [profile, setProfile] = useState(initialProfile);
@@ -615,9 +617,12 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     top: 0,
                     left: 0,
                     right: 0,
-                    backgroundColor: '#000000',
+                    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+                    backdropFilter: 'blur(30px)',
+                    WebkitBackdropFilter: 'blur(30px)',
                     zIndex: 1000,
                     borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05)',
                     padding: 0,
                     display: 'flex',
                     alignItems: 'center',
@@ -711,7 +716,8 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     <div className="desktop-only-links">
                         <NavLink href="/#hero" icon={<HomeIcon size={24} />} label="Home" onClick={() => handleNavClick('/#hero')} />
                         <NavLink href="/feed" icon={<FeedIcon size={24} />} label="Feed" onClick={() => handleNavClick('/feed')} />
-                        <NavLink href="/explore" icon={<ExploreIcon size={24} />} label="Explore" onClick={() => handleNavClick('/explore')} />
+                        <NavLink href="/boiler-room" icon={<BoilerRoomIcon size={24} />} label="Boiler Room" onClick={() => handleNavClick('/boiler-room')} />
+                        <NavLink href="/shelf" icon={<ShelfIcon size={24} />} label="Shelf" onClick={() => handleNavClick('/shelf')} />
                         <NavLink href="/search" icon={<SearchIcon size={24} />} label="Search" onClick={() => handleNavClick('/search')} />
                     </div>
 
@@ -743,75 +749,136 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                                 </div>
 
                                 {/* User Profile Badge */}
-                                <Link
-                                    href={`/profile/${user.id}`}
-                                    onClick={() => handleNavClick(`/profile/${user.id}`)}
-                                    className={`nav-profile-link ${pathname.startsWith('/profile') ? 'active' : ''}`}
-                                >
-                                    <div className="nav-avatar-container">
-                                        {profile?.avatar_url ? (
-                                            <img src={profile.avatar_url} alt="Profile" className="nav-avatar-img" />
-                                        ) : (
-                                            <DefaultAvatar fill="currentColor" />
+                                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                    <button
+                                        onClick={() => setShowProfileMenu(!showProfileMenu)}
+                                        className={`nav-profile-link-btn ${pathname.startsWith('/profile') ? 'active' : ''}`}
+                                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', outline: 'none' }}
+                                        title="User Profile Menu"
+                                    >
+                                        <div className="nav-avatar-container">
+                                            {profile?.avatar_url ? (
+                                                <img src={profile.avatar_url} alt="Profile" className="nav-avatar-img" />
+                                            ) : (
+                                                <DefaultAvatar fill="currentColor" />
+                                            )}
+                                        </div>
+                                    </button>
+
+                                    {/* Dropdown Popup Menu */}
+                                    <AnimatePresence>
+                                        {showProfileMenu && (
+                                            <>
+                                                {/* Backdrop to close on click outside */}
+                                                <div
+                                                    style={{ position: 'fixed', inset: 0, zIndex: 998 }}
+                                                    onClick={() => setShowProfileMenu(false)}
+                                                />
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                                    transition={{ duration: 0.15, ease: "easeOut" }}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: '100%',
+                                                        right: 0,
+                                                        width: '220px',
+                                                        background: 'rgba(0, 0, 0, 0.55)',
+                                                        backdropFilter: 'blur(30px)',
+                                                        WebkitBackdropFilter: 'blur(30px)',
+                                                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                                                        borderRadius: '8px',
+                                                        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
+                                                        padding: '8px',
+                                                        zIndex: 999,
+                                                        marginTop: '20px',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        gap: '4px'
+                                                    }}
+                                                >
+                                                    <Link 
+                                                        href={`/profile/${user.id}`}
+                                                        onClick={() => {
+                                                            setShowProfileMenu(false);
+                                                            handleNavClick(`/profile/${user.id}`);
+                                                        }}
+                                                        className="profile-menu-item"
+                                                    >
+                                                        <User size={18} />
+                                                        <span>My Profile</span>
+                                                    </Link>
+
+
+                                                    <Link 
+                                                        href="/settings"
+                                                        onClick={() => {
+                                                            setShowProfileMenu(false);
+                                                            handleNavClick('/settings');
+                                                        }}
+                                                        className="profile-menu-item"
+                                                    >
+                                                        <Settings size={18} />
+                                                        <span>Settings</span>
+                                                    </Link>
+
+                                                    <button 
+                                                        onClick={async () => {
+                                                            setShowProfileMenu(false);
+                                                            setUser(null);
+                                                            setProfile(null);
+                                                            
+                                                            try {
+                                                                supabase.auth.signOut();
+                                                            } catch (err) {
+                                                                console.error('Error during client signOut:', err);
+                                                            }
+
+                                                            try {
+                                                                await signOutAction();
+                                                            } catch (err) {
+                                                                console.error('Error during server signOut:', err);
+                                                            }
+                                                            
+                                                            try {
+                                                                const urlEnv = process.env.NEXT_PUBLIC_SUPABASE_URL;
+                                                                if (urlEnv) {
+                                                                    const projectId = urlEnv.split('//')[1]?.split('.')[0];
+                                                                    if (projectId) {
+                                                                        const prefix = `sb-${projectId}`;
+                                                                        localStorage.removeItem(`${prefix}-auth-token`);
+                                                                        
+                                                                        for (let i = 0; i < localStorage.length; i++) {
+                                                                            const key = localStorage.key(i);
+                                                                            if (key && (key.startsWith('notifications_') || key.startsWith('lastReadTime_'))) {
+                                                                                localStorage.removeItem(key);
+                                                                            }
+                                                                        }
+
+                                                                        const cookiesList = document.cookie.split(';');
+                                                                        cookiesList.forEach(c => {
+                                                                            const name = c.trim().split('=')[0];
+                                                                            if (name && name.startsWith(prefix)) {
+                                                                                document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; domain=${window.location.hostname}`;
+                                                                                document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                }
+                                                            } catch (e) {}
+                                                            window.location.href = '/';
+                                                        }}
+                                                        className="profile-menu-item logout-item"
+                                                    >
+                                                        <LogOut size={18} />
+                                                        <span>Logout</span>
+                                                    </button>
+                                                </motion.div>
+                                            </>
                                         )}
-                                    </div>
-                                </Link>
-
-                                {/* Log Out Icon Button */}
-                                <button
-                                    onClick={async () => {
-                                        // Update state instantly so UI responds immediately
-                                        setUser(null);
-                                        setProfile(null);
-                                        
-                                        // Perform client-side signOut immediately
-                                        try {
-                                            supabase.auth.signOut();
-                                        } catch (err) {
-                                            console.error('Error during client signOut:', err);
-                                        }
-
-                                        // Call Server Action to clear cookies on the server
-                                        try {
-                                            await signOutAction();
-                                        } catch (err) {
-                                            console.error('Error during server signOut:', err);
-                                        }
-                                        
-                                        try {
-                                            const urlEnv = process.env.NEXT_PUBLIC_SUPABASE_URL;
-                                            if (urlEnv) {
-                                                const projectId = urlEnv.split('//')[1]?.split('.')[0];
-                                                if (projectId) {
-                                                    const prefix = `sb-${projectId}`;
-                                                    localStorage.removeItem(`${prefix}-auth-token`);
-                                                    
-                                                    // Clear notifications cache
-                                                    for (let i = 0; i < localStorage.length; i++) {
-                                                        const key = localStorage.key(i);
-                                                        if (key && (key.startsWith('notifications_') || key.startsWith('lastReadTime_'))) {
-                                                            localStorage.removeItem(key);
-                                                        }
-                                                    }
-
-                                                    const cookiesList = document.cookie.split(';');
-                                                    cookiesList.forEach(c => {
-                                                        const name = c.trim().split('=')[0];
-                                                        if (name && name.startsWith(prefix)) {
-                                                            document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; domain=${window.location.hostname}`;
-                                                            document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
-                                                        }
-                                                    });
-                                                }
-                                            }
-                                        } catch (e) {}
-                                        window.location.href = '/';
-                                    }}
-                                    className="nav-action-btn logout-btn"
-                                    title="Log Out"
-                                >
-                                    <LogOutIcon size={24} />
-                                </button>
+                                    </AnimatePresence>
+                                </div>
                             </>
                         ) : (
                             <NavLink href="/login" icon={<LoginIcon size={24} />} label="Log In" onClick={() => handleNavClick('/login')} />
@@ -835,46 +902,6 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                         {hasUnread && (
                             <span className="notification-dot" />
                         )}
-                    </div>
-                )}
-
-                {/* Mobile Top Right: Logout / Login */}
-                {user && (
-                    <div
-                        className="mobile-nav-logout"
-                        onClick={async () => {
-                            setUser(null);
-                            setProfile(null);
-                            try { supabase.auth.signOut(); } catch (err) {}
-                            try { await signOutAction(); } catch (err) {}
-                            try {
-                                const urlEnv = process.env.NEXT_PUBLIC_SUPABASE_URL;
-                                if (urlEnv) {
-                                    const projectId = urlEnv.split('//')[1]?.split('.')[0];
-                                    if (projectId) {
-                                        const prefix = `sb-${projectId}`;
-                                        localStorage.removeItem(`${prefix}-auth-token`);
-                                        for (let i = 0; i < localStorage.length; i++) {
-                                            const key = localStorage.key(i);
-                                            if (key && (key.startsWith('notifications_') || key.startsWith('lastReadTime_'))) {
-                                                localStorage.removeItem(key);
-                                            }
-                                        }
-                                        const cookiesList = document.cookie.split(';');
-                                        cookiesList.forEach(c => {
-                                            const name = c.trim().split('=')[0];
-                                            if (name && name.startsWith(prefix)) {
-                                                document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; domain=${window.location.hostname}`;
-                                                document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
-                                            }
-                                        });
-                                    }
-                                }
-                            } catch (e) {}
-                            window.location.href = '/';
-                        }}
-                    >
-                        <LogOutIcon size={24} />
                     </div>
                 )}
                 </div>
@@ -923,6 +950,14 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                         icon={<FeedIcon size={24} />}
                         isActive={pathname === '/feed'}
                         onClick={() => handleNavClick('/feed')}
+                    />
+
+                    <MobileNavItem
+                        href="/boiler-room"
+                        title="Boiler Room"
+                        icon={<BoilerRoomIcon size={24} />}
+                        isActive={pathname === '/boiler-room'}
+                        onClick={() => handleNavClick('/boiler-room')}
                     />
 
                     <MobileNavItem
@@ -1061,15 +1096,19 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     justify-content: center;
                     border-radius: 50%;
                     background: transparent;
-                    border: none;
-                    color: #ffffff;
+                    border: 1px solid transparent;
+                    color: rgba(255, 255, 255, 0.6);
                     cursor: pointer;
-                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
                     position: relative;
                 }
 
                 .nav-action-btn:hover {
                     color: #fff;
+                    background: rgba(255, 255, 255, 0.08);
+                    border-color: rgba(255, 255, 255, 0.05);
+                    transform: scale(1.05) translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
                 }
 
                 .nav-action-btn:active {
@@ -1088,7 +1127,8 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                 }
 
                 /* User Profile Circular Button */
-                :global(.nav-profile-link) {
+                :global(.nav-profile-link),
+                :global(.nav-profile-link-btn) {
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -1102,15 +1142,13 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
                 }
 
-                :global(.nav-profile-link:hover) {
+                :global(.nav-profile-link:hover),
+                :global(.nav-profile-link-btn:hover) {
                     color: #fff;
                 }
 
-                :global(.nav-profile-link.active) {
-                    background: transparent;
-                }
-
-                :global(.nav-profile-link.active) .nav-avatar-container {
+                :global(.nav-profile-link.active) .nav-avatar-container,
+                :global(.nav-profile-link-btn.active) .nav-avatar-container {
                     border-color: #fff;
                 }
 
@@ -1135,6 +1173,47 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     object-fit: cover;
                 }
 
+                /* Profile Dropdown Menu styling */
+                :global(.profile-menu-item) {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 10px 14px;
+                    border-radius: 6px;
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    text-decoration: none;
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                    transition: all 0.2s ease;
+                    border: none;
+                    background: transparent;
+                    width: 100%;
+                    text-align: left;
+                    cursor: pointer;
+                    font-family: inherit;
+                }
+
+                :global(.profile-menu-item:hover) {
+                    background: rgba(255, 255, 255, 0.08);
+                    color: #ffffff !important;
+                    transform: translateX(4px);
+                }
+
+                :global(.profile-menu-item.logout-item) {
+                    background: transparent;
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    margin-top: 6px;
+                    border-top: 1px solid rgba(255, 255, 255, 0.08);
+                    padding-top: 12px;
+                    border-radius: 0;
+                }
+
+                :global(.profile-menu-item.logout-item:hover) {
+                    background: rgba(255, 68, 68, 0.08);
+                    color: #ff4d4d !important;
+                    transform: translateX(4px);
+                }
+
                 /* Premium Spooky ghost */
                 .spooky-ghost-icon {
                     color: rgba(255, 255, 255, 0.7);
@@ -1156,25 +1235,34 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                     100% { transform: translate(0, 0) scale(1.05); }
                 }
 
-                /* Navigation link icons */
                 :global(.navbar-simple-link) {
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     height: 38px;
                     width: 38px;
-                    color: #ffffff;
+                    border-radius: 50%;
+                    color: rgba(255, 255, 255, 0.6) !important;
                     text-decoration: none;
-                    transition: color 0.2s ease;
+                    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
                     cursor: pointer;
+                    background: transparent;
+                    border: 1px solid transparent;
                 }
 
                 :global(.navbar-simple-link:hover) {
                     color: #fff !important;
+                    background: rgba(255, 255, 255, 0.08);
+                    border-color: rgba(255, 255, 255, 0.05);
+                    transform: scale(1.05) translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
                 }
 
                 :global(.navbar-simple-link.active) {
-                    color: #fff !important;
+                    color: var(--md-sys-color-primary) !important;
+                    background: rgba(255, 159, 104, 0.08);
+                    border-color: rgba(255, 159, 104, 0.15);
+                    box-shadow: 0 4px 15px rgba(255, 159, 104, 0.08);
                 }
 
                 .logo-hover {
