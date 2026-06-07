@@ -14,13 +14,38 @@ export async function updateProfile(prevState: any, formData: FormData) {
     const username = formData.get('username') as string;
     const bio = formData.get('bio') as string;
     const avatarFile = formData.get('avatar') as File;
+    
+    const firstName = (formData.get('firstName') as string) || '';
+    const lastName = (formData.get('lastName') as string) || '';
+    const dob = (formData.get('dob') as string) || '';
+    const instagram = (formData.get('instagram') as string) || '';
+    const twitter = (formData.get('twitter') as string) || '';
+    const youtube = (formData.get('youtube') as string) || '';
 
     if (!username || username.trim().length < 3) {
         return { message: 'Username must be at least 3 characters long.', success: false };
     }
 
+    const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+
+    // Update Auth User Metadata
+    try {
+        await supabase.auth.updateUser({
+            data: {
+                dob,
+                instagram,
+                twitter,
+                youtube,
+                full_name: fullName
+            }
+        });
+    } catch (authErr) {
+        console.warn('Failed to update auth metadata:', authErr);
+    }
+
     const updates: any = {
         username: username.trim(),
+        full_name: fullName || null,
         bio: bio ? bio.trim() : null,
         updated_at: new Date().toISOString(),
     };
@@ -116,7 +141,7 @@ export async function updateProfile(prevState: any, formData: FormData) {
         data: {
             avatar_url: updates.avatar_url,
             username: updates.username,
-            full_name: formData.get('full_name') as string,
+            full_name: updates.full_name,
             bio: updates.bio
         }
     };

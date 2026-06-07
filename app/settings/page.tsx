@@ -5,7 +5,11 @@ import SettingsContent from '../components/SettingsContent';
 
 export const dynamic = 'force-dynamic';
 
-export default async function SettingsPage() {
+export default async function SettingsPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ tab?: string }>;
+}) {
     const supabase = await getSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -20,11 +24,13 @@ export default async function SettingsPage() {
         .eq('id', user.id)
         .single();
 
+    const resolvedParams = await searchParams;
+    const tab = resolvedParams.tab;
+
     return (
-        <main style={{ paddingTop: '80px', minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-            <div className="live-gradient-bg" />
+        <main style={{ paddingTop: '80px', minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', backgroundColor: '#000000' }}>
             <div style={{ flex: 1, zIndex: 1 }}>
-                <SettingsContent user={user} initialProfile={profile} />
+                <SettingsContent user={user} initialProfile={profile} initialTab={tab} />
             </div>
         </main>
     );

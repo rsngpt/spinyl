@@ -753,7 +753,7 @@ export default function Navbar({ initialUser, initialProfile, initialSession }: 
                                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                                     <button
                                         onClick={() => setShowProfileMenu(!showProfileMenu)}
-                                        className={`nav-profile-link-btn ${pathname.startsWith('/profile') ? 'active' : ''}`}
+                                        className={`nav-profile-link-btn${pathname.startsWith('/profile') ? ' active' : ''}`}
                                         style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', outline: 'none' }}
                                         title="User Profile Menu"
                                     >
@@ -1429,7 +1429,7 @@ function NavLink({ href, icon, label, onClick }: { href: string, icon: React.Rea
             href={href}
             onClick={onClick}
             title={label}
-            className={`navbar-simple-link ${isActive ? 'active' : ''}`}
+            className={`navbar-simple-link${isActive ? ' active' : ''}`}
             style={{
                 textDecoration: 'none',
                 color: 'inherit',
