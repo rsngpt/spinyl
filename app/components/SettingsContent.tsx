@@ -502,7 +502,7 @@ export default function SettingsContent({ user, initialProfile, initialTab }: Se
                                         <input 
                                             type="text" 
                                             value={twitter.replace(/^@\s*/, '')} 
-                                            onChange={(e) => setInstagram(e.target.value)} 
+                                            onChange={(e) => setTwitter(e.target.value)} 
                                             placeholder="username or paste X/Twitter profile URL"
                                         />
                                     </div>
