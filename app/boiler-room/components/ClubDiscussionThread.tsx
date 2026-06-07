@@ -1,10 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowLeft, Heart, MessageSquare, Users, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Heart, MessageSquare, Users, MessageCircle, Mic, Guitar, Music, Radio, Sliders, Disc } from 'lucide-react';
 import DefaultAvatar from '../../components/DefaultAvatar';
 import { motion, AnimatePresence } from 'framer-motion';
-import * as Icons from 'lucide-react';
 import ThreadedComments, { Comment } from './ThreadedComments';
 
 export interface ClubThread {
@@ -38,12 +37,12 @@ interface ClubDiscussionThreadProps {
 }
 
 const CLUB_ICONS: Record<string, any> = {
-    'club-1': Icons.Mic,
-    'club-2': Icons.Guitar,
-    'club-3': Icons.Music,
-    'club-4': Icons.Radio,
-    'club-5': Icons.Sliders,
-    'club-6': Icons.Disc
+    'club-1': Mic,
+    'club-2': Guitar,
+    'club-3': Music,
+    'club-4': Radio,
+    'club-5': Sliders,
+    'club-6': Disc
 };
 
 const BANNER_GRADIENTS: Record<string, string> = {
@@ -68,7 +67,7 @@ export default function ClubDiscussionThread({
     const [newThreadContent, setNewThreadContent] = useState('');
     const [expandedThreadId, setExpandedThreadId] = useState<string | null>(null);
 
-    const IconComponent = CLUB_ICONS[club.id] || Icons.Music;
+    const IconComponent = CLUB_ICONS[club.id] || Music;
     const bannerStyle = {
         background: BANNER_GRADIENTS[club.id] || 'linear-gradient(135deg, #333 0%, #111 100%)'
     };
