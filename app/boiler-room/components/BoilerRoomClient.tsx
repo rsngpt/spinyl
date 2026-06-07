@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Footer from '../../components/Footer';
 import BoilerRoomSidebar from './BoilerRoomSidebar';
 import ListeningRoomView from './ListeningRoomView';
 import ClubsView from './ClubsView';
@@ -31,8 +30,6 @@ export default function BoilerRoomClient() {
                     </div>
                 </div>
             </div>
-
-            <Footer />
 
             <style jsx>{`
                 .boiler-room-page {

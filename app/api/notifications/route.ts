@@ -6,10 +6,13 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
     try {
         const supabase = await getSupabaseServerClient();
-        const { data: { user } } = await supabase.auth.getUser();
+        
+        // Safe auth getUser call to prevent destructuring null errors
+        const { data, error: authError } = await supabase.auth.getUser();
+        const user = data?.user ?? null;
 
-        if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        if (authError || !user) {
+            return NextResponse.json({ error: authError?.message || 'Unauthorized' }, { status: 401 });
         }
 
         // 1. Fetch Data (Parallel)
@@ -26,10 +29,14 @@ export async function GET() {
             .limit(20);
 
         // B. Reviews from Followed Users
-        const { data: followingData } = await supabase
+        const { data: followingData, error: followingError } = await supabase
             .from('follows')
             .select('following_id')
             .eq('follower_id', user.id);
+
+        if (followingError) {
+            throw new Error(`followingError: ${followingError.message}`);
+        }
 
         const followingIds = followingData?.map((f: any) => f.following_id) || [];
 
@@ -54,7 +61,21 @@ export async function GET() {
             .order('created_at', { ascending: false })
             .limit(20);
 
-        const [followsRes, reviewsRes, realNotifsRes] = await Promise.all([followsPromise, reviewsPromise, realNotificationsPromise]);
+        const [followsRes, reviewsRes, realNotifsRes] = await Promise.all([
+            followsPromise,
+            reviewsPromise,
+            realNotificationsPromise
+        ]);
+
+        if (followsRes.error) {
+            throw new Error(`followsRes.error: ${followsRes.error.message}`);
+        }
+        if (reviewsRes.error) {
+            throw new Error(`reviewsRes.error: ${reviewsRes.error.message}`);
+        }
+        if (realNotifsRes.error) {
+            throw new Error(`realNotifsRes.error: ${realNotifsRes.error.message}`);
+        }
 
         // Process Real Notifications (Fetch Actors & Comments)
         let realNotifsWithDetails: any[] = [];
@@ -63,9 +84,16 @@ export async function GET() {
             const commentIds = [...new Set(realNotifsRes.data.map((n: any) => n.comment_id).filter(Boolean))];
 
             const [actorsRes, commentsRes] = await Promise.all([
-                actorIds.length > 0 ? supabase.from('profiles').select('id, username, avatar_url').in('id', actorIds) : { data: [] },
-                commentIds.length > 0 ? supabase.from('comments').select('id, review_id, reviews(id, albums(spotify_id))').in('id', commentIds) : { data: [] }
+                actorIds.length > 0 ? supabase.from('profiles').select('id, username, avatar_url').in('id', actorIds) : { data: [], error: null } as any,
+                commentIds.length > 0 ? supabase.from('comments').select('id, review_id, reviews(id, albums(spotify_id))').in('id', commentIds) : { data: [], error: null } as any
             ]);
+
+            if (actorsRes.error) {
+                throw new Error(`actorsRes.error: ${actorsRes.error.message}`);
+            }
+            if (commentsRes.error) {
+                throw new Error(`commentsRes.error: ${commentsRes.error.message}`);
+            }
 
             const actorMap = new Map(actorsRes.data?.map((a: any) => [a.id, a] as [any, any]) || []);
             const commentMap = new Map(commentsRes.data?.map((c: any) => [c.id, c] as [any, any]) || []);
@@ -112,6 +140,14 @@ export async function GET() {
 
         return NextResponse.json({ notifications: allNotifications });
     } catch (e: any) {
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            const logPath = path.join(process.cwd(), 'debug_error.txt');
+            fs.writeFileSync(logPath, `Error at ${new Date().toISOString()}:\n${e.stack || e.message}\n\n`);
+        } catch (logErr) {
+            console.error('Failed to write route error log:', logErr);
+        }
         return NextResponse.json({ error: e.message }, { status: 500 });
     }
 }

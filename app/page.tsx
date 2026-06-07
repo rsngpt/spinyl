@@ -109,8 +109,6 @@ export default async function Home() {
           </section>
         </div>
       </div>
-
-      <Footer />
     </main>
   );
 }
