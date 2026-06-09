@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%" style="filter: drop-shadow(0 12px 28px rgba(0,0,0,0.65));">
+    <defs>
+        <!-- Black/Charcoal M3 Expressive Gradient -->
+        <radialGradient id="blackGrooves" cx="50%" cy="50%" r="50%">
+            <stop offset="30%" stop-color="#1e1815" />
+            <stop offset="40%" stop-color="#2e2520" />
+            <stop offset="50%" stop-color="#1e1815" />
+            <stop offset="60%" stop-color="#ff9f68" stop-opacity="0.25" />
+            <stop offset="70%" stop-color="#1e1815" />
+            <stop offset="85%" stop-color="#2e2520" />
+            <stop offset="100%" stop-color="#130f0d" />
+        </radialGradient>
+
+        <!-- Sheen/Reflection (Low Opacity for Damaged Goods) -->
+        <linearGradient id="sheen" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="white" stop-opacity="0" />
+            <stop offset="40%" stop-color="white" stop-opacity="0" />
+            <stop offset="50%" stop-color="white" stop-opacity="0.08" />
+            <stop offset="60%" stop-color="white" stop-opacity="0" />
+            <stop offset="100%" stop-color="white" stop-opacity="0" />
+        </linearGradient>
+
+        <clipPath id="vinylClip">
+            <circle cx="100" cy="100" r="99" />
+        </clipPath>
+    </defs>
+
+    <g clip-path="url(#vinylClip)">
+        <!-- Main Disc -->
+        <circle cx="100" cy="100" r="99" fill="url(#blackGrooves)" stroke="none" />
+
+        <!-- Outer Ring -->
+        <circle cx="100" cy="100" r="98" fill="none" stroke="#ffb4ab" stroke-width="1.5" />
+
+        <!-- Reflections -->
+        <rect x="-50" y="-50" width="300" height="300" fill="url(#sheen)" style="mix-blend-mode: overlay;" transform="rotate(25, 100, 100)" />
+        <rect x="-50" y="-50" width="300" height="300" fill="url(#sheen)" style="mix-blend-mode: overlay;" transform="rotate(-25, 100, 100)" />
+
+        <!-- Micro-grooves -->
+        <g stroke="rgba(255,159,104,0.15)" stroke-width="0.5" fill="none">
+            <circle cx="100" cy="100" r="90" />
+            <circle cx="100" cy="100" r="78" />
+            <circle cx="100" cy="100" r="64" />
+            <circle cx="100" cy="100" r="50" />
+        </g>
+
+        <!-- Broken/Cracked State Lines -->
+        <g opacity="0.9">
+            <path d="M95 0 L 90 70 L 108 115 L 85 200" stroke="#000" stroke-width="5" fill="none" filter="blur(2px)" />
+            <path d="M95 0 L 90 70 L 108 115 L 85 200" stroke="#ff9f68" stroke-width="2.5" fill="none" />
+            <path d="M35 155 Q 100 100 165 35" stroke="rgba(255,255,255,0.2)" stroke-width="1" fill="none" />
+        </g>
+    </g>
+
+    <!-- Center Label Group -->
+    <g>
+        <circle cx="100" cy="100" r="32" fill="#ffb4ab" stroke="rgba(0,0,0,0.4)" stroke-width="1.5" />
+        
+        <!-- Decorative Inner Ring -->
+        <circle cx="100" cy="100" r="28" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="3 2" />
+
+        <!-- Score display in the center label -->
+        <text x="100" y="106" text-anchor="middle" fill="#410002" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 900; font-size: 18px; letter-spacing: -1px;">
+            2
+        </text>
+    </g>
+
+    <!-- Spindle hole -->
+    <circle cx="100" cy="100" r="3.5" fill="#130f0d" />
+    <circle cx="100" cy="100" r="3.5" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.75" />
+</svg>

@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%" style="filter: drop-shadow(0 12px 28px rgba(0,0,0,0.65));">
+    <defs>
+        <!-- Gold Gradient -->
+        <radialGradient id="goldGrooves" cx="50%" cy="50%" r="50%">
+            <stop offset="30%" stop-color="#8d4a1f" />
+            <stop offset="45%" stop-color="#ff9f68" />
+            <stop offset="60%" stop-color="#daa520" />
+            <stop offset="75%" stop-color="#ff9f68" />
+            <stop offset="90%" stop-color="#b8860b" />
+            <stop offset="100%" stop-color="#ff9f68" />
+        </radialGradient>
+
+        <!-- Sheen/Reflection -->
+        <linearGradient id="sheen" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="white" stop-opacity="0" />
+            <stop offset="40%" stop-color="white" stop-opacity="0" />
+            <stop offset="50%" stop-color="white" stop-opacity="0.35" />
+            <stop offset="60%" stop-color="white" stop-opacity="0" />
+            <stop offset="100%" stop-color="white" stop-opacity="0" />
+        </linearGradient>
+
+        <clipPath id="vinylClip">
+            <circle cx="100" cy="100" r="99" />
+        </clipPath>
+
+        <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+            <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+            </feMerge>
+        </filter>
+    </defs>
+
+    <g clip-path="url(#vinylClip)">
+        <!-- Main Disc -->
+        <circle cx="100" cy="100" r="99" fill="url(#goldGrooves)" stroke="none" />
+
+        <!-- Outer Ring -->
+        <circle cx="100" cy="100" r="98" fill="none" stroke="#ff9f68" stroke-width="1.5" />
+
+        <!-- Reflections -->
+        <rect x="-50" y="-50" width="300" height="300" fill="url(#sheen)" style="mix-blend-mode: overlay;" transform="rotate(25, 100, 100)" />
+        <rect x="-50" y="-50" width="300" height="300" fill="url(#sheen)" style="mix-blend-mode: overlay;" transform="rotate(-25, 100, 100)" />
+
+        <!-- Micro-grooves -->
+        <g stroke="rgba(255,159,104,0.15)" stroke-width="0.5" fill="none">
+            <circle cx="100" cy="100" r="90" />
+            <circle cx="100" cy="100" r="78" />
+            <circle cx="100" cy="100" r="64" />
+            <circle cx="100" cy="100" r="50" />
+        </g>
+    </g>
+
+    <!-- Sparkles -->
+    <g fill="white" filter="url(#glow)">
+        <circle cx="145" cy="45" r="2.5" opacity="0.7">
+            <animate attributeName="opacity" values="0.2;1;0.2" dur="2s" repeatCount="indefinite" />
+        </circle>
+        <path d="M152 148 L154 143 L156 148 L161 150 L156 152 L154 157 L152 152 L147 150 Z" fill="#ff9f68" opacity="0.9">
+            <animateTransform attributeName="transform" type="rotate" from="0 154 150" to="360 154 150" dur="6s" repeatCount="indefinite" />
+        </path>
+    </g>
+
+    <!-- Center Label Group -->
+    <g>
+        <circle cx="100" cy="100" r="32" fill="#ff9f68" stroke="rgba(0,0,0,0.4)" stroke-width="1.5" />
+        
+        <!-- Decorative Inner Ring -->
+        <circle cx="100" cy="100" r="28" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="3 2" />
+
+        <!-- Score display in the center label -->
+        <text x="100" y="106" text-anchor="middle" fill="#ffffff" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 900; font-size: 18px; letter-spacing: -1px;">
+            10
+        </text>
+    </g>
+
+    <!-- Spindle hole -->
+    <circle cx="100" cy="100" r="3.5" fill="#130f0d" />
+    <circle cx="100" cy="100" r="3.5" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.75" />
+</svg>
