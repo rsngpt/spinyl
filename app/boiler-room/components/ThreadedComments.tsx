@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Heart, CornerDownRight, MoreHorizontal } from 'lucide-react';
 import DefaultAvatar from '../../components/DefaultAvatar';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +13,8 @@ export interface Comment {
     parentId: string | null;
     likesCount?: number;
     liked?: boolean;
+    avatarUrl?: string | null;
+    userId?: string;
 }
 
 interface ThreadedCommentsProps {
@@ -20,35 +22,67 @@ interface ThreadedCommentsProps {
     onAddComment: (content: string, parentId: string | null) => void;
     onEditComment: (commentId: string, newContent: string) => void;
     onDeleteComment: (commentId: string) => void;
+    onLikeComment?: (commentId: string) => void;
+    userAvatarUrl?: string | null;
+    currentUsername?: string | null;
+    currentUserId?: string | null;
 }
 
 export default function ThreadedComments({
     comments,
     onAddComment,
     onEditComment,
-    onDeleteComment
+    onDeleteComment,
+    onLikeComment,
+    userAvatarUrl,
+    currentUsername,
+    currentUserId
 }: ThreadedCommentsProps) {
     const [replyingToId, setReplyingToId] = useState<string | null>(null);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [activeFilter, setActiveFilter] = useState<'top' | 'newest'>('top');
     const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({});
+    const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+    
+    useEffect(() => {
+        const handleOutsideClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (target && !target.closest('.comment-options-wrapper')) {
+                setOpenMenuId(null);
+            }
+        };
+        document.addEventListener('click', handleOutsideClick);
+        return () => document.removeEventListener('click', handleOutsideClick);
+    }, []);
     
     // Local interactive states for likes
     const [likedComments, setLikedComments] = useState<Record<string, boolean>>({});
     const [likesCounters, setLikesCounters] = useState<Record<string, number>>({});
 
+    // Reset local overrides when comments prop changes
+    useEffect(() => {
+        setLikedComments({});
+        setLikesCounters({});
+    }, [comments]);
+
+    const [rootCommentText, setRootCommentText] = useState('');
     const [replyText, setReplyText] = useState('');
     const [editText, setEditText] = useState('');
 
-    const handleReplySubmit = (e: React.FormEvent, parentId: string | null) => {
+    const handleRootSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!rootCommentText.trim()) return;
+        onAddComment(rootCommentText.trim(), null);
+        setRootCommentText('');
+    };
+
+    const handleReplySubmit = (e: React.FormEvent, parentId: string) => {
         e.preventDefault();
         if (!replyText.trim()) return;
         onAddComment(replyText.trim(), parentId);
         setReplyText('');
         setReplyingToId(null);
-        if (parentId) {
-            setExpandedComments(prev => ({ ...prev, [parentId]: true }));
-        }
+        setExpandedComments(prev => ({ ...prev, [parentId]: true }));
     };
 
     const handleEditSubmit = (e: React.FormEvent, commentId: string) => {
@@ -68,6 +102,10 @@ export default function ThreadedComments({
             ...prev,
             [commentId]: currentlyLiked ? currentCount - 1 : currentCount + 1
         }));
+
+        if (onLikeComment) {
+            onLikeComment(commentId);
+        }
     };
 
     const toggleReplies = (commentId: string) => {
@@ -99,12 +137,15 @@ export default function ThreadedComments({
         return acc;
     }, {});
 
-    // Recursive component to render a comment and its children
-    const CommentNode = ({ comment, depth }: { comment: Comment; depth: number }) => {
+    // Recursive helper function to render a comment and its children without unmounting/re-creating the component type on parent re-renders
+    const renderCommentNode = (comment: Comment, depth: number) => {
         const children = commentsByParent[comment.id] || [];
         const isReplying = replyingToId === comment.id;
         const isEditing = editingId === comment.id;
-        const isAuthorYou = comment.author === 'You';
+        const isAuthorYou = 
+            comment.author === 'You' || 
+            (currentUsername && comment.author?.toLowerCase() === currentUsername.toLowerCase()) || 
+            (currentUserId && comment.userId === currentUserId);
         
         const isLiked = likedComments[comment.id] ?? comment.liked ?? false;
         const currentLikes = likesCounters[comment.id] ?? comment.likesCount ?? 0;
@@ -115,8 +156,12 @@ export default function ThreadedComments({
                 <div className="comment-main-row">
                     {/* Left side Avatar and thread connector line */}
                     <div className="avatar-column">
-                        <div className="commenter-avatar">
-                            <DefaultAvatar size={32} fill={isAuthorYou ? '#fff' : '#666'} />
+                        <div className="commenter-avatar" style={{ padding: comment.avatarUrl ? 0 : '6px' }}>
+                            {comment.avatarUrl ? (
+                                <img src={comment.avatarUrl} alt={comment.author} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                                <DefaultAvatar size={32} fill={isAuthorYou ? '#fff' : '#666'} />
+                            )}
                         </div>
                         {/* Thread connection line running to replies */}
                         {depth >= 0 && children.length > 0 && isExpanded && (
@@ -167,19 +212,42 @@ export default function ThreadedComments({
                                     Reply
                                 </button>
 
-                                {isAuthorYou ? (
-                                    <>
-                                        <button onClick={() => startEditing(comment)} className="action-btn-link">
-                                            Edit
+                                {isAuthorYou && (
+                                    <div className="comment-options-wrapper" style={{ position: 'relative', display: 'inline-block' }}>
+                                        <button 
+                                            className={`action-btn-link options-dots-btn ${openMenuId === comment.id ? 'active' : ''}`} 
+                                            title="Options"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenMenuId(openMenuId === comment.id ? null : comment.id);
+                                            }}
+                                        >
+                                            <MoreHorizontal size={14} style={{ verticalAlign: 'middle' }} />
                                         </button>
-                                        <button onClick={() => onDeleteComment(comment.id)} className="action-btn-link delete">
-                                            Delete
-                                        </button>
-                                    </>
-                                ) : (
-                                    <button className="action-btn-link" title="Options">
-                                        <MoreHorizontal size={14} style={{ verticalAlign: 'middle' }} />
-                                    </button>
+
+                                        {openMenuId === comment.id && (
+                                            <div className="comment-dropdown-menu" onClick={(e) => e.stopPropagation()}>
+                                                <button 
+                                                    className="dropdown-item" 
+                                                    onClick={() => {
+                                                        startEditing(comment);
+                                                        setOpenMenuId(null);
+                                                    }}
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button 
+                                                    className="dropdown-item delete" 
+                                                    onClick={() => {
+                                                        onDeleteComment(comment.id);
+                                                        setOpenMenuId(null);
+                                                    }}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 )}
                             </div>
                         )}
@@ -215,8 +283,12 @@ export default function ThreadedComments({
                             className="reply-composer-wrapper"
                         >
                             <div className="reply-avatar-col">
-                                <div className="mini-avatar">
-                                    <DefaultAvatar size={24} fill="#fff" />
+                                <div className="mini-avatar" style={{ padding: userAvatarUrl ? 0 : '4px' }}>
+                                    {userAvatarUrl ? (
+                                        <img src={userAvatarUrl} alt="Your Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    ) : (
+                                        <DefaultAvatar size={24} fill="#fff" />
+                                    )}
                                 </div>
                             </div>
                             <form onSubmit={(e) => handleReplySubmit(e, comment.id)} className="reply-input-form">
@@ -228,7 +300,6 @@ export default function ThreadedComments({
                                     maxLength={200}
                                     autoFocus
                                 />
-                                <span className="smiley-trigger">😊</span>
                                 <button type="submit" disabled={!replyText.trim()} className="reply-send-btn">
                                     Post
                                 </button>
@@ -241,7 +312,9 @@ export default function ThreadedComments({
                 {children.length > 0 && isExpanded && (
                     <div className="nested-replies-container">
                         {children.map((child) => (
-                            <CommentNode key={child.id} comment={child} depth={depth + 1} />
+                            <React.Fragment key={child.id}>
+                                {renderCommentNode(child, depth + 1)}
+                            </React.Fragment>
                         ))}
                     </div>
                 )}
@@ -272,20 +345,23 @@ export default function ThreadedComments({
             {/* Direct Root Comment Composer (Top Level) */}
             <div className="root-composer-wrapper">
                 <div className="root-avatar-col">
-                    <div className="composer-avatar">
-                        <DefaultAvatar size={32} fill="#fff" />
+                    <div className="composer-avatar" style={{ padding: userAvatarUrl ? 0 : '6px' }}>
+                        {userAvatarUrl ? (
+                            <img src={userAvatarUrl} alt="Your Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                            <DefaultAvatar size={32} fill="#fff" />
+                        )}
                     </div>
                 </div>
-                <form onSubmit={(e) => handleReplySubmit(e, null)} className="root-composer-form">
+                <form onSubmit={handleRootSubmit} className="root-composer-form">
                     <input
                         type="text"
-                        value={replyText}
-                        onChange={(e) => setReplyText(e.target.value)}
+                        value={rootCommentText}
+                        onChange={(e) => setRootCommentText(e.target.value)}
                         placeholder="Write a comment..."
                         maxLength={200}
                     />
-                    <span className="smiley-trigger">😊</span>
-                    <button type="submit" disabled={!replyText.trim()} className="root-send-btn">
+                    <button type="submit" disabled={!rootCommentText.trim()} className="root-send-btn">
                         Post
                     </button>
                 </form>
@@ -295,7 +371,9 @@ export default function ThreadedComments({
             {rootComments.length > 0 ? (
                 <div className="threaded-list">
                     {rootComments.map((rootComm) => (
-                        <CommentNode key={rootComm.id} comment={rootComm} depth={0} />
+                        <React.Fragment key={rootComm.id}>
+                            {renderCommentNode(rootComm, 0)}
+                        </React.Fragment>
                     ))}
                 </div>
             ) : (
@@ -386,18 +464,6 @@ export default function ThreadedComments({
 
                 .threaded-comments-container :global(.root-composer-form input::placeholder) {
                     color: rgba(255, 255, 255, 0.4);
-                }
-
-                .threaded-comments-container :global(.smiley-trigger) {
-                    font-size: 1.1rem;
-                    color: rgba(255, 255, 255, 0.4);
-                    cursor: pointer;
-                    user-select: none;
-                    transition: color 0.2s ease;
-                }
-
-                .threaded-comments-container :global(.smiley-trigger:hover) {
-                    color: #fff;
                 }
 
                 .threaded-comments-container :global(.root-send-btn) {
@@ -716,6 +782,72 @@ export default function ThreadedComments({
                     background: rgba(255, 255, 255, 0.05);
                     color: rgba(255, 255, 255, 0.6);
                     border: 1px solid rgba(255, 255, 255, 0.08);
+                }
+
+                .threaded-comments-container :global(.comment-options-wrapper) {
+                    position: relative;
+                }
+
+                .threaded-comments-container :global(.options-dots-btn) {
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    transition: background 0.2s;
+                }
+
+                .threaded-comments-container :global(.options-dots-btn:hover), 
+                .threaded-comments-container :global(.options-dots-btn.active) {
+                    background: rgba(255, 255, 255, 0.08);
+                    color: #fff;
+                }
+
+                .threaded-comments-container :global(.comment-dropdown-menu) {
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    background: #181818;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 8px;
+                    padding: 4px;
+                    min-width: 100px;
+                    z-index: 100;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+                    margin-top: 4px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                }
+
+                .threaded-comments-container :global(.dropdown-item) {
+                    background: transparent;
+                    border: none;
+                    color: rgba(255, 255, 255, 0.85);
+                    padding: 6px 12px;
+                    text-align: left;
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    transition: background 0.2s, color 0.2s;
+                    width: 100%;
+                }
+
+                .threaded-comments-container :global(.dropdown-item:hover) {
+                    background: rgba(255, 255, 255, 0.08);
+                    color: #fff;
+                }
+
+                .threaded-comments-container :global(.dropdown-item.delete) {
+                    color: #ef5350;
+                }
+
+                .threaded-comments-container :global(.dropdown-item.delete:hover) {
+                    background: rgba(239, 83, 80, 0.15);
+                    color: #ef5350;
+                }
+
+                .threaded-comments-container :global(.dropdown-item.disabled) {
+                    color: rgba(255, 255, 255, 0.3);
+                    cursor: default;
                 }
             `}</style>
         </div>

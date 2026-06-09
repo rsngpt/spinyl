@@ -13,6 +13,8 @@ interface NotificationListItemProps {
 export default function NotificationListItem({ notification, onClose }: NotificationListItemProps) {
     const isReview = notification.type === 'review';
 
+    const isComment = notification.type === 'comment' || notification.type === 'mention' || notification.type === 'boiler_room_comment';
+
     // Determine the HREF
     let href = '#';
     if (isReview && notification.albums?.spotify_id) {
@@ -22,17 +24,19 @@ export default function NotificationListItem({ notification, onClose }: Notifica
     } else if (notification.type === 'comment' || notification.type === 'mention') {
         const spotifyId = notification.comments?.reviews?.albums?.spotify_id || notification.resource_id;
         href = spotifyId ? `/album/${spotifyId}` : '#';
+    } else if (notification.type === 'boiler_room_comment') {
+        href = `/boiler-room?post=${notification.resource_id}`;
     }
 
     // Determine Avatar
     const avatarUrl = isReview
         ? notification.profiles?.avatar_url
-        : (notification.type === 'comment' || notification.type === 'mention') ? notification.actor?.avatar_url
+        : isComment ? notification.actor?.avatar_url
             : notification.follower?.avatar_url;
 
     const username = isReview
         ? (notification.profiles?.username || 'Someone')
-        : (notification.type === 'comment' || notification.type === 'mention') ? (notification.actor?.username || 'Someone')
+        : isComment ? (notification.actor?.username || 'Someone')
             : (notification.follower?.username || 'Someone');
 
     const initial = (username || '?')[0].toUpperCase();
@@ -68,6 +72,15 @@ export default function NotificationListItem({ notification, onClose }: Notifica
                     {username}
                 </span>
                 <span style={{ color: '#aaa' }}>{actionText}</span>
+            </p>
+        );
+    } else if (notification.type === 'boiler_room_comment') {
+        content = (
+            <p style={{ fontSize: '0.9rem', margin: 0, lineHeight: '1.4' }}>
+                <span style={{ fontWeight: 600, color: '#fff' }}>
+                    {username}
+                </span>
+                <span style={{ color: '#aaa' }}> {notification.message || 'commented on a boiler room'}</span>
             </p>
         );
     } else {

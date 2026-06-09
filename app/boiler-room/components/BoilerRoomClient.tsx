@@ -4,17 +4,42 @@ import React, { useState, useEffect } from 'react';
 import BoilerRoomSidebar from './BoilerRoomSidebar';
 import { getBrowserClient } from '@/src/lib/supabase-client';
 import { createClient } from '@supabase/supabase-js';
-import { createBoilerRoom, deleteBoilerRoom } from '@/app/actions/boiler-room';
-import { Image as ImageIcon, Music, Plus, Radio, Trash2 } from 'lucide-react';
+import { 
+    createBoilerRoom, 
+    deleteBoilerRoom,
+    addBoilerRoomComment,
+    getBoilerRoomComments,
+    deleteBoilerRoomComment,
+    editBoilerRoomComment,
+    toggleBoilerRoomSubscription,
+    checkBoilerRoomSubscription,
+    getCurrentUserProfile,
+    toggleBoilerRoomCommentLike
+} from '@/app/actions/boiler-room';
+import { Image as ImageIcon, Music, Plus, Radio, Trash2, MessageSquare, Share2, Bell, X, Heart } from 'lucide-react';
+import ThreadedComments from './ThreadedComments';
 
 interface BoilerRoomPost {
     id: string;
     content: string;
     coverImage: string | null;
     createdAt: string;
+    timeAgo: string;
     userId: string;
     author: string;
     avatarUrl: string | null;
+}
+
+function getFriendlyRelativeTime(dateString: string) {
+    const date = new Date(dateString);
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    if (seconds < 60) return 'Just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hr${hours > 1 ? 's' : ''}`;
+    const days = Math.floor(hours / 24);
+    return `${days} day${days > 1 ? 's' : ''}`;
 }
 
 // Memory-only public client to prevent client-side hydration deadlocks
@@ -41,25 +66,194 @@ export default function BoilerRoomClient() {
     const [coverImage, setCoverImage] = useState<string | null>(null);
     const [isPosting, setIsPosting] = useState(false);
 
-    // Fetch current user via onAuthStateChange + non-blocking getUser to avoid deadlocks
+    // Comment popup/drawer states
+    const [selectedPost, setSelectedPost] = useState<BoilerRoomPost | null>(null);
+    const [comments, setComments] = useState<any[]>([]);
+    const [loadingComments, setLoadingComments] = useState(false);
+    const [isSubscribed, setIsSubscribed] = useState(false);
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
+    const [userProfile, setUserProfile] = useState<{ username: string; avatar_url: string | null } | null>(null);
+
+    const handleOpenComments = async (post: BoilerRoomPost) => {
+        setSelectedPost(post);
+        setLoadingComments(true);
+        
+        // Update browser URL query param without full page reload
+        const newUrl = `${window.location.pathname}?post=${post.id}`;
+        window.history.pushState({ path: newUrl }, '', newUrl);
+
+        try {
+            const commentsData = await getBoilerRoomComments(post.id);
+            setComments(commentsData);
+            
+            const subRes = await checkBoilerRoomSubscription(post.id);
+            setIsSubscribed(subRes.subscribed);
+        } catch (err) {
+            console.error("Error loading comments:", err);
+        } finally {
+            setLoadingComments(false);
+        }
+    };
+
+    const handleCloseComments = () => {
+        setSelectedPost(null);
+        setComments([]);
+        
+        // Clear query param
+        const newUrl = window.location.pathname;
+        window.history.pushState({ path: newUrl }, '', newUrl);
+    };
+
+    // Auto-open comment modal from query parameter or popstate
+    useEffect(() => {
+        if (posts.length > 0) {
+            const params = new URLSearchParams(window.location.search);
+            const postId = params.get('post');
+            if (postId) {
+                const matchedPost = posts.find(p => p.id === postId);
+                if (matchedPost) {
+                    handleOpenComments(matchedPost);
+                }
+            }
+        }
+    }, [posts]);
+
+    useEffect(() => {
+        const handlePopState = () => {
+            const params = new URLSearchParams(window.location.search);
+            const postId = params.get('post');
+            if (postId && posts.length > 0) {
+                const matchedPost = posts.find(p => p.id === postId);
+                if (matchedPost) {
+                    setSelectedPost(matchedPost);
+                    getBoilerRoomComments(postId).then(setComments);
+                    checkBoilerRoomSubscription(postId).then(res => setIsSubscribed(res.subscribed));
+                }
+            } else {
+                setSelectedPost(null);
+            }
+        };
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, [posts]);
+
+    const handleAddComment = async (contentStr: string, parentId: string | null) => {
+        if (!selectedPost) return;
+        const res = await addBoilerRoomComment(selectedPost.id, contentStr, parentId);
+        if (res.success && res.comment) {
+            const commentsData = await getBoilerRoomComments(selectedPost.id);
+            setComments(commentsData);
+        } else {
+            alert(res.error || 'Failed to add comment');
+        }
+    };
+
+    const handleEditComment = async (commentId: string, contentStr: string) => {
+        if (!selectedPost) return;
+        const res = await editBoilerRoomComment(commentId, contentStr);
+        if (res.success) {
+            const commentsData = await getBoilerRoomComments(selectedPost.id);
+            setComments(commentsData);
+        } else {
+            alert(res.error || 'Failed to edit comment');
+        }
+    };
+
+    const handleDeleteComment = async (commentId: string) => {
+        if (!selectedPost) return;
+        const res = await deleteBoilerRoomComment(commentId);
+        if (res.success) {
+            const commentsData = await getBoilerRoomComments(selectedPost.id);
+            setComments(commentsData);
+        } else {
+            alert(res.error || 'Failed to delete comment');
+        }
+    };
+
+    const handleLikeComment = async (commentId: string) => {
+        if (!selectedPost) return;
+        const res = await toggleBoilerRoomCommentLike(commentId);
+        if (res.success) {
+            const commentsData = await getBoilerRoomComments(selectedPost.id);
+            setComments(commentsData);
+        } else {
+            console.error('Failed to toggle comment like:', res.error);
+        }
+    };
+
+    const handleToggleSubscription = async () => {
+        if (!selectedPost) return;
+        if (!currentUser) {
+            alert('You must be logged in to subscribe.');
+            return;
+        }
+        const res = await toggleBoilerRoomSubscription(selectedPost.id);
+        if (res.success) {
+            setIsSubscribed(res.subscribed || false);
+            showToast(res.subscribed ? 'Notifications turned on for this post!' : 'Notifications turned off.');
+        } else {
+            alert(res.error || 'Failed to update subscription');
+        }
+    };
+
+    const handleSharePost = () => {
+        if (!selectedPost) return;
+        const shareUrl = `${window.location.origin}/boiler-room?post=${selectedPost.id}`;
+        navigator.clipboard.writeText(shareUrl);
+        showToast('Link copied to clipboard!');
+    };
+
+    const showToast = (msg: string) => {
+        setToastMessage(msg);
+        setTimeout(() => {
+            setToastMessage(null);
+        }, 3000);
+    };
+
+    // Fetch current user and profile details via Server Action with client-side backups
     useEffect(() => {
         let isMounted = true;
-        
+
+        const loadProfile = async () => {
+            try {
+                // 1. Try server action (most reliable as it uses http cookies)
+                const profile = await getCurrentUserProfile();
+                if (isMounted && profile && profile.username) {
+                    setCurrentUser({ id: profile.id });
+                    setUserProfile({ username: profile.username, avatar_url: profile.avatar_url });
+                    return;
+                }
+
+                // 2. Client-side authentication fallback
+                const { data: { user } } = await supabase.auth.getUser();
+                if (isMounted && user) {
+                    setCurrentUser(user);
+                    // Fetch profile record from database
+                    const { data: dbProfile } = await supabase
+                        .from('profiles')
+                        .select('username, avatar_url')
+                        .eq('id', user.id)
+                        .single();
+
+                    if (isMounted) {
+                        const username = dbProfile?.username || user.user_metadata?.username || user.email?.split('@')[0] || 'Anonymous';
+                        const avatar_url = dbProfile?.avatar_url || user.user_metadata?.avatar_url || null;
+                        setUserProfile({ username, avatar_url });
+                    }
+                } else if (isMounted) {
+                    setCurrentUser(null);
+                    setUserProfile(null);
+                }
+            } catch (err) {
+                console.warn('Failed to load current user profile:', err);
+            }
+        };
+
+        loadProfile();
+
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (!isMounted) return;
-            if (session?.user) {
-                setCurrentUser(session.user);
-            } else if (event === 'SIGNED_OUT') {
-                setCurrentUser(null);
-            }
-        });
-
-        supabase.auth.getUser().then(({ data: { user } }) => {
-            if (isMounted && user) {
-                setCurrentUser(user);
-            }
-        }).catch((e) => {
-            console.warn("Non-blocking user fetch catch:", e);
+            loadProfile();
         });
 
         return () => {
@@ -80,7 +274,7 @@ export default function BoilerRoomClient() {
                     cover_image,
                     created_at,
                     user_id,
-                    profiles ( username, avatar_url )
+                    profiles!user_id ( username, avatar_url )
                 `)
                 .order('created_at', { ascending: false });
 
@@ -96,10 +290,11 @@ export default function BoilerRoomClient() {
                         hour: '2-digit',
                         minute: '2-digit',
                         hour12: true
-                    }) + ' · ' + new Date(p.created_at).toLocaleDateString(undefined, {
+                    }) + ' • ' + new Date(p.created_at).toLocaleDateString(undefined, {
                         month: 'short',
                         day: 'numeric'
                     }),
+                    timeAgo: getFriendlyRelativeTime(p.created_at),
                     userId: p.user_id,
                     author: p.profiles?.username || 'Anonymous',
                     avatarUrl: p.profiles?.avatar_url || null
@@ -231,7 +426,7 @@ export default function BoilerRoomClient() {
                             ) : (
                                 <div className="posts-grid">
                                     {posts.map((post) => (
-                                        <div key={post.id} className="post-card">
+                                        <div key={post.id} className="post-card" onClick={() => handleOpenComments(post)}>
                                             <div className="post-author-bar">
                                                 <div className="post-avatar-container">
                                                     {post.avatarUrl ? (
@@ -246,7 +441,6 @@ export default function BoilerRoomClient() {
                                             {post.coverImage ? (
                                                 <div className="post-cover-wrapper">
                                                     <img src={post.coverImage} alt="Cover" className="post-cover" />
-                                                    <div className="post-cover-overlay" />
                                                 </div>
                                             ) : (
                                                 <div className="post-cover-fallback">
@@ -254,15 +448,18 @@ export default function BoilerRoomClient() {
                                                 </div>
                                             )}
 
-                                            <div className="post-content-section">
-                                                <p className="post-text">{post.content}</p>
-                                                <div className="post-meta">
-                                                    <span className="post-time">{post.createdAt}</span>
+                                            <div className="post-content-section-new">
+                                                <h3 className="post-title-link">{post.content}</h3>
+                                                <div className="post-footer-row">
+                                                    <span className="post-author-meta-text">{post.createdAt}</span>
                                                     {currentUser && currentUser.id === post.userId && (
                                                         <button 
                                                             className="delete-btn" 
                                                             title="Delete Room" 
-                                                            onClick={() => handleDelete(post.id, post.userId)}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDelete(post.id, post.userId);
+                                                            }}
                                                         >
                                                             <Trash2 size={16} />
                                                         </button>
@@ -328,6 +525,89 @@ export default function BoilerRoomClient() {
                     </div>
                 </div>
             </div>
+
+            {/* Comments Popup Modal */}
+            {selectedPost && (
+                <div className="modal-overlay" onClick={handleCloseComments}>
+                    <div className="modal-content-panel" onClick={(e) => e.stopPropagation()}>
+                        <button className="modal-close-btn" onClick={handleCloseComments} title="Close Comments">
+                            <X size={18} />
+                        </button>
+                        
+                        <div className="modal-header-section">
+                            <div className="modal-post-info">
+                                {selectedPost.coverImage && (
+                                    <img src={selectedPost.coverImage} alt="Post Cover" className="modal-cover-artwork" />
+                                )}
+                                <h2 className="modal-post-text">{selectedPost.content}</h2>
+                                <div className="modal-post-meta-row">
+                                    <span className="modal-author-time">By {selectedPost.author} • {selectedPost.timeAgo}</span>
+                                    <div className="modal-actions-container">
+                                        <button 
+                                            className={`modal-action-pill ${isSubscribed ? 'active' : ''}`}
+                                            onClick={handleToggleSubscription}
+                                            title="Get notified about updates to this discussion"
+                                        >
+                                            <Bell size={14} fill={isSubscribed ? 'currentColor' : 'none'} />
+                                            <span>{isSubscribed ? 'Subscribed' : 'Notify'}</span>
+                                        </button>
+                                        <button 
+                                            className="modal-action-pill"
+                                            onClick={handleSharePost}
+                                            title="Share link to this discussion"
+                                        >
+                                            <Share2 size={14} />
+                                            <span>Share</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="modal-comments-body">
+                            {loadingComments ? (
+                                <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
+                                    <div className="spinner" style={{ width: '24px', height: '24px', border: '2px solid rgba(255,255,255,0.1)', borderTop: '2px solid #fff', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                                </div>
+                            ) : (
+                                <ThreadedComments
+                                    comments={comments.map((c: any) => {
+                                        const likesList = c.boiler_room_comment_likes || [];
+                                        const likesCount = likesList.length;
+                                        const liked = currentUser ? likesList.some((like: any) => like.user_id === currentUser.id) : false;
+                                        return {
+                                            id: c.id,
+                                            author: c.profiles?.username || 'Anonymous',
+                                            content: c.content,
+                                            timeAgo: getFriendlyRelativeTime(c.created_at),
+                                            parentId: c.parent_id,
+                                            likesCount,
+                                            liked,
+                                            avatarUrl: c.profiles?.avatar_url || null,
+                                            userId: c.user_id
+                                        };
+                                    })}
+                                    onAddComment={handleAddComment}
+                                    onEditComment={handleEditComment}
+                                    onDeleteComment={handleDeleteComment}
+                                    onLikeComment={handleLikeComment}
+                                    userAvatarUrl={userProfile?.avatar_url || null}
+                                    currentUsername={userProfile?.username || null}
+                                    currentUserId={currentUser?.id || null}
+                                />
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Toast Alert Notification */}
+            {toastMessage && (
+                <div className="toast-alert">
+                    <Bell size={16} />
+                    <span>{toastMessage}</span>
+                </div>
+            )}
 
             <style jsx>{`
                 .boiler-room-page {
@@ -429,26 +709,26 @@ export default function BoilerRoomClient() {
                     box-shadow: 0 6px 24px rgba(139, 92, 246, 0.4);
                 }
 
-                /* Author Bar styling */
+                /* Card Premium Styling */
                 .post-author-bar {
                     display: flex;
                     align-items: center;
-                    gap: 12px;
-                    padding: 16px 20px;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-                    background: rgba(255, 255, 255, 0.01);
+                    gap: 10px;
+                    padding: 14px 16px;
+                    background: rgba(0, 0, 0, 0.2);
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
                 }
 
                 .post-avatar-container {
-                    width: 32px;
-                    height: 32px;
+                    width: 28px;
+                    height: 28px;
                     border-radius: 50%;
                     overflow: hidden;
-                    background: rgba(255, 255, 255, 0.1);
+                    background: rgba(255, 255, 255, 0.05);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    border: 1px solid rgba(255, 255, 255, 0.15);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
                 }
 
                 .post-avatar-img {
@@ -458,22 +738,27 @@ export default function BoilerRoomClient() {
                 }
 
                 .post-avatar-fallback {
-                    font-size: 0.85rem;
+                    font-size: 0.8rem;
                     font-weight: 700;
                     color: rgba(255, 255, 255, 0.8);
                 }
 
                 .post-author-name {
-                    font-size: 0.92rem;
-                    font-weight: 600;
-                    color: rgba(255, 255, 255, 0.85);
+                    font-size: 0.88rem;
+                    font-weight: 700;
+                    color: rgba(255, 255, 255, 0.9);
                 }
 
-                /* Grid of posted Boiler Rooms */
                 .posts-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                    grid-template-columns: repeat(2, 1fr);
                     gap: 24px;
+                }
+
+                @media (max-width: 900px) {
+                    .posts-grid {
+                        grid-template-columns: 1fr;
+                    }
                 }
 
                 .post-card {
@@ -485,6 +770,7 @@ export default function BoilerRoomClient() {
                     flex-direction: column;
                     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
                     backdrop-filter: blur(12px);
+                    cursor: pointer;
                 }
 
                 .post-card:hover {
@@ -514,6 +800,31 @@ export default function BoilerRoomClient() {
                     transform: scale(1.05);
                 }
 
+                .post-slider-dots {
+                    position: absolute;
+                    bottom: 12px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    display: flex;
+                    gap: 6px;
+                    z-index: 2;
+                }
+
+                .slider-dot {
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.4);
+                    transition: all 0.3s;
+                }
+
+                .slider-dot.active {
+                    background: #fff;
+                    transform: scale(1.2);
+                    width: 14px;
+                    border-radius: 3px;
+                }
+
                 .post-cover-overlay {
                     position: absolute;
                     inset: 0;
@@ -531,24 +842,30 @@ export default function BoilerRoomClient() {
                     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
                 }
 
-                .post-content-section {
+                .post-content-section-new {
                     padding: 20px;
                     display: flex;
                     flex-direction: column;
+                    gap: 16px;
                     flex: 1;
                     justify-content: space-between;
-                    gap: 16px;
                 }
 
-                .post-text {
+                .post-title-link {
                     font-size: 0.95rem;
                     color: rgba(255, 255, 255, 0.95);
                     line-height: 1.5;
                     word-wrap: break-word;
                     font-weight: 500;
+                    margin: 0;
                 }
 
-                .post-meta {
+                .post-card:hover .post-title-link {
+                    text-decoration: underline;
+                    color: #fff;
+                }
+
+                .post-footer-row {
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
@@ -556,10 +873,31 @@ export default function BoilerRoomClient() {
                     padding-top: 14px;
                 }
 
-                .post-time {
+                .post-author-meta-text {
                     font-size: 0.8rem;
                     color: rgba(255, 255, 255, 0.4);
                     font-weight: 500;
+                }
+
+                .post-comment-trigger-btn {
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    color: rgba(255, 255, 255, 0.6);
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+
+                .post-comment-trigger-btn:hover {
+                    color: #fff;
+                    background: rgba(255, 255, 255, 0.12);
+                    border-color: rgba(255, 255, 255, 0.15);
+                    transform: scale(1.05);
                 }
 
                 .delete-btn {
@@ -578,6 +916,179 @@ export default function BoilerRoomClient() {
                 .delete-btn:hover {
                     color: #ef4444;
                     background: rgba(239, 68, 68, 0.1);
+                }
+
+                /* Comments Popup Modal Premium Styling */
+                .modal-overlay {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(0, 0, 0, 0.85);
+                    backdrop-filter: blur(20px);
+                    z-index: 1000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 24px;
+                    animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                }
+
+                .modal-content-panel {
+                    background: #0D0D0D;
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 20px;
+                    width: 100%;
+                    max-width: 680px;
+                    max-height: 90vh;
+                    display: flex;
+                    flex-direction: column;
+                    overflow: hidden;
+                    position: relative;
+                    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+                    animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                }
+
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+
+                @keyframes scaleIn {
+                    from { transform: scale(0.95); opacity: 0; }
+                    to { transform: scale(1); opacity: 1; }
+                }
+
+                .modal-header-section {
+                    padding: 24px 24px 16px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+                    position: relative;
+                }
+
+                .modal-close-btn {
+                    position: absolute;
+                    top: 20px;
+                    right: 20px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    color: rgba(255, 255, 255, 0.6);
+                    border-radius: 50%;
+                    width: 36px;
+                    height: 36px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    z-index: 10;
+                }
+
+                .modal-close-btn:hover {
+                    background: rgba(255, 255, 255, 0.12);
+                    color: #fff;
+                    transform: scale(1.05);
+                }
+
+                .modal-post-info {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                }
+
+                .modal-cover-artwork {
+                    width: 100%;
+                    max-height: 220px;
+                    object-fit: cover;
+                    border-radius: 12px;
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                }
+
+                .modal-post-text {
+                    font-size: 1.15rem;
+                    font-weight: 600;
+                    line-height: 1.5;
+                    color: #fff;
+                    margin: 0;
+                }
+
+                .modal-post-meta-row {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-top: 4px;
+                    flex-wrap: wrap;
+                    gap: 12px;
+                }
+
+                .modal-author-time {
+                    font-size: 0.88rem;
+                    color: rgba(255, 255, 255, 0.5);
+                    font-weight: 500;
+                }
+
+                .modal-actions-container {
+                    display: flex;
+                    gap: 8px;
+                }
+
+                .modal-action-pill {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    background: rgba(255, 255, 255, 0.04);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    color: rgba(255, 255, 255, 0.8);
+                    padding: 8px 16px;
+                    border-radius: 50px;
+                    font-size: 0.82rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+
+                .modal-action-pill:hover {
+                    background: rgba(255, 255, 255, 0.08);
+                    border-color: rgba(255, 255, 255, 0.15);
+                    color: #fff;
+                }
+
+                .modal-action-pill.active {
+                    background: rgba(139, 92, 246, 0.15);
+                    border-color: rgba(139, 92, 246, 0.3);
+                    color: #c084fc;
+                }
+
+                .modal-comments-body {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 16px 24px 24px;
+                }
+
+                /* Toast notification alert */
+                .toast-alert {
+                    position: fixed;
+                    bottom: 24px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #121212;
+                    border: 1px solid rgba(139, 92, 246, 0.3);
+                    padding: 12px 24px;
+                    border-radius: 12px;
+                    color: #fff;
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                    z-index: 2000;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                }
+
+                @keyframes slideUp {
+                    from { transform: translate(-50%, 20px); opacity: 0; }
+                    to { transform: translate(-50%, 0); opacity: 1; }
                 }
 
                 /* Create Form Container Premium Styling */
