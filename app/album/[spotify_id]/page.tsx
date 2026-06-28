@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import fs from 'fs';
 import path from 'path';
@@ -7,6 +8,8 @@ import ResponsiveContentGrid from '../../components/ResponsiveContentGrid';
 import CinematicHero from '../../components/CinematicHero';
 import { spotifyFetch } from '@/src/lib/spotify';
 import { getSupabaseServerClient } from '@/src/lib/supabase-server';
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://spinyl.in';
 
 export const dynamic = 'force-dynamic';
 
@@ -81,6 +84,48 @@ async function getAlbumDetails(id: string) {
     console.error('Error fetching album:', error);
     return null;
   }
+}
+
+export async function generateMetadata({ params }: { params: { spotify_id: string } }): Promise<Metadata> {
+  const album = await getAlbumDetails(params.spotify_id);
+
+  if (!album) {
+    return {
+      title: 'Album | Spinyl',
+      description: 'Discover album reviews and Spotify music insights on Spinyl.',
+    };
+  }
+
+  const artistNames = album.artists?.map((a: any) => a.name).join(', ') || 'Various Artists';
+  const title = `${album.name} by ${artistNames}`;
+  const description = `Read reviews, ratings, and discussion for ${album.name} by ${artistNames} on Spinyl.`;
+  const imageUrl = album.images?.[0]?.url || '/spinyl-logo-white.png';
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `${siteUrl}/album/${params.spotify_id}`,
+      siteName: 'Spinyl',
+      type: 'music.album',
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${album.name} cover image`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [imageUrl],
+    },
+  };
 }
 
 async function getAlbumReviews(spotifyId: string) {
